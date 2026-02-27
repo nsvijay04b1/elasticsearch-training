@@ -6,6 +6,10 @@ Nest a Metrics Aggregation inside a Bucket Aggregation to perform live mathemati
 ## Scenario
 The business team wants to know the average price of products, but separated out by Category.
 
+## Prerequisites
+- Completion of Lab 5 (The `products` index must exist).
+- You must be logged into the Kibana Web UI and have the Dev Tools console open.
+
 ## Instructions
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*

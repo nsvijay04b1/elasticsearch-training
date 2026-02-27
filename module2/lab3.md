@@ -6,6 +6,11 @@ Install and start a single-node development Elasticsearch cluster alongside its 
 ## Scenario
 You need a local environment to act as your sandbox throughout the rest of this training. We will use the APT package manager to securely pull the binaries direct from the Elastic repository.
 
+## Prerequisites
+- You must be logged into your Ubuntu VM.
+- Your user account must have `sudo` privileges (to install packages).
+- Ensure you have a working internet connection.
+
 ## Instructions
 
 1. **Install dependencies:**

@@ -6,6 +6,11 @@ Verify the Ubuntu environment is correctly set up, ensure `curl` is working, and
 ## Scenario
 Before beginning interaction with a live cluster, you need to understand the basic document format (JSON) and how to submit data payload via terminal using standard HTTP verbs.
 
+## Prerequisites
+- You must be logged into your provided Ubuntu VM.
+- Ensure you have a working internet connection.
+- You must have administrative (`sudo`) privileges.
+
 ## Instructions
 
 1. **Open your Ubuntu Terminal.**

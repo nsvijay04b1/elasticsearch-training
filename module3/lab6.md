@@ -6,6 +6,11 @@ Ingest Ubuntu system logs into Elasticsearch via Filebeat, demonstrating the Bea
 ## Scenario
 You need to monitor the health of the very Ubuntu machine you are using to host the Elasticsearch cluster. By installing Filebeat, you can automatically parse `/var/log/syslog` and `/var/log/auth.log` directly into your cluster.
 
+## Prerequisites
+- Completion of Lab 4.
+- Elasticsearch and Kibana must be running.
+- You must have your `elastic` password.
+
 ## Instructions
 
 1. **Install Filebeat:**

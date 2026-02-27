@@ -6,6 +6,11 @@ Learn how to use the high-throughput Bulk API endpoint to index multiple documen
 ## Scenario
 Instead of sending 10,000 separate `curl` commands to insert your product catalog, you format them into a single file to bypass network latency and HTTP header overhead.
 
+## Prerequisites
+- Completion of Lab 4.
+- Elasticsearch must be running securely.
+- You must have your `elastic` superuser password handy.
+
 ## Instructions
 
 1. **Create a Bulk formatted file:**

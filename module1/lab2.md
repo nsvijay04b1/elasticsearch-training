@@ -6,6 +6,11 @@ Run a temporary single-node development cluster on your Ubuntu machine without p
 ## Scenario
 Before committing to installing Elasticsearch as a background service (which we will do in Module 2), you want to quickly spin up a development node in the foreground to observe its startup logs and architecture bootstrapping.
 
+## Prerequisites
+- Completion of Lab 1.
+- You must be logged into your Ubuntu VM.
+- Ensure you have a working internet connection.
+
 ## Instructions
 
 1. **Download the Linux Tar Archive:**

@@ -8,6 +8,9 @@ You get an alert at 3:00 AM stating the Elasticsearch cluster has entered a `Yel
 
 *(Since our local cluster is a single node, we can simulate this by requesting a replica, which Elasticsearch will refuse to assign to the same node as the primary!)*
 
+## Prerequisites
+- You must be logged into the Kibana Web UI and have the Dev Tools console open.
+
 ## Instructions
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*

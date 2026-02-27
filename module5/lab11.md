@@ -6,6 +6,9 @@ Create an automated ILM policy to roll over an index when it gets too large, and
 ## Scenario
 You are collecting daily log data from a swarm of microservices. To prevent the cluster's disk from filling up, you need a policy that automatically rolls over the active write-index when it hits 50GB or 1 day old, and deletes data after 30 days.
 
+## Prerequisites
+- You must be logged into the Kibana Web UI and have the Dev Tools console open.
+
 ## Instructions
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*

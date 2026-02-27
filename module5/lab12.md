@@ -6,6 +6,10 @@ Configure a Local File System repository directly on the Ubuntu machine and exec
 ## Scenario
 While backing up to S3 is standard for production, you need to execute a rapid, local backup of your cluster prior to performing a risky data migration.
 
+## Prerequisites
+- You must be securely connected to your Ubuntu VM terminal with `sudo` privileges.
+- You must be logged into the Kibana Web UI and have the Dev Tools console open.
+
 ## Instructions
 
 1. **Register the backup path in Elasticsearch:**

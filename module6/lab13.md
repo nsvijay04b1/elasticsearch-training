@@ -6,6 +6,10 @@ Update a document field dynamically using a Painless script without having to pu
 ## Scenario
 Inflation has hit! You need to increase the price of a specific product ("Running Shoe", ID 1) by a flat amount natively inside the cluster.
 
+## Prerequisites
+- Completion of Lab 5 (The `products` index must exist).
+- You must be logged into the Kibana Web UI and have the Dev Tools console open.
+
 ## Instructions
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*

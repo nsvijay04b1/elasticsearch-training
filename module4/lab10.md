@@ -6,6 +6,10 @@ Use the Profile API to peek under the hood at Lucene's execution times, allowing
 ## Scenario
 A user complains that searches for "shoe" are suddenly taking a long time. You need to verify exactly how many milliseconds the internal Lucene token-matching took.
 
+## Prerequisites
+- Completion of Lab 5 (The `products` index must exist).
+- You must be logged into the Kibana Web UI and have the Dev Tools console open.
+
 ## Instructions
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*

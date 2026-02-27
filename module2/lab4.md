@@ -6,6 +6,11 @@ Establish secure interaction parameters by resetting the default superuser passw
 ## Scenario
 You missed the auto-generated password output during the `apt-get install` process, or you simply wish to set your own secure password. Furthermore, Kibana needs an enrollment token to securely pair with the database.
 
+## Prerequisites
+- Completion of Lab 3.
+- Elasticsearch and Kibana MUST be installed on your Ubuntu VM.
+- A modern web browser installed on your Ubuntu VM (e.g., Firefox, Chrome) or accessible from your host machine pointing to the VM.
+
 ## Instructions
 
 1. **Auto-generate a new password for the `elastic` user (if needed):**

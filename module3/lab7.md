@@ -6,6 +6,11 @@ Use Kibana Dev Tools to define an explicit mapping (preventing Mapping Explosion
 ## Scenario
 Your application sends sparse log data that doesn't include a timestamp. You need Elasticsearch to append the exact time the log was received. Additionally, you want to strictly control the mapping so that the `status` field is only ever treated as a `keyword` for exact filtering, and `message` as `text` for full-text search.
 
+## Prerequisites
+- Completion of Lab 4.
+- Kibana must be running and accessible via your web browser.
+- You must be logged into the Kibana Web UI.
+
 ## Instructions
 
 *(Note: We will execute these commands directly in the Kibana Dev Tools Console. Navigate to **Management -> Dev Tools** in Kibana).*
