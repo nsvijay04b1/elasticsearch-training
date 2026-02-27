@@ -18,6 +18,8 @@ graph TD
 The Bulk API enables high throughput by batching multiple operations in one HTTP request. It reduces HTTP overhead at the cost of slightly higher latency per document. Used widely in production indexing workloads.
 
 ## 3.3 Logstash Architecture
+
+![Architecture Diagram](images/architecture_diagram_1.png)
 Logstash acts as an ETL (Extract, Transform, Load) pipeline. It reads from inputs, applies filters, and routes data to outputs.
 
 ```mermaid
@@ -39,6 +41,8 @@ graph TD
 ```
 
 ## 3.5 Ingest Pipelines
+
+![Architecture Diagram](images/architecture_diagram_2.png)
 Use Ingest Pipelines within Elasticsearch to process data without leveraging external tools like Logstash. Common Processors include Grok, GeoIP, Date, Set, and Rename.
 
 ```mermaid

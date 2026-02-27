@@ -8,23 +8,7 @@ Elasticsearch is optimized for text searches, relevance ranking, large data volu
 ## 1.2 Lucene & Inverted Index Internals
 Lucene is the core indexing engine. It tokenizes text, creates inverted indexes, stores segments, and scores relevance. An inverted index works by mapping terms (from a Term Dictionary) to Posting Lists of document IDs.
 
-```mermaid
-graph TD
-    subgraph "Documents"
-        Doc1("Doc1: 'red shoe'")
-        Doc2("Doc2: 'blue shoe'")
-        Doc3("Doc3: 'red hat'")
-    end
-
-    subgraph "Inverted Index"
-        red["red"] --> Doc1
-        red --> Doc3
-        blue["blue"] --> Doc2
-        shoe["shoe"] --> Doc1
-        shoe --> Doc2
-        hat["hat"] --> Doc3
-    end
-```
+![Architecture Diagram](images/architecture_diagram_1.png)
 
 ## 1.3 Core Data Model
 - **Document** = JSON object
@@ -43,60 +27,16 @@ Use `text` for full-text search (analyzed), and `keyword` for exact match filter
 
 Master nodes update the cluster state and allocate shards. Writes go to the primary shard, and replicas synchronize afterwards.
 
-```mermaid
-graph TD
-    Client((Client)) --> PrimaryShard[Primary Shard]
-    PrimaryShard -- Syncs Data --> ReplicaShard[Replica Shard]
-```
+![Architecture Diagram](images/architecture_diagram_2.png)
 
 ## 1.5 Search Execution Flow
 The Coordinating Node scatters the request across relevant shards (where local execution happens), gathers the local results, merges them, and returns them to the client.
 
-```mermaid
-graph TD
-    Client((Client)) -->|Query| CoordNode[Coordinating Node]
-    
-    subgraph "Scatter Phase"
-        CoordNode --> Shard1[Shard 1]
-        CoordNode --> Shard2[Shard 2]
-    end
-    
-    subgraph "Local Execution"
-        Shard1 --> LocalExec1(Local Execution)
-        Shard2 --> LocalExec2(Local Execution)
-    end
-    
-    subgraph "Gather Phase"
-        LocalExec1 --> |Top Results| CoordNode
-        LocalExec2 --> |Top Results| CoordNode
-    end
-    
-    CoordNode --> |Merge & Return| Client
-```
+![Architecture Diagram](images/architecture_diagram_3.png)
 
 ## 1.6 Enterprise Case Study – E-Commerce
 
-```mermaid
-graph TD
-    LB[Load Balancer] -->|Routes Traffic| Master1[Master Node 1]
-    LB -->|Routes Traffic| Master2[Master Node 2]
-    LB -->|Routes Traffic| Master3[Master Node 3]
-
-    Master1 -.-> DataNodes
-    Master2 -.-> DataNodes
-    Master3 -.-> DataNodes
-
-    subgraph DataNodes[6 Data Nodes]
-        D1[Data Node 1]
-        D2[Data Node 2]
-        D3[Data Node 3]
-        D4[Data Node 4]
-        D5[Data Node 5]
-        D6[Data Node 6]
-    end
-
-    DataNodes --> |Index 6 shards + 1 replica| ProductsIndex[(products_index)]
-```
+![Architecture Diagram](images/architecture_diagram_4.png)
 
 ---
 

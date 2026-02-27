@@ -1,6 +1,8 @@
 # Module 4: Search DSL, ES|QL, EQL, SQL
 
 ## 4.1 Query Context vs Filter Context
+
+![Architecture Diagram](images/architecture_diagram_1.png)
 - **Query Context**: Used in `must` or `should`. Calculates a relevance score (BM25). Slower.
 - **Filter Context**: Used in `filter`. Does not apply relevance scoring. Exact matches only. Faster because queries can be cached by Elasticsearch.
 
@@ -24,6 +26,8 @@ BM25 stands for Best Matching 25. It ranks search relevance based on 3 factors:
 3. **Field Length Normalization**: Short fields containing the term score higher than long fields.
 
 ## 4.4 Aggregations Framework
+
+![Architecture Diagram](images/architecture_diagram_2.png)
 Aggregations gather data into groups and perform calculations on those groups.
 - **Bucket Aggregation**: Groups documents (e.g. `terms`, `date_histogram`). Similar to `GROUP BY` in SQL.
 - **Metrics Aggregation**: Calculates math values (e.g. `avg`, `sum`, `max`).

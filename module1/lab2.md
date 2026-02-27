@@ -25,13 +25,30 @@ Run a temporary single-node development cluster on your Ubuntu machine without p
    ./bin/elasticsearch
    ```
 
-4. **Observe the Bootstrapping Process:**
-   - Look for the log line containing `[node.name]`. This assigned your node a temporary name.
-   - Look for the elected master log: `elected-as-master`. Since this is the only node, it automatically acts as the Master node.
-   - Look for the security auto-configuration logs outputting the temporary `elastic` password and enrollment tokens.
+4. **Open a second terminal window (or tab)** on your Ubuntu VM.
+   *Leave the first terminal running Elasticsearch in the foreground!*
 
-5. **Stop the node:**
-   Once you've verified it boots, kill the foreground process by pressing `CTRL+C` in your terminal.
+5. **Create an Index:**
+   Since security is enabled by default in 8.x, we must use `curl` with the generated `elastic` password. *(Replace `<PASSWORD>` with the password printed in terminal 1).*
+   ```bash
+   curl -X PUT "https://localhost:9200/my_test_index" --insecure -u elastic:<PASSWORD>
+   ```
+
+6. **Query the Index:**
+   Verify the index exists and check its settings.
+   ```bash
+   curl -X GET "https://localhost:9200/my_test_index" --insecure -u elastic:<PASSWORD>
+   ```
+
+7. **Check Shards and Replicas:**
+   Get a visual readout of the shards allocated to your new index via the `_cat/shards` API.
+   ```bash
+   curl -X GET "https://localhost:9200/_cat/shards/my_test_index?v" --insecure -u elastic:<PASSWORD>
+   ```
+   *Note: Because you only have 1 node, the Primary shard will display as `STARTED`, but the Replica shard will display as `UNASSIGNED`.*
+
+8. **Stop the node:**
+   Return to your FIRST terminal window and press `CTRL+C` to gracefully shut down Elasticsearch.
 
 ---
 

@@ -1,6 +1,8 @@
 # Module 5: ILM, Down-sampling/Rollups, Snapshots
 
 ## 5.1 Index Lifecycle Management (ILM)
+
+![Architecture Diagram](images/architecture_diagram_1.png)
 Automates moving data through a pipeline to reduce storage costs.
 
 - **Hot Phase**: Active indexing/writes. High CPU and fast SSDs required.
@@ -21,6 +23,8 @@ graph LR
 Massive time-series data streams (like CPU metrics per second) become too large over time. **Downsampling** via rollup jobs summarizes these records into lower-resolution aggregates (e.g. keeping Min/Max/Avg values per minute or hour).
 
 ## 5.3 Snapshots & Restore
+
+![Architecture Diagram](images/architecture_diagram_2.png)
 A snapshot captures the cluster state, metadata, and the Lucene segments inside the indices.
 
 ```mermaid

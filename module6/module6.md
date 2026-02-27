@@ -14,6 +14,8 @@ graph TD
 ```
 
 ## 6.2 Official Client Architecture
+
+![Architecture Diagram](images/architecture_diagram_1.png)
 Official clients exist for Java, Python, Node.js, Go, and .NET. Instead of forcing you to format raw JSON or track endpoints natively, these libraries handle:
 - Connection pooling
 - Node retries on failure
