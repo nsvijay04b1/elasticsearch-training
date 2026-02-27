@@ -4,12 +4,7 @@
 Run a temporary single-node development cluster on your Ubuntu machine without performing a system-wide installation.
 
 ## Scenario
-Before committing to installing Elasticsearch as a background service (which we will do in Module 2), you want to quickly spin up a development node in the foreground to observe its startup logs and architecture bootstrapping.
-
-## Prerequisites
-- Completion of Lab 1.
-- You must be logged into your Ubuntu VM.
-- Ensure you have a working internet connection.
+*Why are we doing this?* Before committing to installing Elasticsearch as a background `systemctl` service (which we will do properly in Lab 3), it is highly educational to quickly spin up a node in the foreground via a Tarball. This allows you to directly observe its startup logs, thread creation, and architecture bootstrapping happen locally before your eyes. Once we kill the process, it vanishes with no permanent system changes.
 
 ## Instructions
 
