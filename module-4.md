@@ -1,0 +1,49 @@
+# Module 4: Search, Query DSL & Relevance
+
+## 4.1 Query Context vs Filter Context
+- **Query Context**: Used in `must` or `should`. Calculates a relevance score (BM25). Slower.
+- **Filter Context**: Used in `filter`. Does not apply relevance scoring. Exact matches only. Faster because queries can be cached by Elasticsearch.
+
+```mermaid
+graph TD
+    Query[Bool Query Structure]
+    Query --> Must[Must: AND logic]
+    Query --> Should[Should: OR logic]
+    Query --> Filter[Filter: No scoring, Cacheable]
+    Query --> MustNot[Must_Not: NOT logic]
+```
+
+## 4.2 Full-Text Search Internals
+- **Tokenizers**: Chop text into individual words based on punctuation or whitespace.
+- **Analyzers**: Includes the Tokenizer, but also applies Character Filters (e.g. removing HTML tags) and Token Filters (e.g. converting to lowercase, stemming words like "sneakers" to "shoe", or expanding synonyms).
+
+## 4.3 BM25 Ranking
+BM25 stands for Best Matching 25. It ranks search relevance based on 3 factors:
+1. **Term Frequency (TF)**: How often the search term appears in the document field. (Higher = Better)
+2. **Inverse Document Frequency (IDF)**: How rare the search term is across the entire corpus. (Rarer = Better)
+3. **Field Length Normalization**: Short fields containing the term score higher than long fields.
+
+## 4.4 Aggregations Framework
+Aggregations gather data into groups and perform calculations on those groups.
+- **Bucket Aggregation**: Groups documents (e.g. `terms`, `date_histogram`). Similar to `GROUP BY` in SQL.
+- **Metrics Aggregation**: Calculates math values (e.g. `avg`, `sum`, `max`).
+
+```mermaid
+graph TD
+    Aggs[Aggregations]
+    Aggs --> Buck[Bucket: e.g. Categories]
+    Aggs --> Metr[Metrics: e.g. Average Price per Category bucket]
+    Aggs --> Pipe[Pipeline: Operates on results of other aggregations]
+```
+
+## 4.5 ES|QL, EQL, and SQL
+- **ES|QL**: A pipeline processing language designed specifically for real-time analytics. Combines filtering, sorting, joins, and time-series logic.
+- **EQL**: Event Query Language. Built specifically for detecting behavioral sequences across events (common in security SIEMs).
+- **SQL**: Standard relational querying. Allows you to bridge the gap with existing systems that only understand JDBC/SQL.
+
+---
+
+## Assigments
+- [Proceed to Lab 8: Query vs. Filter Contexts](lab-8.md)
+- [Proceed to Lab 9: Aggregations Framework](lab-9.md)
+- [Proceed to Lab 10: Analyzing Search Performance](lab-10.md)

@@ -1,0 +1,47 @@
+# Lab 12: Configuring Local Snapshots
+
+## Goal
+Configure a Local File System repository directly on the Ubuntu machine and execute a manual backup snapshot.
+
+## Scenario
+While backing up to S3 is standard for production, you need to execute a rapid, local backup of your cluster prior to performing a risky data migration.
+
+## Instructions
+
+1. **Register the backup path in Elasticsearch:**
+   By default, Elasticsearch blocks writing files outside of its data directory for security. We must explicitly permit a backup path in `elasticsearch.yml`.
+   
+   *(In your Ubuntu Terminal):*
+   ```bash
+   echo 'path.repo: ["/var/backups/es_repo"]' | sudo tee -a /etc/elasticsearch/elasticsearch.yml
+   ```
+
+2. **Create the directory and assign permissions:**
+   ```bash
+   sudo mkdir -p /var/backups/es_repo
+   sudo chown -R elasticsearch:elasticsearch /var/backups/es_repo
+   ```
+
+3. **Restart Elasticsearch to apply settings:**
+   ```bash
+   sudo systemctl restart elasticsearch.service
+   ```
+   *(Wait ~30 seconds for the node to come back online).*
+
+4. **Register the Repository (in Kibana Dev Tools):**
+   ```json
+   PUT _snapshot/my_fs_backup
+   {
+     "type": "fs",
+     "settings": { "location": "/var/backups/es_repo" }
+   }
+   ```
+
+5. **Execute a Snapshot:**
+   The `wait_for_completion` flag blocks the HTTP response until the backup finishes.
+   ```json
+   PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true
+   ```
+
+---
+[Return to Module 5](module-5.md)
