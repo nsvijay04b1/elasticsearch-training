@@ -45,4 +45,4 @@ You need a local environment to act as your sandbox throughout the rest of this 
    *(A successful response is a JSON payload displaying the cluster name and Elasticsearch version).*
 
 ---
-[Return to Module 2](module-2.md)
+[Previous Lab: Lab 2](../module1/lab2.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 4](lab4.md)

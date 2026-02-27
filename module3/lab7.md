@@ -55,4 +55,4 @@ Your application sends sparse log data that doesn't include a timestamp. You nee
    *You should see the `ingest_time` field automatically populated!*
 
 ---
-[Return to Module 3](module-3.md)
+[Previous Lab: Lab 6](lab6.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 8](../module4/lab8.md)

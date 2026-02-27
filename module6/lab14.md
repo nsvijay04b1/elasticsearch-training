@@ -41,4 +41,4 @@ You get an alert at 3:00 AM stating the Elasticsearch cluster has entered a `Yel
    *Look through the `"decisions"` array in the response. You should see an explanation stating: `the node is on the same host as the primary shard` or similar, indicating it is waiting for a 2nd Data Node to join the cluster.*
 
 ---
-[Return to Module 6](module-6.md)
+[Previous Lab: Lab 13](lab13.md) | [Return to Module 6](module6.md)

@@ -49,4 +49,4 @@ You need to search the `products` index created back in Lab 5. Users are looking
    - Execute it again. Observe that the `_score` is now exactly `0.0`. You have traded relevance ranking for pure caching speed.
 
 ---
-[Return to Module 4](module-4.md)
+[Previous Lab: Lab 7](../module3/lab7.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 9](lab9.md)

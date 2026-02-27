@@ -42,4 +42,4 @@ Instead of sending 10,000 separate `curl` commands to insert your product catalo
    *The `"count"` field should reflect the number of documents submitted.*
 
 ---
-[Return to Module 3](module-3.md)
+[Previous Lab: Lab 4](../module2/lab4.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 6](lab6.md)

@@ -101,5 +101,5 @@ graph TD
 ---
 
 ## Assigments
-- [Proceed to Lab 1: JSON & REST API Basics](lab-1.md)
-- [Proceed to Lab 2: Architecture Whiteboarding](lab-2.md)
+- [Proceed to Lab 1: JSON & REST API Basics](lab1.md)
+- [Proceed to Lab 2: Architecture Whiteboarding](lab2.md)

@@ -26,4 +26,4 @@ A user complains that searches for "shoe" are suddenly taking a long time. You n
    - Observe the `"time_in_nanos"` statistic. This tells you the exact execution time down to the nanosecond level. In giant clusters, this is how you identify if a particular regex or script query is causing high latency.
 
 ---
-[Return to Module 4](module-4.md)
+[Previous Lab: Lab 9](lab9.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11](../module5/lab11.md)

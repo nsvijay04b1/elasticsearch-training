@@ -35,4 +35,4 @@ Inflation has hit! You need to increase the price of a specific product ("Runnin
    *The price should be 10 higher!*
 
 ---
-[Return to Module 6](module-6.md)
+[Previous Lab: Lab 12](../module5/lab12.md) | [Return to Module 6](module6.md) | [Next Lab: Lab 14](lab14.md)

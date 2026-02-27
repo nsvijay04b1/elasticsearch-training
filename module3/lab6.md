@@ -44,4 +44,4 @@ You need to monitor the health of the very Ubuntu machine you are using to host 
    - You should see your live Ubuntu logs streaming in!
 
 ---
-[Return to Module 3](module-3.md)
+[Previous Lab: Lab 5](lab5.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 7](lab7.md)

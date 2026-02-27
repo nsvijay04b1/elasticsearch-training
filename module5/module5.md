@@ -42,5 +42,5 @@ Heap sizes should never exceed 50% of the OS RAM, and normally cap out at 32GB t
 ---
 
 ## Assigments
-- [Proceed to Lab 11: Implementing Index Lifecycle Management (ILM)](lab-11.md)
-- [Proceed to Lab 12: Configuring Local Snapshots](lab-12.md)
+- [Proceed to Lab 11: Implementing Index Lifecycle Management (ILM)](lab11.md)
+- [Proceed to Lab 12: Configuring Local Snapshots](lab12.md)

@@ -44,4 +44,4 @@ While backing up to S3 is standard for production, you need to execute a rapid, 
    ```
 
 ---
-[Return to Module 5](module-5.md)
+[Previous Lab: Lab 11](lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](../module6/lab13.md)

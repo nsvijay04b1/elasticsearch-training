@@ -34,4 +34,4 @@ The business team wants to know the average price of products, but separated out
    Scroll down the response pane past the empty `"hits"` array to the `"aggregations"` block. You'll see an array of buckets (e.g., `Accessories`, `Footwear`) displaying their respective document counts and average prices.
 
 ---
-[Return to Module 4](module-4.md)
+[Previous Lab: Lab 8](lab8.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 10](lab10.md)

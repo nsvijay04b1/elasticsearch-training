@@ -39,4 +39,4 @@ You missed the auto-generated password output during the `apt-get install` proce
    - Log in using the username `elastic` and the password from Step 1.
 
 ---
-[Return to Module 2](module-2.md)
+[Previous Lab: Lab 3](lab3.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 5](../module3/lab5.md)

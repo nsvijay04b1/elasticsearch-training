@@ -41,5 +41,5 @@ graph TD
 ---
 
 ## Assigments
-- [Proceed to Lab 13: Using Painless Scripts](lab-13.md)
-- [Proceed to Lab 14: Simulating & Troubleshooting Cluster Issues](lab-14.md)
+- [Proceed to Lab 13: Using Painless Scripts](lab13.md)
+- [Proceed to Lab 14: Simulating & Troubleshooting Cluster Issues](lab14.md)

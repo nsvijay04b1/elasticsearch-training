@@ -44,6 +44,6 @@ graph TD
 ---
 
 ## Assigments
-- [Proceed to Lab 8: Query vs. Filter Contexts](lab-8.md)
-- [Proceed to Lab 9: Aggregations Framework](lab-9.md)
-- [Proceed to Lab 10: Analyzing Search Performance](lab-10.md)
+- [Proceed to Lab 8: Query vs. Filter Contexts](lab8.md)
+- [Proceed to Lab 9: Aggregations Framework](lab9.md)
+- [Proceed to Lab 10: Analyzing Search Performance](lab10.md)

@@ -38,4 +38,4 @@ You are collecting daily log data from a swarm of microservices. To prevent the 
 *(In a real production environment, you would then create an Index Template that applies `logs_policy` to any new indices matching the pattern `logs-*`).*
 
 ---
-[Return to Module 5](module-5.md)
+[Previous Lab: Lab 10](../module4/lab10.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 12](lab12.md)

@@ -62,6 +62,6 @@ Use `Fielddata` for full-text fields being used in aggregations (carefully, sinc
 ---
 
 ## Assigments
-- [Proceed to Lab 5: The Bulk Indexing API](lab-5.md)
-- [Proceed to Lab 6: Installing and Configuring Filebeat](lab-6.md)
-- [Proceed to Lab 7: Explicit Mappings & Ingest Pipelines](lab-7.md)
+- [Proceed to Lab 5: The Bulk Indexing API](lab5.md)
+- [Proceed to Lab 6: Installing and Configuring Filebeat](lab6.md)
+- [Proceed to Lab 7: Explicit Mappings & Ingest Pipelines](lab7.md)
