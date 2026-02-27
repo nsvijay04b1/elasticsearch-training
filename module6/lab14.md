@@ -1,47 +1,55 @@
-# Lab 14: Simulating & Troubleshooting Cluster Issues
+# Lab 14: Using Painless Scripts
 
 ## Goal
-Understand why a cluster turns yellow by intentionally breaking the allocation rules, and use the Allocation Explain API to troubleshoot.
+Configure a Local File System repository directly on the Ubuntu machine and execute a manual backup snapshot.
 
 ## Scenario
-You get an alert at 3:00 AM stating the Elasticsearch cluster has entered a `Yellow` health state. You need to identify *exactly* why shards are unassigned. 
-
-*(Since our local cluster is a single node, we can simulate this by requesting a replica, which Elasticsearch will refuse to assign to the same node as the primary!)*
+While backing up to S3 is standard for production, you need to execute a rapid, local backup of your cluster prior to performing a risky data migration.
 
 ## Prerequisites
+- You must be securely connected to your Ubuntu VM terminal with `sudo` privileges.
 - You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
 
-*(Navigate to **Management -> Dev Tools** in Kibana).*
-
-1. **Check the current cluster health:**
-   ```json
-   GET _cluster/health
+1. **Register the backup path in Elasticsearch:**
+   By default, Elasticsearch blocks writing files outside of its data directory for security. We must explicitly permit a backup path in `elasticsearch.yml`.
+   
+   *(In your Ubuntu Terminal):*
+   ```bash
+   echo 'path.repo: ["/var/backups/es_repo"]' | sudo tee -a /etc/elasticsearch/elasticsearch.yml
    ```
-   *Note the cluster status.*
 
-2. **Break the rules:**
-   Create an index that explicitly demands 1 Replica. Since your cluster only has 1 Data Node, Elasticsearch cannot assign the replica safely.
+2. **Create the directory and assign permissions:**
+   ```bash
+   sudo mkdir -p /var/backups/es_repo
+   sudo chown -R elasticsearch:elasticsearch /var/backups/es_repo
+   ```
+
+3. **Restart Elasticsearch to apply settings:**
+   ```bash
+   sudo systemctl restart elasticsearch.service
+   ```
+   *(Wait ~30 seconds for the node to come back online).*
+
+4. **Register the Repository (in Kibana Dev Tools):**
    ```json
-   PUT /troubleshoot_index
-   { 
-     "settings": { "number_of_replicas": 1 } 
+   PUT _snapshot/my_fs_backup
+   {
+     "type": "fs",
+     "settings": { "location": "/var/backups/es_repo" }
    }
    ```
 
-3. **Check the cluster health again:**
+5. **Execute a Snapshot:**
+   The `wait_for_completion` flag blocks the HTTP response until the backup finishes.
    ```json
-   GET _cluster/health
+   PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true
    ```
-   *The cluster should now be in a `Yellow` state!*
-
-4. **Ask Elasticsearch why it's Yellow:**
-   The Allocation Explain API gives you the exact reason why a shard is unassigned.
-   ```json
-   GET _cluster/allocation/explain
-   ```
-   *Look through the `"decisions"` array in the response. You should see an explanation stating: `the node is on the same host as the primary shard` or similar, indicating it is waiting for a 2nd Data Node to join the cluster.*
 
 ---
-[Previous Lab: Lab 13](lab13.md) | [Return to Module 6](module6.md)
+
+---
+
+---
+[Previous Lab: Lab 13](../module5/lab13.md) | [Return to Module 6](module6.md)

@@ -1,4 +1,4 @@
-# Module 3: Data Ingestion & Processing
+# Module 3: Data Ingestion, Logstash, Beats
 
 ## 3.1 Indexing Internals
 Indexing is near real-time. Documents are written to a memory buffer and flushed down. A **Refresh Cycle** (default 1 second cycle) makes new documents searchable immediately. 
@@ -61,7 +61,8 @@ Use `Fielddata` for full-text fields being used in aggregations (carefully, sinc
 
 ---
 
-## Assigments
-- [Proceed to Lab 5: The Bulk Indexing API](lab5.md)
-- [Proceed to Lab 6: Installing and Configuring Filebeat](lab6.md)
-- [Proceed to Lab 7: Explicit Mappings & Ingest Pipelines](lab7.md)
+
+## Assignments
+- [Proceed to Lab 6: Indexing Data via Bulk API](lab6.md)
+- [Proceed to Lab 7: Installing and Configuring Filebeat](lab7.md)
+- [Proceed to Lab 8: Explicit Mappings & Ingest Pipelines](lab8.md)

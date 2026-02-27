@@ -1,4 +1,4 @@
-# Module 5: Data Lifecycle Management & Optimization
+# Module 5: ILM, Down-sampling/Rollups, Snapshots
 
 ## 5.1 Index Lifecycle Management (ILM)
 Automates moving data through a pipeline to reduce storage costs.
@@ -41,6 +41,7 @@ Heap sizes should never exceed 50% of the OS RAM, and normally cap out at 32GB t
 
 ---
 
-## Assigments
-- [Proceed to Lab 11: Implementing Index Lifecycle Management (ILM)](lab11.md)
-- [Proceed to Lab 12: Configuring Local Snapshots](lab12.md)
+
+## Assignments
+- [Proceed to Lab 12: Implementing Index Lifecycle Management (ILM)](lab12.md)
+- [Proceed to Lab 13: Configuring Local Snapshots](lab13.md)

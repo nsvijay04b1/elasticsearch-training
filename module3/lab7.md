@@ -1,63 +1,54 @@
-# Lab 7: Explicit Mappings & Ingest Pipelines
+# Lab 7: Installing and Configuring Filebeat
 
 ## Goal
-Use Kibana Dev Tools to define an explicit mapping (preventing Mapping Explosions) and create an ingest pipeline to add timestamps to incoming data.
+Learn how to use the high-throughput Bulk API endpoint to index multiple documents in a single HTTP request using `curl`.
 
 ## Scenario
-Your application sends sparse log data that doesn't include a timestamp. You need Elasticsearch to append the exact time the log was received. Additionally, you want to strictly control the mapping so that the `status` field is only ever treated as a `keyword` for exact filtering, and `message` as `text` for full-text search.
+Instead of sending 10,000 separate `curl` commands to insert your product catalog, you format them into a single file to bypass network latency and HTTP header overhead.
 
 ## Prerequisites
 - Completion of Lab 4.
-- Kibana must be running and accessible via your web browser.
-- You must be logged into the Kibana Web UI.
+- Elasticsearch must be running securely.
+- You must have your `elastic` superuser password handy.
 
 ## Instructions
 
-*(Note: We will execute these commands directly in the Kibana Dev Tools Console. Navigate to **Management -> Dev Tools** in Kibana).*
+1. **Create a Bulk formatted file:**
+   The Bulk API requires a specific newline-delimited format (NDJSON), where an action instruction line is immediately followed by the document payload line.
+   ```bash
+   cat <<EOF > requests.json
+   { "index" : { "_index" : "products", "_id" : "1" } }
+   { "name": "Running Shoe", "price": 95, "category": "Footwear" }
+   { "index" : { "_index" : "products", "_id" : "2" } }
+   { "name": "Winter Hat", "price": 25, "category": "Accessories" }
+   { "index" : { "_index" : "products", "_id" : "3" } }
+   { "name": "Leather Belt", "price": 45, "category": "Accessories" }
+   EOF
+   ```
+   *Note: Ensure there is a trailing newline at the end of the file!*
 
-1. **Create an Ingest Pipeline:**
-   This pipeline uses the `set` processor to add a field called `ingest_time`.
-   ```json
-   PUT _ingest/pipeline/my_pipeline
-   {
-     "description": "Add timestamp",
-     "processors": [
-       {
-         "set": { "field": "ingest_time", "value": "{{_ingest.timestamp}}" }
-       }
-     ]
-   }
+2. **Execute the Bulk API Request:**
+   Pass the file to curl using the `--data-binary` or `@` flag.
+   ```bash
+   curl -X POST "https://localhost:9200/_bulk" \
+     -H 'Content-Type: application/json' \
+     --cacert /etc/elasticsearch/certs/http_ca.crt \
+     -u elastic \
+     --data-binary @requests.json
    ```
 
-2. **Create an index with an Explicit Mapping:**
-   We enforce that `status` cannot be tokenized.
-   ```json
-   PUT my_logs
-   {
-     "mappings": {
-       "properties": {
-         "status": { "type": "keyword" },
-         "message": { "type": "text" }
-       }
-     }
-   }
+3. **Verify Insertion:**
+   *(You will be prompted for your password)*
+   ```bash
+   curl -X GET "https://localhost:9200/products/_count" \
+     --cacert /etc/elasticsearch/certs/http_ca.crt \
+     -u elastic
    ```
-
-3. **Index a document using the new pipeline:**
-   Note the `?pipeline=my_pipeline` parameter.
-   ```json
-   POST my_logs/_doc/1?pipeline=my_pipeline
-   {
-     "status": "ERROR",
-     "message": "Failed to connect to the database securely."
-   }
-   ```
-
-4. **Retrieve the document to verify the injected timestamp:**
-   ```json
-   GET my_logs/_doc/1
-   ```
-   *You should see the `ingest_time` field automatically populated!*
+   *The `"count"` field should reflect the number of documents submitted.*
 
 ---
-[Previous Lab: Lab 6](lab6.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 8](../module4/lab8.md)
+
+---
+
+---
+[Previous Lab: Lab 6](lab6.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 8](lab8.md)

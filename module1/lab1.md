@@ -32,4 +32,8 @@ Before beginning interaction with a live cluster, you need to understand the bas
    *Note how Elasticsearch uses this simple key-value structure instead of relational tables.*
 
 ---
+
+---
+
+---
 [Return to Module 1](module1.md) | [Next Lab: Lab 2](lab2.md)

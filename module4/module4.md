@@ -1,4 +1,4 @@
-# Module 4: Search, Query DSL & Relevance
+# Module 4: Search DSL, ES|QL, EQL, SQL
 
 ## 4.1 Query Context vs Filter Context
 - **Query Context**: Used in `must` or `should`. Calculates a relevance score (BM25). Slower.
@@ -43,7 +43,8 @@ graph TD
 
 ---
 
-## Assigments
-- [Proceed to Lab 8: Query vs. Filter Contexts](lab8.md)
-- [Proceed to Lab 9: Aggregations Framework](lab9.md)
-- [Proceed to Lab 10: Analyzing Search Performance](lab10.md)
+
+## Assignments
+- [Proceed to Lab 9: Query vs. Filter Contexts](lab9.md)
+- [Proceed to Lab 10: Aggregations Framework](lab10.md)
+- [Proceed to Lab 11: Analyzing Search Performance](lab11.md)

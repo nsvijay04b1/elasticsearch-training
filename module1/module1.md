@@ -1,4 +1,4 @@
-# Module 1: Introduction to Elasticsearch
+# Module 1: Architecture, Indices, Shards
 
 ## 1.1 What Problem Elasticsearch Solves
 Relational databases are optimized for transactional consistency (ACID), structured queries, and row-based storage. They use B-tree indexes which are inefficient for unstructured full-text searches across large datasets. `LIKE '%shoe%'` queries force database scans. 
@@ -100,6 +100,7 @@ graph TD
 
 ---
 
-## Assigments
-- [Proceed to Lab 1: JSON & REST API Basics](lab1.md)
-- [Proceed to Lab 2: Architecture Whiteboarding](lab2.md)
+
+## Assignments
+- [Proceed to Lab 1: Exploring JSON and REST APIs on Ubuntu](lab1.md)
+- [Proceed to Lab 2: Starting a Temporary Dev Node via Tarball](lab2.md)

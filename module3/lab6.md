@@ -1,52 +1,51 @@
-# Lab 6: Installing and Configuring Filebeat
+# Lab 6: Indexing Data via Bulk API
 
 ## Goal
-Ingest Ubuntu system logs into Elasticsearch via Filebeat, demonstrating the Beats shipper architecture.
+Understand why a cluster turns yellow by intentionally breaking the allocation rules, and use the Allocation Explain API to troubleshoot.
 
 ## Scenario
-You need to monitor the health of the very Ubuntu machine you are using to host the Elasticsearch cluster. By installing Filebeat, you can automatically parse `/var/log/syslog` and `/var/log/auth.log` directly into your cluster.
+You get an alert at 3:00 AM stating the Elasticsearch cluster has entered a `Yellow` health state. You need to identify *exactly* why shards are unassigned. 
+
+*(Since our local cluster is a single node, we can simulate this by requesting a replica, which Elasticsearch will refuse to assign to the same node as the primary!)*
 
 ## Prerequisites
-- Completion of Lab 4.
-- Elasticsearch and Kibana must be running.
-- You must have your `elastic` password.
+- You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
 
-1. **Install Filebeat:**
-   *(Since we already added the Elastic apt repository in Lab 3, this is straightforward).*
-   ```bash
-   sudo apt-get install filebeat
+*(Navigate to **Management -> Dev Tools** in Kibana).*
+
+1. **Check the current cluster health:**
+   ```json
+   GET _cluster/health
+   ```
+   *Note the cluster status.*
+
+2. **Break the rules:**
+   Create an index that explicitly demands 1 Replica. Since your cluster only has 1 Data Node, Elasticsearch cannot assign the replica safely.
+   ```json
+   PUT /troubleshoot_index
+   { 
+     "settings": { "number_of_replicas": 1 } 
+   }
    ```
 
-2. **Enable the System module:**
-   This module tells Filebeat to specifically look for native Unix logs.
-   ```bash
-   sudo filebeat modules enable system
+3. **Check the cluster health again:**
+   ```json
+   GET _cluster/health
    ```
+   *The cluster should now be in a `Yellow` state!*
 
-3. **Setup Filebeat Assets:**
-   This command installs the pre-built Kibana dashboards and ingest pipelines required to parse system logs.
-   ```bash
-   sudo filebeat setup -e \
-     -E output.elasticsearch.hosts=['https://localhost:9200'] \
-     -E output.elasticsearch.username=elastic \
-     -E output.elasticsearch.password='<YOUR_PASSWORD>' \
-     -E output.elasticsearch.ssl.certificate_authorities=['/etc/elasticsearch/certs/http_ca.crt']
+4. **Ask Elasticsearch why it's Yellow:**
+   The Allocation Explain API gives you the exact reason why a shard is unassigned.
+   ```json
+   GET _cluster/allocation/explain
    ```
-   *(Wait for this command to finish; it may take a minute).*
-
-4. **Start Filebeat:**
-   ```bash
-   sudo systemctl enable filebeat
-   sudo systemctl start filebeat
-   ```
-
-5. **Verify in Kibana:**
-   - Open Kibana in your browser (`http://localhost:5601`).
-   - Navigate to **Analytics -> Discover**.
-   - Change your data view / index pattern to `filebeat-*`.
-   - You should see your live Ubuntu logs streaming in!
+   *Look through the `"decisions"` array in the response. You should see an explanation stating: `the node is on the same host as the primary shard` or similar, indicating it is waiting for a 2nd Data Node to join the cluster.*
 
 ---
-[Previous Lab: Lab 5](lab5.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 7](lab7.md)
+
+---
+
+---
+[Previous Lab: Lab 5](../module2/lab5.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 7](lab7.md)

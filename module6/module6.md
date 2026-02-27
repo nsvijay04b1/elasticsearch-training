@@ -1,4 +1,4 @@
-# Module 6: APIs, Clients & Advanced Topics
+# Module 6: REST APIs, Clients, Painless Scripting
 
 ## 6.1 REST API Philosophy
 Every interaction with Elasticsearch goes through HTTP REST verbs:
@@ -32,14 +32,8 @@ graph TD
     VM --> Result[Evaluated Result]
 ```
 
-## 6.4 Troubleshooting Concepts
 
-- **Unassigned Shards**: Typically due to absent data nodes (hardware crashes) or allocating too many replica settings. Check `GET _cluster/allocation/explain`.
-- **Slow Queries**: Inspect the slow logs, check for large string scripts being evaluated on every document, and verify that you aren't trying to do heavy sorting on `text` rather than `keyword` doc values.
-- **High Heap Usage**: Often caused by "Mapping Explosions" (too many dynamic unique keys) or misusing fielddata un-aggregated.
 
----
 
-## Assigments
-- [Proceed to Lab 13: Using Painless Scripts](lab13.md)
-- [Proceed to Lab 14: Simulating & Troubleshooting Cluster Issues](lab14.md)
+## Assignments
+- [Proceed to Lab 14: Using Painless Scripts](lab14.md)

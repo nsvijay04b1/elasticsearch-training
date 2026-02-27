@@ -70,4 +70,8 @@ sudo docker run -p 9200:9200 -e "discovery.type=single-node" -e "xpack.security.
 **Prerequisites:** Requires Docker Engine installed on your Ubuntu VM (`sudo apt-get install docker.io`).
 
 ---
+
+---
+
+---
 [Previous Lab: Lab 2](../module1/lab2.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 4](lab4.md)

@@ -1,4 +1,4 @@
-# Module 2: Installation, Security & High Availability
+# Module 2: HA Clusters, Troubleshooting, Upgrading
 
 ## 2.1 Development vs Production Setup
 A Single Node is used for local development, lacking fault tolerance. A Production Cluster requires at least 3 master-eligible nodes to prevent split-brain scenarios. Bootstrap settings (`cluster.initial_master_nodes`, `discovery.seed_hosts`) are required to define how the cluster forms initially.
@@ -71,8 +71,16 @@ Rolling upgrades allow zero downtime in production environments. The cycle is:
 5. Re-enable allocation.
 6. Repeat for all nodes.
 
+## 2.6 Troubleshooting Concepts
+
+- **Unassigned Shards**: Typically due to absent data nodes (hardware crashes) or allocating too many replica settings. Check `GET _cluster/allocation/explain`.
+- **Slow Queries**: Inspect the slow logs, check for large string scripts being evaluated on every document, and verify that you aren't trying to do heavy sorting on `text` rather than `keyword` doc values.
+- **High Heap Usage**: Often caused by "Mapping Explosions" (too many dynamic unique keys) or misusing fielddata un-aggregated.
+
 ---
 
-## Assigments
+
+## Assignments
 - [Proceed to Lab 3: Installing Elasticsearch & Kibana on Ubuntu](lab3.md)
-- [Proceed to Lab 4: Configuring Basic Security](lab4.md)
+- [Proceed to Lab 4: Configuring Basic Security & Kibana Setup](lab4.md)
+- [Proceed to Lab 5: Simulating & Troubleshooting Cluster Issues](lab5.md)

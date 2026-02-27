@@ -1,51 +1,37 @@
-# Lab 12: Configuring Local Snapshots
+# Lab 12: Implementing Index Lifecycle Management (ILM)
 
 ## Goal
-Configure a Local File System repository directly on the Ubuntu machine and execute a manual backup snapshot.
+Use the Profile API to peek under the hood at Lucene's execution times, allowing you to troubleshoot slow queries.
 
 ## Scenario
-While backing up to S3 is standard for production, you need to execute a rapid, local backup of your cluster prior to performing a risky data migration.
+A user complains that searches for "shoe" are suddenly taking a long time. You need to verify exactly how many milliseconds the internal Lucene token-matching took.
 
 ## Prerequisites
-- You must be securely connected to your Ubuntu VM terminal with `sudo` privileges.
+- Completion of Lab 11 (The `products` index must exist).
 - You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
 
-1. **Register the backup path in Elasticsearch:**
-   By default, Elasticsearch blocks writing files outside of its data directory for security. We must explicitly permit a backup path in `elasticsearch.yml`.
-   
-   *(In your Ubuntu Terminal):*
-   ```bash
-   echo 'path.repo: ["/var/backups/es_repo"]' | sudo tee -a /etc/elasticsearch/elasticsearch.yml
-   ```
+*(Navigate to **Management -> Dev Tools** in Kibana).*
 
-2. **Create the directory and assign permissions:**
-   ```bash
-   sudo mkdir -p /var/backups/es_repo
-   sudo chown -R elasticsearch:elasticsearch /var/backups/es_repo
-   ```
-
-3. **Restart Elasticsearch to apply settings:**
-   ```bash
-   sudo systemctl restart elasticsearch.service
-   ```
-   *(Wait ~30 seconds for the node to come back online).*
-
-4. **Register the Repository (in Kibana Dev Tools):**
+1. **Execute a Query with Profiling Enabled:**
+   Adding `"profile": true` forces Elasticsearch to attach a detailed timing breakdown to the end of the JSON response.
    ```json
-   PUT _snapshot/my_fs_backup
+   GET products/_search
    {
-     "type": "fs",
-     "settings": { "location": "/var/backups/es_repo" }
+     "profile": true,
+     "query": { "match": { "name": "shoe" } }
    }
    ```
 
-5. **Execute a Snapshot:**
-   The `wait_for_completion` flag blocks the HTTP response until the backup finishes.
-   ```json
-   PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true
-   ```
+2. **Review the Profile Response:**
+   - Look for the `"profile"` object at the bottom of the response.
+   - Expand `"shards"` -> `"0"` -> `"searches"` -> `"query"`.
+   - Observe the `"time_in_nanos"` statistic. This tells you the exact execution time down to the nanosecond level. In giant clusters, this is how you identify if a particular regex or script query is causing high latency.
 
 ---
-[Previous Lab: Lab 11](lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](../module6/lab13.md)
+
+---
+
+---
+[Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](lab13.md)

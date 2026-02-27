@@ -1,4 +1,4 @@
-# Lab 13: Using Painless Scripts
+# Lab 5: Simulating & Troubleshooting Cluster Issues
 
 ## Goal
 Update a document field dynamically using a Painless script without having to pull the document out of Elasticsearch, modify it in application code, and send it back.
@@ -7,7 +7,7 @@ Update a document field dynamically using a Painless script without having to pu
 Inflation has hit! You need to increase the price of a specific product ("Running Shoe", ID 1) by a flat amount natively inside the cluster.
 
 ## Prerequisites
-- Completion of Lab 5 (The `products` index must exist).
+- Completion of Lab 11 (The `products` index must exist).
 - You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
@@ -39,4 +39,8 @@ Inflation has hit! You need to increase the price of a specific product ("Runnin
    *The price should be 10 higher!*
 
 ---
-[Previous Lab: Lab 12](../module5/lab12.md) | [Return to Module 6](module6.md) | [Next Lab: Lab 14](lab14.md)
+
+---
+
+---
+[Previous Lab: Lab 4](lab4.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 6](../module3/lab6.md)

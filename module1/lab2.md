@@ -34,4 +34,8 @@ Run a temporary single-node development cluster on your Ubuntu machine without p
    Once you've verified it boots, kill the foreground process by pressing `CTRL+C` in your terminal.
 
 ---
+
+---
+
+---
 [Previous Lab: Lab 1](lab1.md) | [Return to Module 1](module1.md) | [Next Lab: Lab 3](../module2/lab3.md)
