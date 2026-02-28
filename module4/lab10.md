@@ -1,10 +1,10 @@
-# Lab 10: Aggregations Framework
+# Lab 10: Query vs. Filter Contexts
 
 ## Goal
-Nest a Metrics Aggregation inside a Bucket Aggregation to perform live mathematical analytics over grouped data.
+Execute structured searches in Kibana Dev Tools to understand the deep difference between scoring a document via `must` (Query Context) versus exact filtering via `filter` (Filter Context).
 
 ## Scenario
-The business team wants to know the average price of products, but separated out by Category.
+You need to search the `products` index created in Lab 6. Users are looking for the word "shoe", but they only want to see results that cost less than $100.
 
 ## Prerequisites
 - Completion of Lab 6 (The `products` index must exist with sample data).
@@ -13,33 +13,30 @@ The business team wants to know the average price of products, but separated out
 ## Instructions
 
 ### Part 0: Insert Sample Data
-Ensure you have the following data for aggregations:
+Before running queries, let's insert some sample products.
 ```json
-POST /sales/_bulk
-{"index":{}}
-{"product": "Laptop", "category": "Electronics", "price": 1200, "date": "2023-10-01"}
-{"index":{}}
-{"product": "Mouse", "category": "Electronics", "price": 25, "date": "2023-10-02"}
-{"index":{}}
-{"product": "Chair", "category": "Furniture", "price": 150, "date": "2023-10-01"}
+POST /products/_bulk
+{"index":{"_id":"1"}}
+{"name": "Running Shoe", "category": "Footwear", "price": 90}
+{"index":{"_id":"2"}}
+{"name": "Walking Shoe", "category": "Footwear", "price": 120}
+{"index":{"_id":"3"}}
+{"name": "Winter Jacket", "category": "Apparel", "price": 150}
 ```
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
-1. **Build a Bucket + Metrics Aggregation:**
-   - We use `terms` to create a bucket for each unique `category`.
-   - We nest an `avg` aggregation inside the bucket to calculate the mean `price`.
-   - We set `"size": 0` because we only care about the math results, not the actual product JSON documents.
-
+1. **Execute a Mixed Context Search:**
    ```json
    GET products/_search
    {
-     "size": 0,
-     "aggs": {
-       "categories": {
-         "terms": { "field": "category.keyword" },
-         "aggs": {
-           "avg_price": { "avg": { "field": "price" } }
+     "query": {
+       "bool": {
+         "must": { 
+           "match": { "name": "shoe" } 
+         },
+         "filter": { 
+           "range": { "price": { "lt": 100 } } 
          }
        }
      }
@@ -47,40 +44,30 @@ POST /sales/_bulk
    ```
 
 2. **Analyze the Results:**
-   Scroll down the response pane past the empty `"hits"` array to the `"aggregations"` block. You'll see an array of buckets (e.g., `Accessories`, `Footwear`) displaying their respective document counts and average prices.
+   - Look at the `_score` field in the response. The document matched the word "shoe", so BM25 gave it a relevance score!
+   - Notice how the `filter` block simply acted as a binary gate (Yes/No if `< 100`) without affecting the score.
 
-**Expected Output:**
-```json
-{
-  "aggregations": {
-    "categories": {
-      "buckets": [
-        {
-          "key": "Accessories",
-          "doc_count": 3,
-          "avg_price": { "value": 35.0 }
-        },
-        {
-          "key": "Footwear",
-          "doc_count": 3,
-          "avg_price": { "value": 131.67 }
-        },
-        {
-          "key": "Apparel",
-          "doc_count": 2,
-          "avg_price": { "value": 90.0 }
-        }
-      ]
-    }
-  }
-}
-```
-
-
+3. **Swap context to see the difference:**
+   Move the `match` query down into the `filter` block.
+   ```json
+   GET products/_search
+   {
+     "query": {
+       "bool": {
+         "filter": [
+           { "match": { "name": "shoe" } },
+           { "range": { "price": { "lt": 100 } } }
+         ]
+       }
+     }
+   }
+   ```
+   - Execute it again. Observe that the `_score` is now exactly `0.0`. You have traded relevance ranking for pure caching speed.
 
 ---
 
 ---
 
+
 ---
-[Previous Lab: Lab 9](lab9.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 10.2](lab10_2.md)
+[Previous Lab: Lab 9](../module3/lab9.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11](lab11.md)

@@ -1,4 +1,4 @@
-# Lab 13.2: Downsampling Time-Series Data
+# Lab 18: Downsampling Time-Series Data
 
 ## Goal
 Create a time-series data stream with sample metrics, then use a Transform to downsample the granular per-second data into summarized per-minute aggregates.
@@ -140,4 +140,4 @@ GET server_metrics_1m/_search
 
 ---
 
-[Previous Lab: Lab 13](lab13.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 14](../module6/lab14.md)
+[Previous Lab: Lab 17](lab17.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 19](../module6/lab19.md)

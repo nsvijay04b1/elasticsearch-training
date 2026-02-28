@@ -1,4 +1,4 @@
-# Lab 14.2: REST API Deep Dive & Python Client
+# Lab 20: REST API Deep Dive & Python Client
 
 ## Goal
 Master the essential Elasticsearch REST APIs beyond basic CRUD, and connect to the cluster programmatically using the official Python client.
@@ -170,4 +170,4 @@ Cleaned up test document.
 
 ---
 
-[Previous Lab: Lab 14](lab14.md) | [Return to Module 6](module6.md) | [Next Lab: Lab 14.3](lab14_3.md)
+[Previous Lab: Lab 19](lab19.md) | [Return to Module 6](module6.md) | [Next Lab: Lab 21](lab21.md)

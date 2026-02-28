@@ -1,4 +1,4 @@
-# Lab 14: Using Painless Scripts
+# Lab 19: Using Painless Scripts
 
 ## Goal
 Update a document field dynamically using a Painless script without having to pull the document out of Elasticsearch, modify it in application code, and send it back.
@@ -135,4 +135,4 @@ GET products/_search
 
 ---
 
-[Previous Lab: Lab 13.2](../module5/lab13_2.md) | [Return to Module 6](module6.md) | [Next Lab: Lab 14.2](lab14_2.md)
+[Previous Lab: Lab 18](../module5/lab18.md) | [Return to Module 6](module6.md) | [Next Lab: Lab 20](lab20.md)

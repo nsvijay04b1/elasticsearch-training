@@ -1,4 +1,4 @@
-# Lab 12.2: Working with Data Streams
+# Lab 16: Working with Data Streams
 
 ## Goal
 Create and manage a Data Stream — Elasticsearch's built-in mechanism for handling append-only, time-series data like logs or metrics.
@@ -170,4 +170,4 @@ index                                       docs.count store.size
 
 ---
 
-[Previous Lab: Lab 12](lab12.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](lab13.md)
+[Previous Lab: Lab 15](lab15.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 17](lab17.md)

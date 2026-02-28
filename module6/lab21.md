@@ -1,4 +1,4 @@
-# Lab 14.3: Installing and Managing Plugins
+# Lab 21: Installing and Managing Plugins
 
 ## Goal
 Install an Elasticsearch plugin, verify it is loaded, and use it in practice. Plugins extend Elasticsearch with custom analyzers, security features, and data processing capabilities.
@@ -181,4 +181,4 @@ sudo systemctl restart elasticsearch.service
 
 ---
 
-[Previous Lab: Lab 14.2](lab14_2.md) | [Return to Module 6](module6.md)
+[Previous Lab: Lab 20](lab20.md) | [Return to Module 6](module6.md)

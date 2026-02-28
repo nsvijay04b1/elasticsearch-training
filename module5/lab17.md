@@ -1,4 +1,4 @@
-# Lab 13: Configuring Local Snapshots
+# Lab 17: Configuring Local Snapshots
 
 ## Goal
 Configure a Local File System repository directly on the Ubuntu machine and execute a manual backup snapshot.
@@ -93,5 +93,6 @@ If you accidentally delete an index or suffer corruption, you can easily restore
 
 ---
 
+
 ---
-[Previous Lab: Lab 12.2](lab12_2.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13.2](lab13_2.md)
+[Previous Lab: Lab 16](lab16.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 18](lab18.md)

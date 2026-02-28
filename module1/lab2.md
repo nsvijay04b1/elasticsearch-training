@@ -65,5 +65,6 @@ curl -X PUT "https://localhost:9200/my_test_index" --insecure -u elastic:<PASSWO
 
 ---
 
+
 ---
 [Previous Lab: Lab 1](lab1.md) | [Return to Module 1](module1.md) | [Next Lab: Lab 3](../module2/lab3.md)

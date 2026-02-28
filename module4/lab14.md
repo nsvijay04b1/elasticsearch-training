@@ -1,4 +1,4 @@
-# Lab 11.2: Querying with ES|QL, EQL, and SQL
+# Lab 14: Querying with ES|QL, EQL, and SQL
 
 ## Goal
 Execute queries using three alternative query languages beyond the standard Query DSL: ES|QL (pipe-based analytics), EQL (event sequences), and SQL (relational syntax).
@@ -151,4 +151,4 @@ GET /security_events/_eql/search
 
 ---
 
-[Previous Lab: Lab 11](lab11.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 12](../module5/lab12.md)
+[Previous Lab: Lab 13](lab13.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 15](../module5/lab15.md)

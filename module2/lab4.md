@@ -53,5 +53,6 @@ As part of this course, you will primarily interact with Kibana's built-in appli
 
 ---
 
+
 ---
 [Previous Lab: Lab 3](lab3.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 5](lab5.md)

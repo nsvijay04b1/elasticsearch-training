@@ -1,4 +1,4 @@
-# Lab 12: Implementing Index Lifecycle Management (ILM)
+# Lab 15: Implementing Index Lifecycle Management (ILM)
 
 ## Goal
 Create an automated ILM policy to roll over an index when it gets too large, and eventually delete it when it grows too old.
@@ -126,4 +126,4 @@ GET logs-000001/_ilm/explain
 
 ---
 
-[Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 12.2](lab12_2.md)
+[Previous Lab: Lab 14](../module4/lab14.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 16](lab16.md)

@@ -49,11 +49,11 @@ graph TD
 
 
 ## Assignments
-- [Proceed to Lab 9: Query vs. Filter Contexts](lab9.md)
-- [Proceed to Lab 10: Aggregations Framework](lab10.md)
-- [Proceed to Lab 10.2: Building Kibana Dashboards](lab10_2.md)
-- [Proceed to Lab 11: Analyzing Search Performance](lab11.md)
-- [Proceed to Lab 11.2: Querying with ES|QL, EQL, and SQL](lab11_2.md)
+- [Proceed to Lab 10: Query vs. Filter Contexts](lab10.md)
+- [Proceed to Lab 11: Aggregations Framework](lab11.md)
+- [Proceed to Lab 12: Building Kibana Dashboards](lab12.md)
+- [Proceed to Lab 13: Analyzing Search Performance](lab13.md)
+- [Proceed to Lab 14: Querying with ES|QL, EQL, and SQL](lab14.md)
 
 ## 4.6 Search Applications
 

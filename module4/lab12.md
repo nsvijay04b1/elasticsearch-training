@@ -1,4 +1,4 @@
-# Lab 10.2: Building Kibana Dashboards
+# Lab 12: Building Kibana Dashboards
 
 ## Goal
 Use the Kibana UI to create interactive visualizations and assemble them into a dashboard, transforming raw Elasticsearch data into actionable charts.
@@ -91,4 +91,4 @@ Explore the raw documents underlying your visualizations:
 
 ---
 
-[Previous Lab: Lab 10](lab10.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11](lab11.md)
+[Previous Lab: Lab 11](lab11.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 13](lab13.md)

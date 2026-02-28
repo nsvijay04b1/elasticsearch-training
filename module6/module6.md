@@ -38,6 +38,6 @@ graph TD
 
 
 ## Assignments
-- [Proceed to Lab 14: Using Painless Scripts](lab14.md)
-- [Proceed to Lab 14.2: REST API Deep Dive & Python Client](lab14_2.md)
-- [Proceed to Lab 14.3: Installing and Managing Plugins](lab14_3.md)
+- [Proceed to Lab 19: Using Painless Scripts](lab19.md)
+- [Proceed to Lab 20: REST API Deep Dive & Python Client](lab20.md)
+- [Proceed to Lab 21: Installing and Managing Plugins](lab21.md)

@@ -47,7 +47,7 @@ Heap sizes should never exceed 50% of the OS RAM, and normally cap out at 32GB t
 
 
 ## Assignments
-- [Proceed to Lab 12: Implementing Index Lifecycle Management (ILM)](lab12.md)
-- [Proceed to Lab 12.2: Working with Data Streams](lab12_2.md)
-- [Proceed to Lab 13: Configuring Local Snapshots](lab13.md)
-- [Proceed to Lab 13.2: Downsampling Time-Series Data](lab13_2.md)
+- [Proceed to Lab 15: Implementing Index Lifecycle Management (ILM)](lab15.md)
+- [Proceed to Lab 16: Working with Data Streams](lab16.md)
+- [Proceed to Lab 17: Configuring Local Snapshots](lab17.md)
+- [Proceed to Lab 18: Downsampling Time-Series Data](lab18.md)

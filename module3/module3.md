@@ -68,8 +68,9 @@ Use `Fielddata` for full-text fields being used in aggregations (carefully, sinc
 
 ## Assignments
 - [Proceed to Lab 6: Indexing Data via Bulk API](lab6.md)
-- [Proceed to Lab 7: Installing Filebeat & Logstash](lab7.md)
-- [Proceed to Lab 8: Explicit Mappings & Ingest Pipelines](lab8.md)
+- [Proceed to Lab 7: Installing and Configuring Filebeat](lab7.md)
+- [Proceed to Lab 8: Installing and Configuring Logstash](lab8.md)
+- [Proceed to Lab 9: Explicit Mappings & Ingest Pipelines](lab9.md)
 
 ## 3.5 Connectors & Web Crawlers
 
