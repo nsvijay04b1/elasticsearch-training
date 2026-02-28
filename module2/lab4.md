@@ -39,15 +39,15 @@ Kibana needs an enrollment token to securely pair with the database.
 
 ---
 
-## Part 2: Core Kibana Applications to Learn
+## Part 2: Core Kibana Navigation Options
 
-As part of this course, you will primarily interact with three built-in Kibana applications. Familiarize yourself with how to navigate to them using the global hamburger menu (☰).
+As part of this course, you will primarily interact with Kibana's built-in applications. When you first log in or click the **Home** icon, you will see a landing page containing several major solutions and categories. Familiarize yourself with these core options:
 
-![Kibana Core Options](images/kibana_options.png)
-
-1. **Dev Tools:** (Found under Management). The primary console for writing raw JSON/REST queries against the Elasticsearch cluster. Used to debug nodes, modify settings, and test manual queries.
-2. **Discover:** (Found under Analytics). The primary search UI. Allows you to search through millions of documents interactively using the Kibana Query Language (KQL) without having to write raw JSON.
-3. **Dashboards:** (Found under Analytics). The visualization engine. Allows you to build pie charts, line graphs, and data tables on top of your aggregations.
+1. **Elasticsearch:** Create search experiences with a refined set of APIs and tools.
+2. **Observability:** Consolidate your logs, metrics, application traces, and system availability with purpose-built UIs.
+3. **Security:** Prevent, collect, detect, and respond to threats for unified protection across your infrastructure.
+4. **Analytics:** Explore, visualize, and analyze your data using a powerful suite of analytical tools and applications. (This includes **Discover** for raw KQL searching and **Dashboards** for visualizations).
+5. **Management / Dev Tools:** Found at the bottom of the left navigation menu. **Dev Tools** provides the interactive console for writing raw JSON/REST queries against your cluster.
 
 ---
 
