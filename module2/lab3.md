@@ -113,8 +113,64 @@ sudo docker run -p 9200:9200 -e "discovery.type=single-node" -e "xpack.security.
 
 ---
 
----
+## Windows Installation (Alternative)
 
+If you are running on **Windows** instead of Ubuntu, use the Windows zip packages.
+
+### 1. Download and Extract Elasticsearch
+```powershell
+Invoke-WebRequest -Uri "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-windows-x86_64.zip" -OutFile elasticsearch.zip
+Expand-Archive elasticsearch.zip -DestinationPath C:\elk
+```
+
+### 2. Configure Elasticsearch
+Edit `C:\elk\elasticsearch-8.10.4\config\elasticsearch.yml`:
+```yaml
+network.host: 0.0.0.0
+discovery.type: single-node
+xpack.security.enabled: true
+```
+
+Edit `C:\elk\elasticsearch-8.10.4\config\jvm.options` and set:
+```
+-Xms1g
+-Xmx1g
+```
+
+### 3. Install Elasticsearch as a Windows Service
+```powershell
+C:\elk\elasticsearch-8.10.4\bin\elasticsearch-service.bat install
+C:\elk\elasticsearch-8.10.4\bin\elasticsearch-service.bat start
+```
+
+### 4. Reset the `elastic` Password
+```powershell
+C:\elk\elasticsearch-8.10.4\bin\elasticsearch-reset-password.bat -u elastic -i
+```
+
+### 5. Download and Extract Kibana
+```powershell
+Invoke-WebRequest -Uri "https://artifacts.elastic.co/downloads/kibana/kibana-8.10.4-windows-x86_64.zip" -OutFile kibana.zip
+Expand-Archive kibana.zip -DestinationPath C:\elk
+```
+
+### 6. Configure Kibana
+Edit `C:\elk\kibana-8.10.4\config\kibana.yml`:
+```yaml
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["https://localhost:9200"]
+```
+
+### 7. Start Kibana
+```powershell
+C:\elk\kibana-8.10.4\bin\kibana.bat
+```
+Open `http://localhost:5601` in your browser and log in with `elastic` / your password.
+
+### 8. Verify Elasticsearch
+```powershell
+curl.exe --cacert C:\elk\elasticsearch-8.10.4\config\certs\http_ca.crt -u elastic https://localhost:9200
+```
 
 ---
 [Previous Lab: Lab 2](../module1/lab2.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 4](lab4.md)

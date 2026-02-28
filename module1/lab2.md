@@ -61,8 +61,41 @@ Run a temporary single-node development cluster on your Ubuntu machine without p
 
 ---
 
----
+## Windows Installation (Alternative)
 
+If you are running on **Windows** instead of Ubuntu, follow these steps:
+
+### 1. Download the Windows Zip Archive
+Download from: [https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-windows-x86_64.zip](https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-windows-x86_64.zip)
+
+Or via PowerShell:
+```powershell
+Invoke-WebRequest -Uri "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-windows-x86_64.zip" -OutFile elasticsearch-8.10.4-windows-x86_64.zip
+```
+
+### 2. Extract the Archive
+```powershell
+Expand-Archive elasticsearch-8.10.4-windows-x86_64.zip -DestinationPath .
+cd elasticsearch-8.10.4
+```
+
+### 3. Start Elasticsearch in the Foreground
+```powershell
+.\bin\elasticsearch.bat
+```
+*Wait for the node to start. Note the auto-generated `elastic` password printed in the console!*
+
+### 4. Open a Second PowerShell/CMD Window and Test
+```powershell
+curl.exe -X PUT "https://localhost:9200/my_test_index" --insecure -u elastic:<PASSWORD>
+curl.exe -X GET "https://localhost:9200/my_test_index" --insecure -u elastic:<PASSWORD>
+curl.exe -X GET "https://localhost:9200/_cat/shards/my_test_index?v" --insecure -u elastic:<PASSWORD>
+```
+
+> **Note:** On Windows, use `curl.exe` (not `curl`) to avoid the PowerShell alias. Alternatively, use Invoke-WebRequest.
+
+### 5. Stop the Node
+Press `CTRL+C` in the first PowerShell window.
 
 ---
 [Previous Lab: Lab 1](lab1.md) | [Return to Module 1](module1.md) | [Next Lab: Lab 3](../module2/lab3.md)

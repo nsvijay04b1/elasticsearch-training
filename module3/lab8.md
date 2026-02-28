@@ -220,4 +220,103 @@ GET employees/_search
 
 ---
 
+## Windows Installation (Alternative)
+
+### 1. Download and Extract Logstash
+```powershell
+Invoke-WebRequest -Uri "https://artifacts.elastic.co/downloads/logstash/logstash-8.10.4-windows-x86_64.zip" -OutFile logstash.zip
+Expand-Archive logstash.zip -DestinationPath C:\elk
+```
+
+### 2. Verify Installation
+```powershell
+C:\elk\logstash-8.10.4\bin\logstash.bat --version
+```
+
+### 3. Create the Test Pipeline
+Create `C:\elk\logstash-8.10.4\config\test-pipeline.conf` with a text editor:
+```text
+input {
+  stdin {}
+}
+
+filter {
+  mutate {
+    add_field => { "environment" => "training" }
+  }
+}
+
+output {
+  stdout {
+    codec => rubydebug
+  }
+}
+```
+
+### 4. Run the Test Pipeline
+```powershell
+C:\elk\logstash-8.10.4\bin\logstash.bat -f C:\elk\logstash-8.10.4\config\test-pipeline.conf
+```
+Wait ~30 seconds, then type `Hello from Logstash training!` and press Enter.
+
+### 5. Create the CSV Pipeline
+Save `employees.csv` to `C:\tmp\employees.csv`:
+```csv
+id,name,department,salary
+1,Alice Johnson,Engineering,95000
+2,Bob Smith,Marketing,72000
+3,Carol Williams,Engineering,105000
+4,Dave Brown,Sales,68000
+5,Eve Davis,Engineering,98000
+```
+
+Create `C:\elk\logstash-8.10.4\config\csv-pipeline.conf`:
+```text
+input {
+  file {
+    path => "C:/tmp/employees.csv"
+    start_position => "beginning"
+    sincedb_path => "NUL"
+  }
+}
+
+filter {
+  if [message] =~ "^id," {
+    drop {}
+  }
+  csv {
+    separator => ","
+    columns => ["employee_id", "name", "department", "salary"]
+  }
+  mutate {
+    convert => { "salary" => "integer" }
+    convert => { "employee_id" => "integer" }
+    remove_field => ["message", "event", "log", "@version"]
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["https://localhost:9200"]
+    index => "employees"
+    user => "elastic"
+    password => "YOUR_PASSWORD_HERE"
+    ssl_certificate_authorities => "C:/elk/elasticsearch-8.10.4/config/certs/http_ca.crt"
+  }
+  stdout {
+    codec => rubydebug
+  }
+}
+```
+
+> **Note:** On Windows, use forward slashes (`/`) in Logstash config file paths, or double-escape backslashes (`\\`).
+
+### 6. Run the CSV Pipeline
+```powershell
+C:\elk\logstash-8.10.4\bin\logstash.bat -f C:\elk\logstash-8.10.4\config\csv-pipeline.conf
+```
+
+Verify in Kibana Dev Tools with the same queries from the Ubuntu section above.
+
+---
 [Previous Lab: Lab 7](lab7.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 9](lab9.md)

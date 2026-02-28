@@ -107,11 +107,81 @@ You need to monitor the health of the very Ubuntu machine you are using to host 
 7. **Stop Logstash:**
    Press `CTRL+C` to gracefully terminate the Logstash foreground process.
 
-
 ---
 
----
+## Windows Installation (Alternative)
 
+### Installing Filebeat on Windows
+
+1. **Download Filebeat:**
+   Download the zip from: [https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.10.4-windows-x86_64.zip](https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.10.4-windows-x86_64.zip)
+
+   ```powershell
+   Invoke-WebRequest -Uri "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.10.4-windows-x86_64.zip" -OutFile filebeat.zip
+   Expand-Archive filebeat.zip -DestinationPath C:\elk
+   cd C:\elk\filebeat-8.10.4-windows-x86_64
+   ```
+
+2. **Edit `filebeat.yml`:**
+   Open `filebeat.yml` in a text editor and configure the Elasticsearch output:
+   ```yaml
+   output.elasticsearch:
+     hosts: ["https://localhost:9200"]
+     username: "elastic"
+     password: "YOUR_PASSWORD_HERE"
+     ssl.certificate_authorities: ["C:\\elk\\elasticsearch-8.10.4\\config\\certs\\http_ca.crt"]
+   ```
+
+3. **Enable the System Module (Windows Event Logs):**
+   ```powershell
+   .\filebeat.exe modules enable system
+   ```
+
+4. **Setup and Start Filebeat:**
+   ```powershell
+   .\filebeat.exe setup -e
+   .\filebeat.exe -e
+   ```
+
+5. **Verify in Kibana:**
+   Navigate to **Analytics → Discover** and select the `filebeat-*` data view to see Windows event logs.
+
+### Installing Logstash on Windows
+
+1. **Download Logstash:**
+   ```powershell
+   Invoke-WebRequest -Uri "https://artifacts.elastic.co/downloads/logstash/logstash-8.10.4-windows-x86_64.zip" -OutFile logstash.zip
+   Expand-Archive logstash.zip -DestinationPath C:\elk
+   ```
+
+2. **Create a Test Pipeline:**
+   Create `C:\elk\logstash-8.10.4\config\test-pipeline.conf`:
+   ```text
+   input {
+     stdin { }
+   }
+   filter {
+     mutate {
+       add_field => { "processed_by" => "logstash_lab" }
+     }
+   }
+   output {
+     elasticsearch {
+       hosts => ["https://localhost:9200"]
+       user => "elastic"
+       password => "YOUR_PASSWORD_HERE"
+       cacert => "C:/elk/elasticsearch-8.10.4/config/certs/http_ca.crt"
+       index => "logstash_test_index"
+     }
+     stdout { codec => rubydebug }
+   }
+   ```
+
+3. **Run Logstash:**
+   ```powershell
+   C:\elk\logstash-8.10.4\bin\logstash.bat -f C:\elk\logstash-8.10.4\config\test-pipeline.conf
+   ```
+   Type a test message and press Enter. Press `CTRL+C` to stop.
 
 ---
 [Previous Lab: Lab 6](lab6.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 8](lab8.md)
