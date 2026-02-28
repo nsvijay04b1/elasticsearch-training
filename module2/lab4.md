@@ -13,11 +13,22 @@ You missed the auto-generated password output during the `apt-get install` proce
 
 ## Instructions
 
-1. **Auto-generate a new password for the `elastic` user (if needed):**
+1. **Resetting the `elastic` superuser password:**
+   If you lost the auto-generated password from Lab 3, you have two approaches to reset it:
+
+   *Method A: Auto-generate a new random password using the CLI tool:*
    ```bash
-   sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+   sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i
    ```
-   *(Copy the new password outputted to your terminal).*
+   *(The `-i` flag allows you to pass it interactively if you wish to type it yourself, otherwise let it auto-generate and copy the output).*
+
+   *Method B: Reset it manually via the Security API (cURL):*
+   ```bash
+   curl -u elastic -X POST "https://localhost:9200/_security/user/elastic/_password" \
+        -H 'Content-Type: application/json' \
+        -d '{ "password" : "your_new_password_here" }' \
+        --cacert /etc/elasticsearch/certs/http_ca.crt
+   ```
 
 2. **Start the Kibana Service:**
    ```bash
