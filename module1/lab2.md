@@ -6,20 +6,6 @@ Run a temporary single-node development cluster on your Ubuntu machine without p
 ## Scenario
 *Why are we doing this?* Before committing to installing Elasticsearch as a background `systemctl` service (which we will do properly in Lab 3), it is highly educational to quickly spin up a node in the foreground via a Tarball. This allows you to directly observe its startup logs, thread creation, and architecture bootstrapping happen locally before your eyes. Once we kill the process, it vanishes with no permanent system changes.
 
-## Mac Hypervisor Settings (If Running Ubuntu VM on macOS)
-
-If you are running Ubuntu as a VM on a MacBook via a hypervisor (UTM, VMware, Parallels), you **must** apply these settings later when you install Elasticsearch (Lab 3) so that your Mac's browser can reach the services inside the VM:
-
-| Setting | Component | Purpose |
-|---------|-----------|---------|
-| `network.host: 0.0.0.0` | Elasticsearch | Allows the Mac browser to reach the database API on port 9200. |
-| `server.host: "0.0.0.0"` | Kibana | Allows the Mac browser to reach the user interface on port 5601. |
-| `discovery.type: single-node` | Elasticsearch | Forces "demo mode" so it doesn't try to find other servers, saving CPU and RAM. |
-| `-Xms1g / -Xmx1g` | JVM Options | Limits RAM usage to 1GB so your 4GB VM doesn't crash from "Out of Memory" errors. |
-| `xpack.security.enabled` | Both | Activates built-in security, requiring a password for the Mac to connect. |
-
----
-
 ## Instructions
 
 1. **Download the Linux Tar Archive:**
