@@ -70,8 +70,25 @@ When you create an index (e.g., `my_test_index`), Elasticsearch generates metada
 }
 ```
 
-- **`aliases`**: Alternative names that point to this index. Crucial for zero-downtime reindexing architectures.
-- **`mappings`**: Defines the data schema (like `text` or `keyword` types) for documents within the index. Empty until data is inserted or explicitly mapped.
+- **`aliases`**: Alternative names that point to this index. Crucial for zero-downtime reindexing architectures. For example, your app queries `logs_current`, which points to `my_test_index`, allowing you to swap the underlying index later without code changes.
+  ```json
+  "aliases": {
+    "logs_current": {}
+  }
+  ```
+- **`mappings`**: Defines the data schema for documents within the index. Empty until data is inserted or explicitly mapped.
+  ```json
+  "mappings": {
+    "properties": {
+      "user_name": { "type": "keyword" },
+      "login_time": { "type": "date" }
+    }
+  }
+  ```
+
+#### How Index Settings fit into the ELK Stack
+
+![Architecture Diagram](images/architecture_diagram_5.png)
 - **`settings.index.routing.allocation.include._tier_preference`**: Specifies the data tier (Hot, Warm, Cold) where shards are allocated. `data_content` is the default for standard generic data.
 - **`settings.index.number_of_shards`**: Indicates the index is divided into 1 primary partition.
 - **`settings.index.number_of_replicas`**: Indicates exactly 1 backup copy of each primary shard is expected (providing fault tolerance).
