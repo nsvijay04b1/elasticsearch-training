@@ -66,6 +66,25 @@ Use `Fielddata` for full-text fields being used in aggregations (carefully, sinc
 ---
 
 
+## Module 3 Quiz
+
+**1. What is the NDJSON format required by the Bulk API?**
+<details><summary>Answer</summary>Newline-Delimited JSON — each line alternates between an action line (e.g., `{"index": {...}}`) and a document payload line. The file must end with a trailing newline.</details>
+
+**2. What is the difference between Filebeat and Logstash?**
+<details><summary>Answer</summary>Filebeat is a lightweight shipper that forwards raw data with minimal processing. Logstash is a heavy-duty pipeline that can parse, transform, enrich, and route data from multiple sources to multiple destinations.</details>
+
+**3. What are the 3 stages of a Logstash pipeline?**
+<details><summary>Answer</summary>Input (source: stdin, file, beats, kafka), Filter (transform: grok, mutate, date), and Output (destination: elasticsearch, stdout, file).</details>
+
+**4. What is a "Mapping Explosion" and how do you prevent it?**
+<details><summary>Answer</summary>A Mapping Explosion occurs when dynamic mapping creates thousands of fields automatically from uncontrolled data. Prevent it by defining explicit mappings that only allow known fields.</details>
+
+**5. What does an Ingest Pipeline's `set` processor do?**
+<details><summary>Answer</summary>The `set` processor adds or overwrites a field value in the document before it is indexed. Example: adding an `ingest_time` timestamp to every document.</details>
+
+---
+
 ## Assignments
 - [Proceed to Lab 6: Indexing Data via Bulk API](lab6.md)
 - [Proceed to Lab 7: Installing and Configuring Filebeat](lab7.md)

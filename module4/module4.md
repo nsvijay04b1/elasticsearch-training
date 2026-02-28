@@ -48,6 +48,25 @@ graph TD
 ---
 
 
+## Module 4 Quiz
+
+**1. What is the difference between Query Context and Filter Context?**
+<details><summary>Answer</summary>Query Context (`must`/`should`) calculates a relevance score using BM25. Filter Context (`filter`) is a binary yes/no match with no scoring, making it faster and cacheable.</details>
+
+**2. What does ES|QL's pipe (`|`) syntax do?**
+<details><summary>Answer</summary>It chains processing stages sequentially — data flows left to right through operations like `FROM`, `WHERE`, `STATS`, `SORT`, and `LIMIT`, similar to Unix shell pipes.</details>
+
+**3. What type of query would you use in EQL to detect a brute-force login attack?**
+<details><summary>Answer</summary>A `sequence` query — it identifies ordered patterns across events, such as "2 failed logins followed by 1 successful login from the same user."</details>
+
+**4. In an aggregation query, what is the difference between a Bucket and a Metrics aggregation?**
+<details><summary>Answer</summary>Bucket aggregations group documents into categories (like SQL `GROUP BY`). Metrics aggregations calculate math values (avg, sum, max) over those groups.</details>
+
+**5. What does `"profile": true` do in a search request?**
+<details><summary>Answer</summary>It attaches a detailed timing breakdown to the response, showing exactly how many nanoseconds each Lucene operation took. Used to diagnose slow queries.</details>
+
+---
+
 ## Assignments
 - [Proceed to Lab 10: Query vs. Filter Contexts](lab10.md)
 - [Proceed to Lab 11: Aggregations Framework](lab11.md)

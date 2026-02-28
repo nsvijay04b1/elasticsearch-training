@@ -51,6 +51,25 @@ Rolling upgrades allow zero downtime in production environments. The cycle is:
 ---
 
 
+## Module 2 Quiz
+
+**1. What does a `red` cluster health status indicate?**
+<details><summary>Answer</summary>One or more primary shards are unassigned. This means some data is unavailable for search and indexing. It requires immediate investigation.</details>
+
+**2. What is a "split-brain" scenario and how is it prevented?**
+<details><summary>Answer</summary>Split-brain occurs when a cluster divides into two independent halves, each electing its own master. It is prevented by requiring a quorum (majority) of master-eligible nodes to elect a master.</details>
+
+**3. What is the purpose of `xpack.security.enabled: true`?**
+<details><summary>Answer</summary>It activates Elasticsearch's built-in security features including user authentication (username/password), role-based access control (RBAC), and TLS encryption for data in transit.</details>
+
+**4. What is the difference between a rolling upgrade and a full-cluster restart?**
+<details><summary>Answer</summary>A rolling upgrade upgrades nodes one at a time with no downtime. A full-cluster restart stops all nodes, upgrades them, and restarts — causing downtime but is simpler for major version jumps.</details>
+
+**5. Which API would you use to check why a shard is unassigned?**
+<details><summary>Answer</summary>`GET _cluster/allocation/explain` — it returns a detailed explanation of why a specific shard cannot be allocated to any node.</details>
+
+---
+
 ## Assignments
 - [Proceed to Lab 3: Installing Elasticsearch & Kibana on Ubuntu](lab3.md)
 - [Proceed to Lab 4: Configuring Basic Security & Kibana Setup](lab4.md)

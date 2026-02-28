@@ -37,6 +37,25 @@ graph TD
 
 
 
+## Module 6 Quiz
+
+**1. What are the 4 core HTTP verbs used by Elasticsearch's REST API?**
+<details><summary>Answer</summary>GET (retrieve), POST (create/search), PUT (create/overwrite), DELETE (remove). Every Elasticsearch interaction uses one of these verbs.</details>
+
+**2. Why should you use parameterized variables in Painless scripts instead of hardcoded values?**
+<details><summary>Answer</summary>Parameterized scripts allow Elasticsearch to compile the script once and cache the bytecode. If you hardcode values, a new compilation is needed for each unique value, wasting CPU.</details>
+
+**3. What does the `_cat/indices?v` API return?**
+<details><summary>Answer</summary>A human-readable table showing all indices with their health status, document count, store size, number of primary shards, and replicas.</details>
+
+**4. What is the `analysis-icu` plugin used for?**
+<details><summary>Answer</summary>It provides the ICU Analyzer for proper Unicode text analysis, especially important for CJK (Chinese, Japanese, Korean) languages where the standard analyzer tokenizes each character individually.</details>
+
+**5. Name 3 advantages of using an official Elasticsearch client library (e.g., `elasticsearch-py`) over raw `curl` commands.**
+<details><summary>Answer</summary>1) Connection pooling for performance, 2) Automatic retry on node failure, 3) Native serialization to language objects (no manual JSON formatting).</details>
+
+---
+
 ## Assignments
 - [Proceed to Lab 19: Using Painless Scripts](lab19.md)
 - [Proceed to Lab 20: REST API Deep Dive & Python Client](lab20.md)

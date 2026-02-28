@@ -149,6 +149,25 @@ Elasticsearch is used across industries for a wide variety of applications:
 
 ---
 
+## Module 1 Quiz
+
+**1. What open-source library is Elasticsearch built on top of?**
+<details><summary>Answer</summary>Apache Lucene — a Java-based search library that handles tokenization, inverted indexing, and BM25 relevance scoring.</details>
+
+**2. What is the difference between an inverted index and a traditional database index?**
+<details><summary>Answer</summary>A traditional B-tree index maps row IDs to column values. An inverted index does the opposite: it maps each unique term to the list of document IDs that contain it, enabling fast full-text search.</details>
+
+**3. A single-node cluster shows status "yellow". Is this a problem?**
+<details><summary>Answer</summary>No. Yellow means all primary shards are assigned but replica shards are unassigned. With only 1 node, replicas cannot be placed on a different node, so yellow is expected and normal.</details>
+
+**4. What is the difference between a `text` field and a `keyword` field?**
+<details><summary>Answer</summary>`text` fields are analyzed (tokenized, lowercased) for full-text search. `keyword` fields are stored as-is for exact matching, sorting, and aggregations.</details>
+
+**5. Name the four node roles in Elasticsearch.**
+<details><summary>Answer</summary>Master (manages cluster state), Data (stores shards), Ingest (preprocesses data via pipelines), and Coordinating (routes requests and merges results).</details>
+
+---
+
 ## Assignments
 - [Proceed to Lab 1: Exploring JSON and REST APIs on Ubuntu](lab1.md)
 - [Proceed to Lab 2: Starting a Temporary Dev Node via Tarball](lab2.md)
