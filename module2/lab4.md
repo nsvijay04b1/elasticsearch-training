@@ -39,6 +39,16 @@ Kibana needs an enrollment token to securely pair with the database.
 
 ---
 
+## Part 2: Core Kibana Applications to Learn
+
+As part of this course, you will primarily interact with three built-in Kibana applications. Familiarize yourself with how to navigate to them using the global hamburger menu (☰).
+
+![Kibana Core Options](images/kibana_options.png)
+
+1. **Dev Tools:** (Found under Management). The primary console for writing raw JSON/REST queries against the Elasticsearch cluster. Used to debug nodes, modify settings, and test manual queries.
+2. **Discover:** (Found under Analytics). The primary search UI. Allows you to search through millions of documents interactively using the Kibana Query Language (KQL) without having to write raw JSON.
+3. **Dashboards:** (Found under Analytics). The visualization engine. Allows you to build pie charts, line graphs, and data tables on top of your aggregations.
+
 ---
 
 ---
