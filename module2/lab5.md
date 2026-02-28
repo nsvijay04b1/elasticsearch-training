@@ -33,64 +33,109 @@ The **Dev Tools Console** is an interactive UI where you write Elasticsearch req
 
 ## Part 2: Hands-On Troubleshooting
 
-Below are the commands you will type into the left pane, and the expected output you will analyze in the right pane.
+Below are the commands you will type into the left pane of Dev Tools, followed immediately by the expected output you will analyze in the right pane.
 
-| Command (Type on Left Pane) | Expected Output (View on Right Pane) |
-| :--- | :--- |
-| **1. Check baseline health**<br><br>```json
+### 1. Check baseline health
+Review the `"status"` field. It should currently be `"green"` since we have no complex indices yet.
+
+**Command:**
+```json
 GET _cluster/health
-``` | Review the `"status"` field. It should currently be `"green"` since we have no complex indices yet.<br><br>```json
+```
+
+**Expected Output:**
+```json
 {
   "cluster_name": "elasticsearch",
   "status": "green",
   "unassigned_shards": 0
 }
-``` |
-| **2. Break the rules**<br><br>Create an index demanding 1 Replica. Since you only have 1 Node, Elasticsearch cannot safely assign the duplicate data.<br><br>```json
+```
+
+### 2. Break the rules
+Create an index demanding 1 Replica. Since you only have 1 Node, Elasticsearch cannot safely assign the duplicate data. The cluster will accept the request and create the primary shard.
+
+**Command:**
+```json
 PUT /troubleshoot_index
 { 
   "settings": {
     "number_of_replicas": 1 
   } 
 }
-``` | The cluster will accept the request and create the primary shard.<br><br>```json
+```
+
+**Expected Output:**
+```json
 {
   "acknowledged": true,
   "shards_acknowledged": true,
   "index": "troubleshoot_index"
 }
-``` |
-| **3. Check degraded health**<br><br>```json
+```
+
+### 3. Check degraded health
+The cluster is now degraded because the replica couldn't be placed.
+
+**Command:**
+```json
 GET _cluster/health
-``` | The cluster is now degraded because the replica couldn't be placed.<br><br>```json
+```
+
+**Expected Output:**
+```json
 {
   "cluster_name": "elasticsearch",
   "status": "yellow",
   "unassigned_shards": 1
 }
-``` |
-| **4. Diagnose specifically WHY**<br><br>Ask the Allocation Explain API why the shard is unassigned.<br><br>```json
+```
+
+### 4. Diagnose specifically WHY
+Ask the Allocation Explain API why the shard is unassigned. Look inside the `"decisions"` array. You will see an explicit rejection reason.
+
+**Command:**
+```json
 GET _cluster/allocation/explain
-``` | Look inside the `"decisions"` array. You will see an explicit rejection reason:<br><br>```json
+```
+
+**Expected Output:**
+```json
 {
   "decider": "same_shard",
   "decision": "NO",
   "explanation": "the shard cannot be allocated to the same node on which a copy of the shard already exists"
 }
-```|
-| **5. Check Node Resources**<br><br>Verify if your VM is running out of Heap Memory or Disk Space.<br><br>```json
+```
+
+### 5. Check Node Resources
+Verify if your VM is running out of Heap Memory or Disk Space. A tabular output will show your current resource utilization.
+
+**Command:**
+```text
 GET _cat/nodes?v&h=name,heap.percent,ram.percent,cpu,disk.used_percent
-``` | A tabular output will show your current resource utilization.<br><br>```text
+```
+
+**Expected Output:**
+```text
 name      heap.percent ram.percent cpu disk.used_percent
 ubuntuvm            45          82   5                41
-``` |
-| **6. Verify Thread Pools**<br><br>If the UI is slow, check if the internal queues are rejecting tasks.<br><br>```json
+```
+
+### 6. Verify Thread Pools
+If the UI is slow, check if the internal queues are rejecting tasks. A tabular output tracking active threads and dropped/rejected operations.
+
+**Command:**
+```text
 GET _cat/thread_pool/search,write?v&h=node_name,name,active,queue,rejected
-``` | A tabular output tracking active threads and dropped/rejected operations.<br><br>```text
+```
+
+**Expected Output:**
+```text
 node_name name   active queue rejected
 ubuntuvm  search      0     0        0
 ubuntuvm  write       0     0        0
-``` |
+```
 
 ---
 
