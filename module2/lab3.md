@@ -56,9 +56,16 @@ While `apt` is the recommended approach for Ubuntu VMs, there are other valid me
 
 ### Alternative 1: Direct `.deb` Download
 If your Ubuntu VM does not have outgoing internet access to add the Elastic APT repository, you can securely scp the `.deb` file from another machine and install it manually:
+*For standard x86/Intel/AMD machines:*
 ```bash
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-amd64.deb
 sudo dpkg -i elasticsearch-8.10.4-amd64.deb
+```
+
+*For ARM-based machines (e.g., Apple Silicon Mac M1/M2/M3 running an Ubuntu VM):*
+```bash
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-arm64.deb
+sudo dpkg -i elasticsearch-8.10.4-arm64.deb
 ```
 **Prerequisites:** Requires a pre-downloaded `.deb` file and `sudo` access.
 

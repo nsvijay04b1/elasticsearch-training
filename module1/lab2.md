@@ -9,11 +9,20 @@ Run a temporary single-node development cluster on your Ubuntu machine without p
 ## Instructions
 
 1. **Download the Linux Tar Archive:**
+
+   *For standard x86/Intel/AMD machines:*
    ```bash
    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-linux-x86_64.tar.gz
    ```
 
+   *For ARM-based machines (e.g., Apple Silicon Mac M1/M2/M3 running an Ubuntu VM):*
+   ```bash
+   wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-linux-aarch64.tar.gz
+   ```
+
 2. **Extract the archive and enter the directory:**
+
+   *(Make sure to change the filename below if you downloaded the `aarch64` version instead!)*
    ```bash
    tar -xzf elasticsearch-8.10.4-linux-x86_64.tar.gz
    cd elasticsearch-8.10.4/
