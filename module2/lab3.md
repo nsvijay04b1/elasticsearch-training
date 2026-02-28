@@ -64,6 +64,24 @@ Now, we need a permanent, production-ready installation that runs in the backgro
    ```
    *(A successful response is a JSON payload displaying the cluster name and Elasticsearch version).*
 
+8. **Resetting the `elastic` superuser password:**
+   If you missed or forgot the auto-generated password from Step 4, you should reset it now before proceeding. You have two approaches:
+
+   *Method A: Auto-generate a new random password using the CLI tool:*
+   ```bash
+   sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i
+   ```
+   *(The `-i` flag allows you to pass it interactively if you wish to type it yourself, otherwise let it auto-generate and copy the output).*
+
+   *Method B: Reset it manually via the Security API (cURL):*
+   ```bash
+   curl -u elastic -X POST "https://localhost:9200/_security/user/elastic/_password" \
+        -H 'Content-Type: application/json' \
+        -d '{ "password" : "your_new_password_here" }' \
+        --cacert /etc/elasticsearch/certs/http_ca.crt
+   ```
+
+
 
 
 ---
