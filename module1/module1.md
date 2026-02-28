@@ -5,12 +5,53 @@ Relational databases are optimized for transactional consistency (ACID), structu
 
 Elasticsearch is optimized for text searches, relevance ranking, large data volumes, and horizontal scaling. It uses an inverted index.
 
-## 1.2 Lucene & Inverted Index Internals
-Lucene is the core indexing engine. It tokenizes text, creates inverted indexes, stores segments, and scores relevance. An inverted index works by mapping terms (from a Term Dictionary) to Posting Lists of document IDs.
+## 1.2 What is Apache Lucene?
+
+Apache Lucene is the **open-source search library** that Elasticsearch is built on top of. Written in Java, Lucene handles the low-level mechanics of indexing and searching text. Understanding Lucene is key to understanding *why* Elasticsearch works the way it does.
+
+**What Lucene Does:**
+- **Tokenizes** raw text into individual terms (e.g., `"Running Shoes"` → `["running", "shoes"]`).
+- **Builds an Inverted Index** that maps each term to the list of documents containing it (like a book's back-of-the-book index).
+- **Stores data in immutable Segments** — once written, segments are never modified. Deletes are tracked as "tombstones" and cleaned up during background merges.
+- **Scores relevance** using the BM25 algorithm (Best Matching 25), ranking results by term frequency, inverse document frequency, and field length.
+
+**How Elasticsearch Builds on Lucene:**
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  Elasticsearch                       │
+│  ┌──────────────────────────────────────────────┐   │
+│  │  Distributed Layer (Clustering, Sharding,    │   │
+│  │  Replication, REST API, Security, ILM)       │   │
+│  └──────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────┐   │
+│  │  Apache Lucene (Core Engine)                 │   │
+│  │  Tokenizers, Inverted Index, Segments,       │   │
+│  │  BM25 Scoring, Analyzers, Compression        │   │
+│  └──────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────┘
+```
+
+| Feature | Lucene Provides | Elasticsearch Adds |
+|---------|:---:|:---:|
+| Full-text indexing & search | ✅ | — |
+| BM25 relevance scoring | ✅ | — |
+| Distributed clustering | — | ✅ |
+| REST API (HTTP/JSON) | — | ✅ |
+| Shard replication & failover | — | ✅ |
+| Security (RBAC, TLS) | — | ✅ |
+| Index Lifecycle Management | — | ✅ |
+| Kibana visualization | — | ✅ |
+
+*In short: Lucene is the search engine. Elasticsearch wraps it with distribution, REST APIs, security, and management — making it production-ready at scale.*
+
+## 1.3 Inverted Index Internals
+
+An inverted index works by mapping terms (from a Term Dictionary) to Posting Lists of document IDs. This is the opposite of a relational database's row-based storage.
 
 ![Architecture Diagram](images/architecture_diagram_1.png)
 
-## 1.3 Core Data Model
+## 1.4 Core Data Model
 - **Document** = JSON object
 - **Field** = Key-value pair
 - **Index** = Logical grouping
@@ -19,7 +60,7 @@ Lucene is the core indexing engine. It tokenizes text, creates inverted indexes,
 **Text vs Keyword Types**
 Use `text` for full-text search (analyzed), and `keyword` for exact match filtering and aggregations (not analyzed).
 
-## 1.4 Distributed Architecture
+## 1.5 Distributed Architecture
 - **Master**: Manages cluster state
 - **Data**: Stores shards
 - **Ingest**: Preprocess data
@@ -29,16 +70,16 @@ Master nodes update the cluster state and allocate shards. Writes go to the prim
 
 ![Architecture Diagram](images/architecture_diagram_2.png)
 
-## 1.5 Search Execution Flow
+## 1.6 Search Execution Flow
 The Coordinating Node scatters the request across relevant shards (where local execution happens), gathers the local results, merges them, and returns them to the client.
 
 ![Architecture Diagram](images/architecture_diagram_3.png)
 
-## 1.6 Enterprise Case Study – E-Commerce
+## 1.7 Enterprise Case Study – E-Commerce
 
 ![Architecture Diagram](images/architecture_diagram_4.png)
 
-## 1.7 Understanding Index Settings and Metadata
+## 1.8 Understanding Index Settings and Metadata
 
 When you create an index (e.g., `my_test_index`), Elasticsearch generates metadata defining its configuration and internal state. Here is a breakdown of what each response field means:
 
@@ -96,14 +137,7 @@ When you create an index (e.g., `my_test_index`), Elasticsearch generates metada
 - **`settings.index.uuid`**: A globally unique identifier assigned to this specific index across the cluster.
 - **`settings.index.version.created`**: The internal build version of Elasticsearch used when the index was constructed.
 
----
-
-
-## Assignments
-- [Proceed to Lab 1: Exploring JSON and REST APIs on Ubuntu](lab1.md)
-- [Proceed to Lab 2: Starting a Temporary Dev Node via Tarball](lab2.md)
-
-## 1.5 Elasticsearch Use Cases
+## 1.9 Elasticsearch Use Cases
 
 Elasticsearch is used across industries for a wide variety of applications:
 
@@ -112,3 +146,10 @@ Elasticsearch is used across industries for a wide variety of applications:
 - **Real-Time Monitoring:** Collect and visualize infrastructure metrics, application logs, and performance data via Kibana dashboards.
 - **Log Analytics:** Centralize logs from thousands of microservices for debugging, compliance, and root-cause analysis.
 - **Full-Text Search:** Build fast search engines for websites, knowledge bases, and document repositories.
+
+---
+
+## Assignments
+- [Proceed to Lab 1: Exploring JSON and REST APIs on Ubuntu](lab1.md)
+- [Proceed to Lab 2: Starting a Temporary Dev Node via Tarball](lab2.md)
+

@@ -38,13 +38,4 @@ Welcome to the comprehensive 2-day Elasticsearch training program. This reposito
 ## Instructor Preparation
 Please ensure the students' Ubuntu environments have `curl`, `wget`, `docker.io`, and standard developer packages installed prior to Day 1.
 
-## Mac Hypervisor Settings
-If students are running their Ubuntu instances via hypervisor on a MacBook, they **must** ensure the following configurations are set within `/etc/elasticsearch/elasticsearch.yml` and `/etc/kibana/kibana.yml` so that their host browser can successfully route into the VM over the virtual bridge:
 
-| Setting | Component | Purpose |
-|---------|-----------|---------|
-| `network.host: 0.0.0.0` | Elasticsearch | Allows the Mac browser to reach the database API on port 9200. |
-| `server.host: "0.0.0.0"` | Kibana | Allows the Mac browser to reach the user interface on port 5601. |
-| `discovery.type: single-node` | Elasticsearch | Forces "demo mode" so it doesn't try to find other servers, saving CPU and RAM. |
-| `-Xms1g / -Xmx1g` | JVM Options | Limits RAM usage to 1GB so your 4GB VM doesn't crash from "Out of Memory" errors. |
-| `xpack.security.enabled` | Both | Activates built-in security, requiring a password for the Mac to connect. |
