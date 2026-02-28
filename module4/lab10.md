@@ -49,6 +49,9 @@ POST /sales/_bulk
 2. **Analyze the Results:**
    Scroll down the response pane past the empty `"hits"` array to the `"aggregations"` block. You'll see an array of buckets (e.g., `Accessories`, `Footwear`) displaying their respective document counts and average prices.
 
+   *Note: In a true production environment, these raw JSON aggregations are rendered visually in Kibana Dashboards, like the example below:*
+   ![Kibana Dashboard UI](images/kibana_dashboard.png)
+
 ---
 
 ---

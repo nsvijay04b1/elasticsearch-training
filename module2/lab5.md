@@ -13,6 +13,9 @@ You get an alert at 3:00 AM stating the Elasticsearch cluster has entered a `Yel
 
 ## Instructions
 
+*(For reference, all queries in this lab will be executed in the Kibana Dev Tools console, which looks like this)*
+![Kibana Dev Tools UI](images/kibana_dev_tools.png)
+
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
 1. **Check the current cluster health:**
