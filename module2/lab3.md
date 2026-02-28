@@ -32,14 +32,31 @@ Now, we need a permanent, production-ready installation that runs in the backgro
    ```
    *Note: During installation, Elasticsearch automatically generates an `elastic` built-in superuser password. **Write this down immediately** if you see it in the terminal output!*
 
-5. **Start the Elasticsearch Service:**
+
+5. **(For MacBook Virtual Machine Users Only): Configure Interface Binding**
+   If you are running Ubuntu as a VM on top of a Mac via a hypervisor (e.g. Parallels, UTM, UTM/QEMU), the default `localhost` bindings will prevent your host Mac's browser from reaching the VM. You must explicitly configure Elasticsearch and Kibana with the following settings before starting the services:
+
+
+| Setting | Component | Purpose |
+|---------|-----------|---------|
+| `network.host: 0.0.0.0` | Elasticsearch | Allows the Mac browser to reach the database API on port 9200. |
+| `server.host: "0.0.0.0"` | Kibana | Allows the Mac browser to reach the user interface on port 5601. |
+| `discovery.type: single-node` | Elasticsearch | Forces "demo mode" so it doesn't try to find other servers, saving CPU and RAM. |
+| `-Xms1g / -Xmx1g` | JVM Options | Limits RAM usage to 1GB so your 4GB VM doesn't crash from "Out of Memory" errors. |
+| `xpack.security.enabled` | Both | Activates built-in security, requiring a password for the Mac to connect. |
+
+
+   *Edit `/etc/elasticsearch/elasticsearch.yml` and `/etc/kibana/kibana.yml` respectively with `nano` to apply these settings. To apply the JVM options, create a file named `/etc/elasticsearch/jvm.options.d/memory.options` and add `-Xms1g` and `-Xmx1g` on separate lines.*
+
+6. **Start the Elasticsearch Service:**
+
    ```bash
    sudo systemctl daemon-reload
    sudo systemctl enable elasticsearch.service
    sudo systemctl start elasticsearch.service
    ```
 
-6. **Verify the installation:**
+7. **Verify the installation:**
    Since v8.x, security is enabled by default. We must pass the self-signed certificate path and the `elastic` user credentials.
    ```bash
    # You will be prompted for your password:
