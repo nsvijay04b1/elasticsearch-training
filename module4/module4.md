@@ -51,5 +51,21 @@ graph TD
 ## Assignments
 - [Proceed to Lab 9: Query vs. Filter Contexts](lab9.md)
 - [Proceed to Lab 10: Aggregations Framework](lab10.md)
+- [Proceed to Lab 10.2: Building Kibana Dashboards](lab10_2.md)
 - [Proceed to Lab 11: Analyzing Search Performance](lab11.md)
 - [Proceed to Lab 11.2: Querying with ES|QL, EQL, and SQL](lab11_2.md)
+
+## 4.6 Search Applications
+
+Search Applications provide a unified API layer for building search-powered UIs:
+- Create search endpoints with pre-defined relevance rules.
+- Apply query parameters, filters, and facets without exposing raw Elasticsearch DSL.
+- Integrate with frontend frameworks via simple REST calls.
+
+## 4.7 Machine Learning in Search
+
+Elasticsearch integrates with ML tools to enhance search capabilities:
+- **Semantic Search:** Understand user intent beyond exact keyword matching using vector embeddings.
+- **Anomaly Detection:** Identify unusual patterns in time-series data automatically.
+- **Query Expansion:** Suggest alternative or related queries based on user behavior.
+- **Auto-Completion:** Predict and suggest search terms as users type, improving the search experience.

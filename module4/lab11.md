@@ -95,4 +95,4 @@ GET products/_search
 
 ---
 
-[Previous Lab: Lab 10](lab10.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11.2](lab11_2.md)
+[Previous Lab: Lab 10.2](lab10_2.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11.2](lab11_2.md)

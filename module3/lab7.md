@@ -113,4 +113,4 @@ You need to monitor the health of the very Ubuntu machine you are using to host 
 ---
 
 ---
-[Previous Lab: Lab 6](lab6.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 8](lab8.md)
+[Previous Lab: Lab 6](lab6.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 7.2](lab7_2.md)

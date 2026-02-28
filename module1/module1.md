@@ -102,3 +102,13 @@ When you create an index (e.g., `my_test_index`), Elasticsearch generates metada
 ## Assignments
 - [Proceed to Lab 1: Exploring JSON and REST APIs on Ubuntu](lab1.md)
 - [Proceed to Lab 2: Starting a Temporary Dev Node via Tarball](lab2.md)
+
+## 1.5 Elasticsearch Use Cases
+
+Elasticsearch is used across industries for a wide variety of applications:
+
+- **E-Commerce Search:** Power product catalogs with instant search, faceting, and auto-complete (e.g., Amazon product search).
+- **Security / SIEM:** Analyze security logs and detect intrusions or anomalies in real-time using EQL sequence detection.
+- **Real-Time Monitoring:** Collect and visualize infrastructure metrics, application logs, and performance data via Kibana dashboards.
+- **Log Analytics:** Centralize logs from thousands of microservices for debugging, compliance, and root-cause analysis.
+- **Full-Text Search:** Build fast search engines for websites, knowledge bases, and document repositories.

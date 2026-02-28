@@ -94,4 +94,4 @@ If you accidentally delete an index or suffer corruption, you can easily restore
 ---
 
 ---
-[Previous Lab: Lab 12](lab12.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13.2](lab13_2.md)
+[Previous Lab: Lab 12.2](lab12_2.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13.2](lab13_2.md)

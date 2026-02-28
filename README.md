@@ -20,16 +20,19 @@ Welcome to the comprehensive 2-day Elasticsearch training program. This reposito
 ### Day 2: Search, Data Lifecycle, and Advanced APIs
 4. **[Module 4: Search DSL, ES|QL, EQL, SQL](module4/module4.md)**
    - [Lab 9: Query vs. Filter Contexts](module4/lab9.md)
-   - [Lab 10: Aggregations Framework](module4/lab10.md)
+   - [Lab 10: Aggregations Framework
+  - Lab 10.2: Building Kibana Dashboards](module4/lab10.md)
    - [Lab 11: Analyzing Search Performance
   - Lab 11.2: Querying with ES|QL, EQL, and SQL](module4/lab11.md)
 5. **[Module 5: ILM, Down-sampling/Rollups, Snapshots](module5/module5.md)**
-   - [Lab 12: Implementing Index Lifecycle Management (ILM)](module5/lab12.md)
+   - [Lab 12: Implementing Index Lifecycle Management
+  - Lab 12.2: Working with Data Streams (ILM)](module5/lab12.md)
    - [Lab 13: Configuring Local Snapshots
   - Lab 13.2: Downsampling Time-Series Data](module5/lab13.md)
 6. **[Module 6: REST APIs, Clients, Painless Scripting](module6/module6.md)**
    - [Lab 14: Using Painless Scripts
-  - Lab 14.2: REST API Deep Dive & Python Client](module6/lab14.md)
+  - Lab 14.2: REST API Deep Dive & Python Client
+  - Lab 14.3: Installing and Managing Plugins](module6/lab14.md)
 
 ## Instructor Preparation
 Please ensure the students' Ubuntu environments have `curl`, `wget`, `docker.io`, and standard developer packages installed prior to Day 1.

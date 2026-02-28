@@ -55,3 +55,12 @@ Rolling upgrades allow zero downtime in production environments. The cycle is:
 - [Proceed to Lab 3: Installing Elasticsearch & Kibana on Ubuntu](lab3.md)
 - [Proceed to Lab 4: Configuring Basic Security & Kibana Setup](lab4.md)
 - [Proceed to Lab 5: Simulating & Advanced Troubleshooting](lab5.md)
+
+## 2.5 Enterprise Search Server
+
+An Enterprise Search Server provides scalable, unified search capabilities across multiple organizational data sources:
+
+- **Federated Search:** Search across databases, file shares, cloud storage, and SaaS applications from a single query.
+- **App Search:** Build custom, relevance-tuned search experiences for customer-facing applications.
+- **Workplace Search:** Enable employees to search internal knowledge bases, wikis, emails, and documents from one interface.
+- **Relevance Tuning:** Adjust search result ranking using curations, synonyms, and boost rules without code changes.

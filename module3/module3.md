@@ -70,3 +70,15 @@ Use `Fielddata` for full-text fields being used in aggregations (carefully, sinc
 - [Proceed to Lab 6: Indexing Data via Bulk API](lab6.md)
 - [Proceed to Lab 7: Installing Filebeat & Logstash](lab7.md)
 - [Proceed to Lab 8: Explicit Mappings & Ingest Pipelines](lab8.md)
+
+## 3.5 Connectors & Web Crawlers
+
+**Connectors** allow Elasticsearch to integrate with external data sources for automatic indexing:
+- **JDBC Connector:** Index data from relational databases (MySQL, PostgreSQL, Oracle).
+- **SharePoint/Confluence Connector:** Index content from enterprise collaboration tools.
+- **Cloud Connectors:** Pull data from AWS S3, Google Drive, OneDrive, and other cloud platforms.
+
+**Web Crawlers** automatically discover, fetch, and index content from websites:
+- Configure starting URLs and crawl rules (include/exclude patterns).
+- Extract text, metadata, and links for full-text searchability.
+- Schedule periodic re-crawls to keep content up to date.

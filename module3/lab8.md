@@ -109,4 +109,4 @@ GET my_logs/_mapping
 
 ---
 
-[Previous Lab: Lab 7](lab7.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 9](../module4/lab9.md)
+[Previous Lab: Lab 7.2](lab7_2.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 9](../module4/lab9.md)

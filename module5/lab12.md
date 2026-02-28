@@ -126,4 +126,4 @@ GET logs-000001/_ilm/explain
 
 ---
 
-[Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](lab13.md)
+[Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 12.2](lab12_2.md)
