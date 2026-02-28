@@ -7,7 +7,7 @@ Nest a Metrics Aggregation inside a Bucket Aggregation to perform live mathemati
 The business team wants to know the average price of products, but separated out by Category.
 
 ## Prerequisites
-- Completion of Lab 11 (The `products` index must exist).
+- Completion of Lab 6 (The `products` index must exist with sample data).
 - You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
@@ -48,6 +48,33 @@ POST /sales/_bulk
 
 2. **Analyze the Results:**
    Scroll down the response pane past the empty `"hits"` array to the `"aggregations"` block. You'll see an array of buckets (e.g., `Accessories`, `Footwear`) displaying their respective document counts and average prices.
+
+**Expected Output:**
+```json
+{
+  "aggregations": {
+    "categories": {
+      "buckets": [
+        {
+          "key": "Accessories",
+          "doc_count": 3,
+          "avg_price": { "value": 35.0 }
+        },
+        {
+          "key": "Footwear",
+          "doc_count": 3,
+          "avg_price": { "value": 131.67 }
+        },
+        {
+          "key": "Apparel",
+          "doc_count": 2,
+          "avg_price": { "value": 90.0 }
+        }
+      ]
+    }
+  }
+}
+```
 
 
 

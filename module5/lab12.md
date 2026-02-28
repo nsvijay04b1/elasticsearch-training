@@ -13,36 +13,117 @@ You are collecting daily log data from a swarm of microservices. To prevent the 
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
-1. **Create the ILM Policy:**
-   ```json
-   PUT _ilm/policy/logs_policy
-   {
-     "policy": {
-       "phases": {
-         "hot": {
-           "actions": { 
-             "rollover": { "max_age": "1d", "max_size": "50gb" } 
-           }
-         },
-         "delete": {
-           "min_age": "30d",
-           "actions": { "delete": {} }
-         }
-       }
-     }
-   }
-   ```
+### 1. Create the ILM Policy
+```json
+PUT _ilm/policy/logs_policy
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "actions": { 
+          "rollover": { "max_age": "1d", "max_size": "50gb" } 
+        }
+      },
+      "delete": {
+        "min_age": "30d",
+        "actions": { "delete": {} }
+      }
+    }
+  }
+}
+```
 
-2. **Verify Policy Creation:**
-   ```json
-   GET _ilm/policy/logs_policy
-   ```
+**Expected Output:**
+```json
+{ "acknowledged": true }
+```
 
-*(In a real production environment, you would then create an Index Template that applies `logs_policy` to any new indices matching the pattern `logs-*`).*
+### 2. Verify Policy Creation
+```json
+GET _ilm/policy/logs_policy
+```
+
+**Expected Output:**
+```json
+{
+  "logs_policy": {
+    "policy": {
+      "phases": {
+        "hot": { "actions": { "rollover": { "max_age": "1d", "max_size": "50gb" } } },
+        "delete": { "min_age": "30d", "actions": { "delete": {} } }
+      }
+    }
+  }
+}
+```
+
+### 3. Create an Index Template that Attaches the Policy
+This template automatically applies `logs_policy` to any new index matching the `logs-*` pattern.
+```json
+PUT _index_template/logs_template
+{
+  "index_patterns": ["logs-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "index.lifecycle.name": "logs_policy",
+      "index.lifecycle.rollover_alias": "logs"
+    }
+  }
+}
+```
+
+**Expected Output:**
+```json
+{ "acknowledged": true }
+```
+
+### 4. Create the Initial Write Index
+The `is_write_index` flag tells Elasticsearch this is the active index for new writes.
+```json
+PUT logs-000001
+{
+  "aliases": {
+    "logs": { "is_write_index": true }
+  }
+}
+```
+
+**Expected Output:**
+```json
+{ "acknowledged": true, "shards_acknowledged": true, "index": "logs-000001" }
+```
+
+### 5. Index a Sample Document via the Alias
+```json
+POST logs/_doc
+{
+  "message": "Service started successfully",
+  "level": "INFO",
+  "@timestamp": "2024-10-15T10:00:00Z"
+}
+```
+
+### 6. Verify ILM is Attached
+```json
+GET logs-000001/_ilm/explain
+```
+
+**Expected Output:**
+```json
+{
+  "indices": {
+    "logs-000001": {
+      "index": "logs-000001",
+      "managed": true,
+      "policy": "logs_policy",
+      "phase": "hot"
+    }
+  }
+}
+```
 
 ---
 
----
-
----
 [Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](lab13.md)

@@ -52,3 +52,4 @@ graph TD
 - [Proceed to Lab 9: Query vs. Filter Contexts](lab9.md)
 - [Proceed to Lab 10: Aggregations Framework](lab10.md)
 - [Proceed to Lab 11: Analyzing Search Performance](lab11.md)
+- [Proceed to Lab 11.2: Querying with ES|QL, EQL, and SQL](lab11_2.md)

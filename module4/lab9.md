@@ -7,7 +7,7 @@ Execute structured searches in Kibana Dev Tools to understand the deep differenc
 You need to search the `products` index created back in Lab 5. Users are looking for the word "shoe", but they only want to see results that cost less than $100.
 
 ## Prerequisites
-- Completion of Lab 11 (The `products` index must exist).
+- Completion of Lab 6 (The `products` index must exist with sample data).
 - You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions

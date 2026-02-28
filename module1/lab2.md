@@ -40,7 +40,9 @@ Run a temporary single-node development cluster on your Ubuntu machine without p
 5. **Create an Index:**
    Since security is enabled by default in 8.x, we must use `curl` with the generated `elastic` password. *(Replace `<PASSWORD>` with the password printed in terminal 1).*
    ```bash
-   curl -X PUT "https://localhost:9200/my_test_index" --insecure -u elastic:<PASSWORD>
+   **Create an Index and Verify Shards/Replicas:**
+```bash
+curl -X PUT "https://localhost:9200/my_test_index" --insecure -u elastic:<PASSWORD>
    ```
 
 6. **Query the Index:**

@@ -39,3 +39,4 @@ graph TD
 
 ## Assignments
 - [Proceed to Lab 14: Using Painless Scripts](lab14.md)
+- [Proceed to Lab 14.2: REST API Deep Dive & Python Client](lab14_2.md)
