@@ -1,51 +1,54 @@
 # Lab 6: Indexing Data via Bulk API
 
 ## Goal
-Understand why a cluster turns yellow by intentionally breaking the allocation rules, and use the Allocation Explain API to troubleshoot.
+Learn how to use the high-throughput Bulk API endpoint to index multiple documents in a single HTTP request using `curl`.
 
 ## Scenario
-You get an alert at 3:00 AM stating the Elasticsearch cluster has entered a `Yellow` health state. You need to identify *exactly* why shards are unassigned. 
-
-*(Since our local cluster is a single node, we can simulate this by requesting a replica, which Elasticsearch will refuse to assign to the same node as the primary!)*
+Instead of sending 10,000 separate `curl` commands to insert your product catalog, you format them into a single file to bypass network latency and HTTP header overhead.
 
 ## Prerequisites
-- You must be logged into the Kibana Web UI and have the Dev Tools console open.
+- Completion of Lab 4.
+- Elasticsearch must be running securely.
+- You must have your `elastic` superuser password handy.
 
 ## Instructions
 
-*(Navigate to **Management -> Dev Tools** in Kibana).*
-
-1. **Check the current cluster health:**
-   ```json
-   GET _cluster/health
+1. **Create a Bulk formatted file:**
+   The Bulk API requires a specific newline-delimited format (NDJSON), where an action instruction line is immediately followed by the document payload line.
+   ```bash
+   cat <<EOF > requests.json
+   { "index" : { "_index" : "products", "_id" : "1" } }
+   { "name": "Running Shoe", "price": 95, "category": "Footwear" }
+   { "index" : { "_index" : "products", "_id" : "2" } }
+   { "name": "Winter Hat", "price": 25, "category": "Accessories" }
+   { "index" : { "_index" : "products", "_id" : "3" } }
+   { "name": "Leather Belt", "price": 45, "category": "Accessories" }
+   EOF
    ```
-   *Note the cluster status.*
+   *Note: Ensure there is a trailing newline at the end of the file!*
 
-2. **Break the rules:**
-   Create an index that explicitly demands 1 Replica. Since your cluster only has 1 Data Node, Elasticsearch cannot assign the replica safely.
-   ```json
-   PUT /troubleshoot_index
-   { 
-     "settings": { "number_of_replicas": 1 } 
-   }
+2. **Execute the Bulk API Request:**
+   Pass the file to curl using the `--data-binary` or `@` flag.
+   ```bash
+   curl -X POST "https://localhost:9200/_bulk" \
+     -H 'Content-Type: application/json' \
+     --cacert /etc/elasticsearch/certs/http_ca.crt \
+     -u elastic \
+     --data-binary @requests.json
    ```
 
-3. **Check the cluster health again:**
-   ```json
-   GET _cluster/health
+3. **Verify Insertion:**
+   *(You will be prompted for your password)*
+   ```bash
+   curl -X GET "https://localhost:9200/products/_count" \
+     --cacert /etc/elasticsearch/certs/http_ca.crt \
+     -u elastic
    ```
-   *The cluster should now be in a `Yellow` state!*
-
-4. **Ask Elasticsearch why it's Yellow:**
-   The Allocation Explain API gives you the exact reason why a shard is unassigned.
-   ```json
-   GET _cluster/allocation/explain
-   ```
-   *Look through the `"decisions"` array in the response. You should see an explanation stating: `the node is on the same host as the primary shard` or similar, indicating it is waiting for a 2nd Data Node to join the cluster.*
+   *The `"count"` field should reflect the number of documents submitted.*
 
 ---
 
 ---
 
 ---
-[Previous Lab: Lab 5](../module2/lab5.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 7](lab7.md)
+[Previous Lab: Lab 6](lab6.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 8](lab8.md)

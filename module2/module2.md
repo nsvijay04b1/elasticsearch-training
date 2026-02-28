@@ -3,52 +3,25 @@
 ## 2.1 Development vs Production Setup
 A Single Node is used for local development, lacking fault tolerance. A Production Cluster requires at least 3 master-eligible nodes to prevent split-brain scenarios. Bootstrap settings (`cluster.initial_master_nodes`, `discovery.seed_hosts`) are required to define how the cluster forms initially.
 
-```mermaid
-graph TD
-    subgraph "Single Node (Dev)"
-        S1[Elasticsearch Node - Master, Data, Ingest, Coord]
-    end
-
-    subgraph "Production Cluster"
-        M1[Master Node A]
-        M2[Master Node B]
-        M3[Master Node C]
-        
-        D1[Data Node 1]
-        D2[Data Node 2]
-        
-        M1 --- M2
-        M2 --- M3
-        M1 --- M3
-        
-        M1 -.-> D1
-        M1 -.-> D2
-    end
-```
+![Architecture Diagram](images/architecture_diagram_1.png)
 
 ## 2.2 Security Architecture
 - **Authentication & Authorization**: Identity verification and Role-Based Access Control (RBAC).
 - **TLS Encryption**: Client to Node (HTTPS) and Node to Node communication should be encrypted.
 - **API Keys**: For service-to-service communication and multi-tenant isolation.
 
-```mermaid
-graph TD
-    Client((External Client)) -->|HTTPS TLS| WAF[Reverse Proxy / WAF]
-    WAF -->|HTTPS TLS| ESCluster[Elasticsearch Cluster]
-    
-    subgraph "Elasticsearch Cluster"
-        NodeA[ES Node A]
-        NodeB[ES Node B]
-        NodeC[ES Node C]
-        
-        NodeA <-->|Encrypted Transport| NodeB
-        NodeB <-->|Encrypted Transport| NodeC
-        NodeA <-->|Encrypted Transport| NodeC
-    end
-```
+![Architecture Diagram](images/architecture_diagram_2.png)
+
+## 2.3 Kibana UI Overview
+Kibana provides the visualization layer. **Discover** is used for searching index data interactively. **Dashboards** aggregate complex Metrics and Bucket data. **Dev Tools** allows raw Elasticsearch query execution.
+
+![Kibana UI Reference Diagram](images/architecture_diagram_5_kibana.png)
 
 ## 2.4 High Availability & Fault Tolerance
-Elasticsearch prevents "Split Brain" by requiring a quorum for cluster decisions (majority rules: e.g. 2 out of 3 master nodes).
+
+**What is a Split-Brain Scenario?**
+A "Split-Brain" occurs when a network partition causes a cluster to divide into two disconnected halves. If both halves elect their own Master node, they will independently accept conflicting writes. When the network heals, the two halves cannot be merged without massive data loss.
+Elasticsearch prevents Split-Brain by enforcing strict **quorum** rules. A cluster requires a strict majority of master-eligible nodes `(N/2) + 1` to be visible before any Master is elected. If an isolated subset loses quorum, they refuse to elect a Master and halt all writes, protecting data integrity.
 
 **Cluster Health States:**
 - **Green**: All shards assigned
@@ -56,11 +29,7 @@ Elasticsearch prevents "Split Brain" by requiring a quorum for cluster decisions
 - **Red**: Primary missing
 
 **Replica Recovery Process:**
-```mermaid
-graph TD
-    Fail[Primary Shard on Node A Fails] --> Promote[Replica on Node B Promoted to Primary]
-    Promote --> Alloc[New Replica Allocated Elsewhere]
-```
+![Architecture Diagram](images/architecture_diagram_3.png)
 
 ## 2.5 Rolling Upgrade Strategy
 Rolling upgrades allow zero downtime in production environments. The cycle is:
@@ -70,6 +39,8 @@ Rolling upgrades allow zero downtime in production environments. The cycle is:
 4. Start the node.
 5. Re-enable allocation.
 6. Repeat for all nodes.
+
+![Rolling Upgrade Diagram](images/architecture_diagram_4_rolling.png)
 
 ## 2.6 Troubleshooting Concepts
 
@@ -84,3 +55,4 @@ Rolling upgrades allow zero downtime in production environments. The cycle is:
 - [Proceed to Lab 3: Installing Elasticsearch & Kibana on Ubuntu](lab3.md)
 - [Proceed to Lab 4: Configuring Basic Security & Kibana Setup](lab4.md)
 - [Proceed to Lab 5: Simulating & Troubleshooting Cluster Issues](lab5.md)
+- [Proceed to Lab 5.2: Advanced Troubleshooting Concepts](lab5_2.md)

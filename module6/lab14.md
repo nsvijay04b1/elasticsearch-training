@@ -1,55 +1,46 @@
 # Lab 14: Using Painless Scripts
 
 ## Goal
-Configure a Local File System repository directly on the Ubuntu machine and execute a manual backup snapshot.
+Update a document field dynamically using a Painless script without having to pull the document out of Elasticsearch, modify it in application code, and send it back.
 
 ## Scenario
-While backing up to S3 is standard for production, you need to execute a rapid, local backup of your cluster prior to performing a risky data migration.
+Inflation has hit! You need to increase the price of a specific product ("Running Shoe", ID 1) by a flat amount natively inside the cluster.
 
 ## Prerequisites
-- You must be securely connected to your Ubuntu VM terminal with `sudo` privileges.
+- Completion of Lab 11 (The `products` index must exist).
 - You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
 
-1. **Register the backup path in Elasticsearch:**
-   By default, Elasticsearch blocks writing files outside of its data directory for security. We must explicitly permit a backup path in `elasticsearch.yml`.
-   
-   *(In your Ubuntu Terminal):*
-   ```bash
-   echo 'path.repo: ["/var/backups/es_repo"]' | sudo tee -a /etc/elasticsearch/elasticsearch.yml
-   ```
+*(Navigate to **Management -> Dev Tools** in Kibana).*
 
-2. **Create the directory and assign permissions:**
-   ```bash
-   sudo mkdir -p /var/backups/es_repo
-   sudo chown -R elasticsearch:elasticsearch /var/backups/es_repo
-   ```
-
-3. **Restart Elasticsearch to apply settings:**
-   ```bash
-   sudo systemctl restart elasticsearch.service
-   ```
-   *(Wait ~30 seconds for the node to come back online).*
-
-4. **Register the Repository (in Kibana Dev Tools):**
+1. **Verify Current Price**:
    ```json
-   PUT _snapshot/my_fs_backup
+   GET products/_doc/1
+   ```
+   *Note the `price` field value.*
+
+2. **Execute the Update Script**:
+   We use `ctx._source` to access the document's fields. We also use a parameterized variable `markup` rather than hardcoding the added value. This enables Elasticsearch to cache the compiled bytecode of the script!
+   ```json
+   POST products/_update/1
    {
-     "type": "fs",
-     "settings": { "location": "/var/backups/es_repo" }
+     "script": {
+       "source": "ctx._source.price += params.markup",
+       "params": { "markup": 10 }
+     }
    }
    ```
 
-5. **Execute a Snapshot:**
-   The `wait_for_completion` flag blocks the HTTP response until the backup finishes.
+3. **Verify the Increment:**
    ```json
-   PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true
+   GET products/_doc/1
    ```
+   *The price should be 10 higher!*
 
 ---
 
 ---
 
 ---
-[Previous Lab: Lab 13](../module5/lab13.md) | [Return to Module 6](module6.md)
+[Previous Lab: Lab 4](lab4.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 6](../module3/lab6.md)

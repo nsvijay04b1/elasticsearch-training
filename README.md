@@ -12,9 +12,11 @@ Welcome to the comprehensive 2-day Elasticsearch training program. This reposito
    - [Lab 3: Installing Elasticsearch & Kibana on Ubuntu](module2/lab3.md)
    - [Lab 4: Configuring Basic Security & Kibana Setup](module2/lab4.md)
    - [Lab 5: Simulating & Troubleshooting Cluster Issues](module2/lab5.md)
+   - [Lab 5.2: Advanced Troubleshooting Concepts](module2/lab5_2.md)
 3. **[Module 3: Data Ingestion, Logstash, Beats](module3/module3.md)**
    - [Lab 6: Indexing Data via Bulk API](module3/lab6.md)
    - [Lab 7: Installing and Configuring Filebeat](module3/lab7.md)
+   - [Lab 7.2: Installing and Configuring Logstash](module3/lab7_2.md)
    - [Lab 8: Explicit Mappings & Ingest Pipelines](module3/lab8.md)
 
 ### Day 2: Search, Data Lifecycle, and Advanced APIs

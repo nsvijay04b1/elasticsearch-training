@@ -1,67 +1,60 @@
 # Lab 9: Query vs. Filter Contexts
 
 ## Goal
-Use Kibana Dev Tools to define an explicit mapping (preventing Mapping Explosions) and create an ingest pipeline to add timestamps to incoming data.
+Execute structured searches in Kibana Dev Tools to understand the deep difference between scoring a document via `must` (Query Context) versus exact filtering via `filter` (Filter Context).
 
 ## Scenario
-Your application sends sparse log data that doesn't include a timestamp. You need Elasticsearch to append the exact time the log was received. Additionally, you want to strictly control the mapping so that the `status` field is only ever treated as a `keyword` for exact filtering, and `message` as `text` for full-text search.
+You need to search the `products` index created back in Lab 5. Users are looking for the word "shoe", but they only want to see results that cost less than $100.
 
 ## Prerequisites
-- Completion of Lab 4.
-- Kibana must be running and accessible via your web browser.
-- You must be logged into the Kibana Web UI.
+- Completion of Lab 11 (The `products` index must exist).
+- You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
 
-*(Note: We will execute these commands directly in the Kibana Dev Tools Console. Navigate to **Management -> Dev Tools** in Kibana).*
+*(Navigate to **Management -> Dev Tools** in Kibana).*
 
-1. **Create an Ingest Pipeline:**
-   This pipeline uses the `set` processor to add a field called `ingest_time`.
+1. **Execute a Mixed Context Search:**
    ```json
-   PUT _ingest/pipeline/my_pipeline
+   GET products/_search
    {
-     "description": "Add timestamp",
-     "processors": [
-       {
-         "set": { "field": "ingest_time", "value": "{{_ingest.timestamp}}" }
-       }
-     ]
-   }
-   ```
-
-2. **Create an index with an Explicit Mapping:**
-   We enforce that `status` cannot be tokenized.
-   ```json
-   PUT my_logs
-   {
-     "mappings": {
-       "properties": {
-         "status": { "type": "keyword" },
-         "message": { "type": "text" }
+     "query": {
+       "bool": {
+         "must": { 
+           "match": { "name": "shoe" } 
+         },
+         "filter": { 
+           "range": { "price": { "lt": 100 } } 
+         }
        }
      }
    }
    ```
 
-3. **Index a document using the new pipeline:**
-   Note the `?pipeline=my_pipeline` parameter.
+2. **Analyze the Results:**
+   - Look at the `_score` field in the response. The document matched the word "shoe", so BM25 gave it a relevance score!
+   - Notice how the `filter` block simply acted as a binary gate (Yes/No if `< 100`) without affecting the score.
+
+3. **Swap context to see the difference:**
+   Move the `match` query down into the `filter` block.
    ```json
-   POST my_logs/_doc/1?pipeline=my_pipeline
+   GET products/_search
    {
-     "status": "ERROR",
-     "message": "Failed to connect to the database securely."
+     "query": {
+       "bool": {
+         "filter": [
+           { "match": { "name": "shoe" } },
+           { "range": { "price": { "lt": 100 } } }
+         ]
+       }
+     }
    }
    ```
-
-4. **Retrieve the document to verify the injected timestamp:**
-   ```json
-   GET my_logs/_doc/1
-   ```
-   *You should see the `ingest_time` field automatically populated!*
+   - Execute it again. Observe that the `_score` is now exactly `0.0`. You have traded relevance ranking for pure caching speed.
 
 ---
 
 ---
 
 ---
-[Previous Lab: Lab 8](../module3/lab8.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 10](lab10.md)
+[Previous Lab: Lab 9](lab9.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11](lab11.md)

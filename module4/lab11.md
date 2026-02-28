@@ -1,10 +1,10 @@
 # Lab 11: Analyzing Search Performance
 
 ## Goal
-Nest a Metrics Aggregation inside a Bucket Aggregation to perform live mathematical analytics over grouped data.
+Use the Profile API to peek under the hood at Lucene's execution times, allowing you to troubleshoot slow queries.
 
 ## Scenario
-The business team wants to know the average price of products, but separated out by Category.
+A user complains that searches for "shoe" are suddenly taking a long time. You need to verify exactly how many milliseconds the internal Lucene token-matching took.
 
 ## Prerequisites
 - Completion of Lab 11 (The `products` index must exist).
@@ -14,32 +14,24 @@ The business team wants to know the average price of products, but separated out
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
-1. **Build a Bucket + Metrics Aggregation:**
-   - We use `terms` to create a bucket for each unique `category`.
-   - We nest an `avg` aggregation inside the bucket to calculate the mean `price`.
-   - We set `"size": 0` because we only care about the math results, not the actual product JSON documents.
-
+1. **Execute a Query with Profiling Enabled:**
+   Adding `"profile": true` forces Elasticsearch to attach a detailed timing breakdown to the end of the JSON response.
    ```json
    GET products/_search
    {
-     "size": 0,
-     "aggs": {
-       "categories": {
-         "terms": { "field": "category.keyword" },
-         "aggs": {
-           "avg_price": { "avg": { "field": "price" } }
-         }
-       }
-     }
+     "profile": true,
+     "query": { "match": { "name": "shoe" } }
    }
    ```
 
-2. **Analyze the Results:**
-   Scroll down the response pane past the empty `"hits"` array to the `"aggregations"` block. You'll see an array of buckets (e.g., `Accessories`, `Footwear`) displaying their respective document counts and average prices.
+2. **Review the Profile Response:**
+   - Look for the `"profile"` object at the bottom of the response.
+   - Expand `"shards"` -> `"0"` -> `"searches"` -> `"query"`.
+   - Observe the `"time_in_nanos"` statistic. This tells you the exact execution time down to the nanosecond level. In giant clusters, this is how you identify if a particular regex or script query is causing high latency.
 
 ---
 
 ---
 
 ---
-[Previous Lab: Lab 10](lab10.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 12](../module5/lab12.md)
+[Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](lab13.md)

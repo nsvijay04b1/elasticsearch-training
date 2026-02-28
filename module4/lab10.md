@@ -1,10 +1,10 @@
 # Lab 10: Aggregations Framework
 
 ## Goal
-Execute structured searches in Kibana Dev Tools to understand the deep difference between scoring a document via `must` (Query Context) versus exact filtering via `filter` (Filter Context).
+Nest a Metrics Aggregation inside a Bucket Aggregation to perform live mathematical analytics over grouped data.
 
 ## Scenario
-You need to search the `products` index created back in Lab 5. Users are looking for the word "shoe", but they only want to see results that cost less than $100.
+The business team wants to know the average price of products, but separated out by Category.
 
 ## Prerequisites
 - Completion of Lab 11 (The `products` index must exist).
@@ -14,17 +14,20 @@ You need to search the `products` index created back in Lab 5. Users are looking
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
-1. **Execute a Mixed Context Search:**
+1. **Build a Bucket + Metrics Aggregation:**
+   - We use `terms` to create a bucket for each unique `category`.
+   - We nest an `avg` aggregation inside the bucket to calculate the mean `price`.
+   - We set `"size": 0` because we only care about the math results, not the actual product JSON documents.
+
    ```json
    GET products/_search
    {
-     "query": {
-       "bool": {
-         "must": { 
-           "match": { "name": "shoe" } 
-         },
-         "filter": { 
-           "range": { "price": { "lt": 100 } } 
+     "size": 0,
+     "aggs": {
+       "categories": {
+         "terms": { "field": "category.keyword" },
+         "aggs": {
+           "avg_price": { "avg": { "field": "price" } }
          }
        }
      }
@@ -32,29 +35,11 @@ You need to search the `products` index created back in Lab 5. Users are looking
    ```
 
 2. **Analyze the Results:**
-   - Look at the `_score` field in the response. The document matched the word "shoe", so BM25 gave it a relevance score!
-   - Notice how the `filter` block simply acted as a binary gate (Yes/No if `< 100`) without affecting the score.
-
-3. **Swap context to see the difference:**
-   Move the `match` query down into the `filter` block.
-   ```json
-   GET products/_search
-   {
-     "query": {
-       "bool": {
-         "filter": [
-           { "match": { "name": "shoe" } },
-           { "range": { "price": { "lt": 100 } } }
-         ]
-       }
-     }
-   }
-   ```
-   - Execute it again. Observe that the `_score` is now exactly `0.0`. You have traded relevance ranking for pure caching speed.
+   Scroll down the response pane past the empty `"hits"` array to the `"aggregations"` block. You'll see an array of buckets (e.g., `Accessories`, `Footwear`) displaying their respective document counts and average prices.
 
 ---
 
 ---
 
 ---
-[Previous Lab: Lab 9](lab9.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11](lab11.md)
+[Previous Lab: Lab 10](lab10.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 12](../module5/lab12.md)

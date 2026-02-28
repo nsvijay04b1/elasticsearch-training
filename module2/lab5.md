@@ -1,46 +1,51 @@
 # Lab 5: Simulating & Troubleshooting Cluster Issues
 
 ## Goal
-Update a document field dynamically using a Painless script without having to pull the document out of Elasticsearch, modify it in application code, and send it back.
+Understand why a cluster turns yellow by intentionally breaking the allocation rules, and use the Allocation Explain API to troubleshoot.
 
 ## Scenario
-Inflation has hit! You need to increase the price of a specific product ("Running Shoe", ID 1) by a flat amount natively inside the cluster.
+You get an alert at 3:00 AM stating the Elasticsearch cluster has entered a `Yellow` health state. You need to identify *exactly* why shards are unassigned. 
+
+*(Since our local cluster is a single node, we can simulate this by requesting a replica, which Elasticsearch will refuse to assign to the same node as the primary!)*
 
 ## Prerequisites
-- Completion of Lab 11 (The `products` index must exist).
 - You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
-1. **Verify Current Price**:
+1. **Check the current cluster health:**
    ```json
-   GET products/_doc/1
+   GET _cluster/health
    ```
-   *Note the `price` field value.*
+   *Note the cluster status.*
 
-2. **Execute the Update Script**:
-   We use `ctx._source` to access the document's fields. We also use a parameterized variable `markup` rather than hardcoding the added value. This enables Elasticsearch to cache the compiled bytecode of the script!
+2. **Break the rules:**
+   Create an index that explicitly demands 1 Replica. Since your cluster only has 1 Data Node, Elasticsearch cannot assign the replica safely.
    ```json
-   POST products/_update/1
-   {
-     "script": {
-       "source": "ctx._source.price += params.markup",
-       "params": { "markup": 10 }
-     }
+   PUT /troubleshoot_index
+   { 
+     "settings": { "number_of_replicas": 1 } 
    }
    ```
 
-3. **Verify the Increment:**
+3. **Check the cluster health again:**
    ```json
-   GET products/_doc/1
+   GET _cluster/health
    ```
-   *The price should be 10 higher!*
+   *The cluster should now be in a `Yellow` state!*
+
+4. **Ask Elasticsearch why it's Yellow:**
+   The Allocation Explain API gives you the exact reason why a shard is unassigned.
+   ```json
+   GET _cluster/allocation/explain
+   ```
+   *Look through the `"decisions"` array in the response. You should see an explanation stating: `the node is on the same host as the primary shard` or similar, indicating it is waiting for a 2nd Data Node to join the cluster.*
 
 ---
 
 ---
 
 ---
-[Previous Lab: Lab 4](lab4.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 6](../module3/lab6.md)
+[Previous Lab: Lab 5](../module2/lab5.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 7](lab7.md)

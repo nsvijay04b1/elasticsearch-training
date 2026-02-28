@@ -1,37 +1,48 @@
 # Lab 12: Implementing Index Lifecycle Management (ILM)
 
 ## Goal
-Use the Profile API to peek under the hood at Lucene's execution times, allowing you to troubleshoot slow queries.
+Create an automated ILM policy to roll over an index when it gets too large, and eventually delete it when it grows too old.
 
 ## Scenario
-A user complains that searches for "shoe" are suddenly taking a long time. You need to verify exactly how many milliseconds the internal Lucene token-matching took.
+You are collecting daily log data from a swarm of microservices. To prevent the cluster's disk from filling up, you need a policy that automatically rolls over the active write-index when it hits 50GB or 1 day old, and deletes data after 30 days.
 
 ## Prerequisites
-- Completion of Lab 11 (The `products` index must exist).
 - You must be logged into the Kibana Web UI and have the Dev Tools console open.
 
 ## Instructions
 
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
-1. **Execute a Query with Profiling Enabled:**
-   Adding `"profile": true` forces Elasticsearch to attach a detailed timing breakdown to the end of the JSON response.
+1. **Create the ILM Policy:**
    ```json
-   GET products/_search
+   PUT _ilm/policy/logs_policy
    {
-     "profile": true,
-     "query": { "match": { "name": "shoe" } }
+     "policy": {
+       "phases": {
+         "hot": {
+           "actions": { 
+             "rollover": { "max_age": "1d", "max_size": "50gb" } 
+           }
+         },
+         "delete": {
+           "min_age": "30d",
+           "actions": { "delete": {} }
+         }
+       }
+     }
    }
    ```
 
-2. **Review the Profile Response:**
-   - Look for the `"profile"` object at the bottom of the response.
-   - Expand `"shards"` -> `"0"` -> `"searches"` -> `"query"`.
-   - Observe the `"time_in_nanos"` statistic. This tells you the exact execution time down to the nanosecond level. In giant clusters, this is how you identify if a particular regex or script query is causing high latency.
+2. **Verify Policy Creation:**
+   ```json
+   GET _ilm/policy/logs_policy
+   ```
+
+*(In a real production environment, you would then create an Index Template that applies `logs_policy` to any new indices matching the pattern `logs-*`).*
 
 ---
 
 ---
 
 ---
-[Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](lab13.md)
+[Previous Lab: Lab 12](lab12.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 14](../module6/lab14.md)
