@@ -43,6 +43,8 @@ Kibana needs an enrollment token to securely pair with the database.
 
 As part of this course, you will primarily interact with Kibana's built-in applications. When you first log in or click the **Home** icon, you will see a landing page containing several major solutions and categories. Familiarize yourself with these core options:
 
+![Kibana Home Screen](images/kibana_home_ui.png)
+
 1. **Elasticsearch:** Create search experiences with a refined set of APIs and tools.
 2. **Observability:** Consolidate your logs, metrics, application traces, and system availability with purpose-built UIs.
 3. **Security:** Prevent, collect, detect, and respond to threats for unified protection across your infrastructure.
