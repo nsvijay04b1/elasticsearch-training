@@ -21,7 +21,7 @@ The **Dev Tools Console** is an interactive UI where you write Elasticsearch req
 - Open the left navigation menu (the "hamburger" icon ☰).
 - Scroll down to the **Management** section and click **Dev Tools**.
 
-![Kibana Dev Tools UI](images/kibana_dev_tools.png)
+![Kibana Dev Tools UI](images/kibana_console_ui.png)
 
 ### 2. How to Execute Commands
 1. Type a command in the left pane (e.g., `GET _cluster/health`).
