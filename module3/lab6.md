@@ -51,4 +51,4 @@ Instead of sending 10,000 separate `curl` commands to insert your product catalo
 ---
 
 ---
-[Previous Lab: Lab 6](lab6.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 8](lab8.md)
+[Previous Lab: Lab 5](../module2/lab5.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 7](lab7.md)

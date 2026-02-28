@@ -54,5 +54,4 @@ Rolling upgrades allow zero downtime in production environments. The cycle is:
 ## Assignments
 - [Proceed to Lab 3: Installing Elasticsearch & Kibana on Ubuntu](lab3.md)
 - [Proceed to Lab 4: Configuring Basic Security & Kibana Setup](lab4.md)
-- [Proceed to Lab 5: Simulating & Troubleshooting Cluster Issues](lab5.md)
-- [Proceed to Lab 5.2: Advanced Troubleshooting Concepts](lab5_2.md)
+- [Proceed to Lab 5: Simulating & Advanced Troubleshooting](lab5.md)

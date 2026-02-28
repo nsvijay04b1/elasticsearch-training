@@ -12,6 +12,17 @@ Inflation has hit! You need to increase the price of a specific product ("Runnin
 
 ## Instructions
 
+### Part 0: Insert Target Document
+Let's create the product file we are going to modify via Painless.
+```json
+PUT /products/_doc/1
+{
+  "name": "Running Shoe",
+  "category": "Footwear",
+  "price": 90
+}
+```
+
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
 1. **Verify Current Price**:
@@ -43,4 +54,4 @@ Inflation has hit! You need to increase the price of a specific product ("Runnin
 ---
 
 ---
-[Previous Lab: Lab 4](lab4.md) | [Return to Module 2](module2.md) | [Next Lab: Lab 6](../module3/lab6.md)
+[Previous Lab: Lab 13](../module5/lab13.md) | [Return to Module 6](module6.md)

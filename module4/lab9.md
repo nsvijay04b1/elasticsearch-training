@@ -12,6 +12,18 @@ You need to search the `products` index created back in Lab 5. Users are looking
 
 ## Instructions
 
+### Part 0: Insert Sample Data
+Before running queries, let's insert some sample products.
+```json
+POST /products/_bulk
+{"index":{"_id":"1"}}
+{"name": "Running Shoe", "category": "Footwear", "price": 90}
+{"index":{"_id":"2"}}
+{"name": "Walking Shoe", "category": "Footwear", "price": 120}
+{"index":{"_id":"3"}}
+{"name": "Winter Jacket", "category": "Apparel", "price": 150}
+```
+
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
 1. **Execute a Mixed Context Search:**
@@ -57,4 +69,4 @@ You need to search the `products` index created back in Lab 5. Users are looking
 ---
 
 ---
-[Previous Lab: Lab 9](lab9.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11](lab11.md)
+[Previous Lab: Lab 8](../module3/lab8.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 10](lab10.md)

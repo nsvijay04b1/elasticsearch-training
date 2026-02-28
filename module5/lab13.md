@@ -47,9 +47,29 @@ While backing up to S3 is standard for production, you need to execute a rapid, 
    PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true
    ```
 
----
+
+
+### Part 2: Restoring from the Snapshot
+If you accidentally delete an index or suffer corruption, you can easily restore it from the repository.
+
+1. **Delete the original index (Simulate Data Loss):**
+   ```json
+   DELETE /my_test_index
+   ```
+
+2. **Restore from Snapshot:**
+   ```json
+   POST /_snapshot/my_local_backup/snapshot_1/_restore
+   {
+     "indices": "my_test_index",
+     "ignore_unavailable": true,
+     "include_global_state": false
+   }
+   ```
 
 ---
 
 ---
-[Previous Lab: Lab 13](../module5/lab13.md) | [Return to Module 6](module6.md)
+
+---
+[Previous Lab: Lab 12](lab12.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 14](../module6/lab14.md)

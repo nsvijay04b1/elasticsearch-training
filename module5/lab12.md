@@ -45,4 +45,4 @@ You are collecting daily log data from a swarm of microservices. To prevent the 
 ---
 
 ---
-[Previous Lab: Lab 12](lab12.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 14](../module6/lab14.md)
+[Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](lab13.md)

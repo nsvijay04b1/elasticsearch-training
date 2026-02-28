@@ -34,4 +34,4 @@ A user complains that searches for "shoe" are suddenly taking a long time. You n
 ---
 
 ---
-[Previous Lab: Lab 11](../module4/lab11.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 13](lab13.md)
+[Previous Lab: Lab 10](lab10.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 12](../module5/lab12.md)

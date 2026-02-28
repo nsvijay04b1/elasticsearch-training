@@ -64,4 +64,4 @@ Your application sends sparse log data that doesn't include a timestamp. You nee
 ---
 
 ---
-[Previous Lab: Lab 8](../module3/lab8.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 10](lab10.md)
+[Previous Lab: Lab 7](lab7.md) | [Return to Module 3](module3.md) | [Next Lab: Lab 9](../module4/lab9.md)

@@ -12,6 +12,18 @@ The business team wants to know the average price of products, but separated out
 
 ## Instructions
 
+### Part 0: Insert Sample Data
+Ensure you have the following data for aggregations:
+```json
+POST /sales/_bulk
+{"index":{}}
+{"product": "Laptop", "category": "Electronics", "price": 1200, "date": "2023-10-01"}
+{"index":{}}
+{"product": "Mouse", "category": "Electronics", "price": 25, "date": "2023-10-02"}
+{"index":{}}
+{"product": "Chair", "category": "Furniture", "price": 150, "date": "2023-10-01"}
+```
+
 *(Navigate to **Management -> Dev Tools** in Kibana).*
 
 1. **Build a Bucket + Metrics Aggregation:**
@@ -42,4 +54,4 @@ The business team wants to know the average price of products, but separated out
 ---
 
 ---
-[Previous Lab: Lab 10](lab10.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 12](../module5/lab12.md)
+[Previous Lab: Lab 9](lab9.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11](lab11.md)
