@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Elasticsearch Training Labs</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #fff;
+      width: 1020px;
+      max-width: 95vw;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+      max-height: 92vh;
+      overflow: auto;
+    }
+
+    h1 {
+      color: #1a3a5c;
+      margin-bottom: 6px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #1a3a5c, #2c5364);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      margin: 6px 4px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .module-select button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 16px 20px;
+      font-size: 16px;
+      text-align: left;
+      border-left: 4px solid #ff7043;
+    }
+
+    .module-select button .n {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      background: #ff7043;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 28px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 12px;
+      color: #fff;
+    }
+
+    .counter {
+      color: #888;
+      font-size: 14px;
+      margin: 8px 0;
+    }
+
+    .pbar {
+      width: 100%;
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      margin: 10px 0 20px;
+    }
+
+    .pfill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff7043, #1a3a5c);
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .sol {
+      display: none;
+      margin-top: 16px;
+      padding: 24px;
+      background: #f8faff;
+      border-left: 4px solid #1a3a5c;
+      border-radius: 8px;
+      line-height: 1.8;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .sol p {
+      margin: 10px 0;
+    }
+
+    .sol strong {
+      color: #1a3a5c;
+    }
+
+    .sol code {
+      background: #e8eef6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      color: #c7254e;
+    }
+
+    .sol ul,
+    .sol ol {
+      margin: 8px 0 8px 20px;
+      line-height: 2;
+    }
+
+    .d {
+      background: #1a1a2e;
+      color: #a0e8a0;
+      padding: 18px 20px;
+      border-radius: 10px;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 14px 0;
+      overflow-x: auto;
+      white-space: pre;
+      border: 1px solid #2d2d4e;
+    }
+
+    .j {
+      background: #1e1e2e;
+      color: #d4d4d4;
+      padding: 18px 20px;
+      border-radius: 10px;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 14px 0;
+      overflow-x: auto;
+      white-space: pre;
+      border: 1px solid #333;
+    }
+
+    .j .k {
+      color: #9cdcfe;
+    }
+
+    .j .s {
+      color: #ce9178;
+    }
+
+    .j .n {
+      color: #b5cea8;
+    }
+
+    .j .c {
+      color: #6a9955;
+      font-style: italic;
+    }
+
+    .c0 {
+      background: #0d1117;
+      color: #c9d1d9;
+      padding: 16px 20px;
+      border-radius: 10px;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 14px 0;
+      overflow-x: auto;
+      white-space: pre;
+      border: 1px solid #30363d;
+    }
+
+    .c0 .p {
+      color: #7ee787;
+    }
+
+    .c0 .u {
+      color: #79c0ff;
+    }
+
+    .c0 .c {
+      color: #6a9955;
+      font-style: italic;
+    }
+
+    .lb {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+      margin: 4px 2px;
+    }
+
+    .lb-t {
+      background: #00897b;
+    }
+
+    .lb-w {
+      background: #ef6c00;
+    }
+
+    .task {
+      font-size: 20px;
+      color: #1a3a5c;
+      margin: 16px 0;
+      padding: 16px;
+      background: #fff8f0;
+      border-radius: 8px;
+      border-left: 4px solid #ff7043;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+      margin-left: 8px;
+    }
+
+    .beginner {
+      background: #2e8b57;
+    }
+
+    .intermediate {
+      background: #f0ad4e;
+    }
+
+    .advanced {
+      background: #d9534f;
+    }
+
+    .nav {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav button {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .bb {
+      background: #78909c !important;
+    }
+
+    .br {
+      background: linear-gradient(135deg, #e65100, #ff7043) !important;
+    }
+  
+    .copy-wrap { position: relative; margin: 14px 0; }
+    .copy-btn-overlay {
+      position: absolute; top: 6px; right: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.6);
+      padding: 3px 10px; border-radius: 4px;
+      cursor: pointer; font-size: 11px; font-family: sans-serif;
+      transition: all 0.2s; white-space: nowrap; z-index: 10;
+    }
+    .copy-btn-overlay:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    .copy-btn-overlay.ok { color: #7dde8a; border-color: #7dde8a; }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div id="ms" class="module-select">
+      <h1>🔬 Elasticsearch Training Labs</h1>
+      <p class="subtitle">5 hands-on labs per module — commands, JSON output &amp; diagrams</p>
+      <button onclick="go('m1')"><span class="n">1</span>Introduction &amp; Cluster Basics</button>
+      <button onclick="go('m2')"><span class="n">2</span>Install, Security &amp; Monitoring</button>
+      <button onclick="go('m3')"><span class="n">3</span>Data Ingestion &amp; Mapping</button>
+      <button onclick="go('m4')"><span class="n">4</span>Search &amp; Query DSL</button>
+      <button onclick="go('m5')"><span class="n">5</span>Data Management &amp; Snapshots</button>
+      <button onclick="go('m6')"><span class="n">6</span>APIs &amp; Scripting</button>
+    </div>
+    <div id="ls" style="display:none;">
+      <h1 id="mt"></h1>
+      <div class="counter" id="ct"></div>
+      <div class="pbar">
+        <div class="pfill" id="pf" style="width:0%"></div>
+      </div>
+      <span id="bg" class="badge"></span>
+      <div class="task" id="lq"></div>
+      <button class="br" onclick="rv()">🔍 Reveal Solution</button>
+      <div id="sb" class="sol"></div>
+      <div class="nav">
+        <button onclick="pv()">← Previous</button>
+        <button onclick="nx()">Next →</button>
+        <button class="bb" onclick="bk()">↩ Back to Topics</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const T = { m1: "Module 1: Introduction & Cluster Basics", m2: "Module 2: Install, Security & Monitoring", m3: "Module 3: Data Ingestion & Mapping", m4: "Module 4: Search & Query DSL", m5: "Module 5: Data Management & Snapshots", m6: "Module 6: APIs & Scripting" };
+    const L = {
+      m1: [
+        ["Create an index 'library' and insert 2 book documents.",
+          `<p><strong>Step 1:</strong> Create the index</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl -X PUT <span class="u">"localhost:9200/library"</span></div></div>
+<p><strong>Step 2:</strong> Insert documents</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST library/_doc/1
+{
+  <span class="k">"title"</span>:  <span class="s">"Elasticsearch in Action"</span>,
+  <span class="k">"author"</span>: <span class="s">"Radu Gheorghe"</span>,
+  <span class="k">"year"</span>:   <span class="n">2024</span>
+}
+
+POST library/_doc/2
+{
+  <span class="k">"title"</span>:  <span class="s">"The Art of Search"</span>,
+  <span class="k">"author"</span>: <span class="s">"Max Irwin"</span>,
+  <span class="k">"year"</span>:   <span class="n">2023</span>
+}</div></div>
+<p><strong>Step 3:</strong> Verify</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET library/_count
+{ <span class="k">"count"</span>: <span class="n">2</span> }</div></div>`, "beginner"],
+
+        ["Check cluster health and explain each field.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl -X GET <span class="u">"localhost:9200/_cluster/health?pretty"</span></div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{
+  <span class="k">"cluster_name"</span>:          <span class="s">"my-cluster"</span>,
+  <span class="k">"status"</span>:                <span class="s">"yellow"</span>,
+  <span class="k">"number_of_nodes"</span>:       <span class="n">1</span>,
+  <span class="k">"active_primary_shards"</span>: <span class="n">3</span>,
+  <span class="k">"active_shards"</span>:         <span class="n">3</span>,
+  <span class="k">"unassigned_shards"</span>:     <span class="n">1</span>       <span class="c">// replica can't be assigned</span>
+}</div></div>
+<ul>
+  <li><code>status</code> — green / yellow / red overall health</li>
+  <li><code>unassigned_shards</code> — replicas without a node</li>
+  <li><code>active_primary_shards</code> — working primary shards</li>
+</ul>`, "beginner"],
+
+        ["Explain why a single-node cluster shows yellow health.",
+          `<p>On a single node, replicas <strong>cannot</strong> be placed on the same node as their primary.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Single Node Cluster:
+┌───────────────────── Node 1 ─────────────────────┐
+│                                                   │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │Primary 0 │  │Primary 1 │  │Primary 2 │        │
+│  │ ✅ STARTED│  │ ✅ STARTED│  │ ✅ STARTED│        │
+│  └──────────┘  └──────────┘  └──────────┘        │
+│                                                   │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+│  │Replica 0 │  │Replica 1 │  │Replica 2 │        │
+│  │⚠️ UNASSIGN│  │⚠️ UNASSIGN│  │⚠️ UNASSIGN│        │
+│  └──────────┘  └──────────┘  └──────────┘        │
+└───────────────────────────────────────────────────┘
+
+Result: 🟡 YELLOW (primaries OK, replicas unassigned)</div></div>
+<p><strong>Fix:</strong> Add a second node, or set replicas to 0:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT library/_settings
+{ <span class="k">"index"</span>: { <span class="k">"number_of_replicas"</span>: <span class="n">0</span> } }</div></div>`, "advanced"],
+
+        ["Use _cat/indices to list all indices.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/indices?v&amp;s=index"</span>
+
+health status index     pri rep docs.count store.size
+yellow open   library     1   1          2      8.2kb
+green  open   .kibana     1   0          1      5.1kb</div></div>
+<p><strong>Useful variations:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="c">// Sort by size descending</span>
+<span class="p">$</span> curl <span class="u">"localhost:9200/_cat/indices?v&amp;s=store.size:desc"</span>
+
+<span class="c">// Specific columns only</span>
+<span class="p">$</span> curl <span class="u">"localhost:9200/_cat/indices?v&amp;h=index,docs.count,store.size"</span></div></div>`, "intermediate"],
+
+        ["View shard allocation for the library index.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/shards/library?v"</span>
+
+index   shard prirep state      docs store ip        node
+library 0     p      STARTED       2 8.2kb 10.0.0.1  node-1
+library 0     r      UNASSIGNED</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Shard States:
+
+  p = PRIMARY      holds original data, handles writes
+  r = REPLICA      exact copy, handles reads
+
+  STARTED          active, serving requests
+  UNASSIGNED       no node available
+  RELOCATING       moving between nodes
+  INITIALIZING     being created/recovered</div></div>
+<p>Use <code>_cluster/allocation/explain</code> to diagnose unassigned shards.</p>`, "advanced"]
+      ],
+
+      m2: [
+        ["Get node info including OS, JVM, and roles.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/nodes?v&amp;h=name,role,heap.percent,cpu,load_1m"</span>
+
+name    role  heap.percent  cpu  load_1m
+node-1  dim             45   12     0.50
+node-2  d               62    8     0.30</div></div>
+<p>For full details:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _nodes?pretty
+{
+  <span class="k">"nodes"</span>: {
+    <span class="k">"abc123"</span>: {
+      <span class="k">"name"</span>:  <span class="s">"node-1"</span>,
+      <span class="k">"roles"</span>: [<span class="s">"data"</span>, <span class="s">"ingest"</span>, <span class="s">"master"</span>],
+      <span class="k">"jvm"</span>: {
+        <span class="k">"version"</span>: <span class="s">"21.0.1"</span>,
+        <span class="k">"mem"</span>: { <span class="k">"heap_max_in_bytes"</span>: <span class="n">1073741824</span> }
+      }
+    }
+  }
+}</div></div>`, "beginner"],
+
+        ["Check and update disk watermark settings.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _cluster/settings
+{
+  <span class="k">"persistent"</span>: {
+    <span class="k">"cluster.routing.allocation.disk.watermark.low"</span>:         <span class="s">"85%"</span>,
+    <span class="k">"cluster.routing.allocation.disk.watermark.high"</span>:        <span class="s">"90%"</span>,
+    <span class="k">"cluster.routing.allocation.disk.watermark.flood_stage"</span>: <span class="s">"95%"</span>
+  }
+}</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Disk Usage Watermarks:
+
+  0%─────────85%─────────90%──────────95%────────100%
+  │  Normal   │   Low     │   High    │  Flood    │
+  │           │ No new    │ Relocate  │ Read-only │
+  │           │ shards    │ shards    │ indices!  │</div></div>`, "intermediate"],
+
+        ["Explain master vs data vs ingest node roles.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">┌──────────────┬──────────────┬──────────────┬──────────────┐
+│    MASTER    │     DATA     │    INGEST    │ COORDINATING │
+├──────────────┼──────────────┼──────────────┼──────────────┤
+│ • Cluster    │ • Stores     │ • Runs       │ • Receives   │
+│   state      │   shards     │   ingest     │   client     │
+│ • Shard      │ • Executes   │   pipelines  │   requests   │
+│   allocation │   CRUD &amp;     │ • Pre-       │ • Scatters   │
+│ • Index      │   search     │   processes  │   to shards  │
+│   management │ • I/O heavy  │   documents  │ • Gathers    │
+│ • Lightweight│ • RAM+Disk   │ • CPU heavy  │   results    │
+└──────────────┴──────────────┴──────────────┴──────────────┘</div></div>
+<p>Set in <code>elasticsearch.yml</code>:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0">node.roles: [ master ]
+node.roles: [ data ]
+node.roles: [ data, ingest ]</div></div>`, "advanced"],
+
+        ["Create a user with read-only access to logs-* indices.",
+          `<p><strong>Step 1:</strong> Create a role</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _security/role/logs_reader
+{
+  <span class="k">"indices"</span>: [{
+    <span class="k">"names"</span>:      [<span class="s">"logs-*"</span>],
+    <span class="k">"privileges"</span>: [<span class="s">"read"</span>, <span class="s">"view_index_metadata"</span>]
+  }]
+}</div></div>
+<p><strong>Step 2:</strong> Create user with that role</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _security/user/analyst
+{
+  <span class="k">"password"</span>:  <span class="s">"Str0ngP@ss!"</span>,
+  <span class="k">"roles"</span>:     [<span class="s">"logs_reader"</span>],
+  <span class="k">"full_name"</span>: <span class="s">"Data Analyst"</span>
+}</div></div>
+<p><strong>Step 3:</strong> Test</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl -u analyst:Str0ngP@ss! <span class="u">"localhost:9200/logs-*/_search?size=1"</span>
+→ ✅ Works
+
+<span class="p">$</span> curl -u analyst:Str0ngP@ss! <span class="u">"localhost:9200/products/_search"</span>
+→ ❌ 403 Forbidden</div></div>`, "intermediate"],
+
+        ["Diagnose an unassigned shard.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _cluster/allocation/explain
+{
+  <span class="k">"index"</span>:   <span class="s">"library"</span>,
+  <span class="k">"shard"</span>:   <span class="n">0</span>,
+  <span class="k">"primary"</span>: <span class="n">false</span>
+}</div></div>
+<p><strong>Response:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{
+  <span class="k">"can_allocate"</span>: <span class="s">"no"</span>,
+  <span class="k">"node_allocation_decisions"</span>: [{
+    <span class="k">"node_name"</span>: <span class="s">"node-1"</span>,
+    <span class="k">"deciders"</span>: [{
+      <span class="k">"decider"</span>:     <span class="s">"same_shard"</span>,
+      <span class="k">"decision"</span>:    <span class="s">"NO"</span>,
+      <span class="k">"explanation"</span>: <span class="s">"replica cannot be on same node as primary"</span>
+    }]
+  }]
+}</div></div>`, "advanced"]
+      ],
+
+      m3: [
+        ["Create 'employees' index with explicit mapping.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT employees
+{
+  <span class="k">"mappings"</span>: {
+    <span class="k">"properties"</span>: {
+      <span class="k">"name"</span>:       { <span class="k">"type"</span>: <span class="s">"text"</span> },
+      <span class="k">"age"</span>:        { <span class="k">"type"</span>: <span class="s">"integer"</span> },
+      <span class="k">"department"</span>: { <span class="k">"type"</span>: <span class="s">"keyword"</span> }
+    }
+  }
+}
+
+POST employees/_doc/1
+{
+  <span class="k">"name"</span>:       <span class="s">"John Smith"</span>,
+  <span class="k">"age"</span>:        <span class="n">30</span>,
+  <span class="k">"department"</span>: <span class="s">"Engineering"</span>
+}</div></div>
+<p><strong>Response:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{ <span class="k">"_id"</span>: <span class="s">"1"</span>, <span class="k">"result"</span>: <span class="s">"created"</span> }</div></div>`, "beginner"],
+
+        ["Create a multi-field mapping for products.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT products
+{
+  <span class="k">"mappings"</span>: {
+    <span class="k">"properties"</span>: {
+      <span class="k">"name"</span>: {
+        <span class="k">"type"</span>: <span class="s">"text"</span>,
+        <span class="k">"fields"</span>: {
+          <span class="k">"keyword"</span>: { <span class="k">"type"</span>: <span class="s">"keyword"</span> }
+        }
+      },
+      <span class="k">"price"</span>:    { <span class="k">"type"</span>: <span class="s">"float"</span> },
+      <span class="k">"category"</span>: { <span class="k">"type"</span>: <span class="s">"keyword"</span> },
+      <span class="k">"in_stock"</span>: { <span class="k">"type"</span>: <span class="s">"boolean"</span> }
+    }
+  }
+}</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Multi-field mapping:
+
+  name          →  type: text      (full-text search)
+  name.keyword  →  type: keyword   (sorting &amp; aggregations)</div></div>
+<p><span class="lb lb-w">WARNING</span> Once created, you <strong>cannot change</strong> a field's type.</p>`, "intermediate"],
+
+        ["Use Bulk API to index 4 products.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _bulk
+{"index":{"_index":"products","_id":"1"}}
+{"name":"Laptop","price":999.99,"category":"Electronics","in_stock":true}
+{"index":{"_index":"products","_id":"2"}}
+{"name":"Running Shoes","price":129.99,"category":"Sports","in_stock":true}
+{"index":{"_index":"products","_id":"3"}}
+{"name":"Coffee Maker","price":49.99,"category":"Kitchen","in_stock":false}
+{"index":{"_index":"products","_id":"4"}}
+{"name":"Headphones","price":199.99,"category":"Electronics","in_stock":true}</div></div>
+<p><strong>Verify:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_count
+{ <span class="k">"count"</span>: <span class="n">4</span> }</div></div>
+<ul>
+  <li>Format: <strong>NDJSON</strong> — each line is separate JSON</li>
+  <li>File must end with a <strong>trailing newline</strong></li>
+</ul>`, "beginner"],
+
+        ["Create an ingest pipeline and use it.",
+          `<p><strong>Step 1:</strong> Create the pipeline</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ingest/pipeline/add_timestamp
+{
+  <span class="k">"description"</span>: <span class="s">"Adds ingestion timestamp"</span>,
+  <span class="k">"processors"</span>: [
+    {
+      <span class="k">"set"</span>: {
+        <span class="k">"field"</span>: <span class="s">"ingested_at"</span>,
+        <span class="k">"value"</span>: <span class="s">"{{_ingest.timestamp}}"</span>
+      }
+    },
+    {
+      <span class="k">"uppercase"</span>: { <span class="k">"field"</span>: <span class="s">"category"</span> }
+    }
+  ]
+}</div></div>
+<p><strong>Step 2:</strong> Index with pipeline</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST products/_doc/5?pipeline=add_timestamp
+{
+  <span class="k">"name"</span>:     <span class="s">"Keyboard"</span>,
+  <span class="k">"price"</span>:    <span class="n">75.00</span>,
+  <span class="k">"category"</span>: <span class="s">"electronics"</span>
+}
+
+<span class="c">// Result: category → "ELECTRONICS", ingested_at added</span></div></div>`, "intermediate"],
+
+        ["Explain Text vs Keyword with tokenization example.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Input value: "Running Shoes - Nike Air Max"
+
+┌──────────────┬──────────────────────────────────────────┐
+│ type: text   │ Analyzed by standard analyzer:            │
+│              │ Tokens: ["running","shoes","nike",         │
+│              │          "air","max"]                     │
+│              │ Matches: "running", "nike shoes", "run"   │
+├──────────────┼──────────────────────────────────────────┤
+│ type: keyword│ NOT analyzed, stored as-is:               │
+│              │ Token: ["Running Shoes - Nike Air Max"]   │
+│              │ Matches: exact string only                │
+└──────────────┴──────────────────────────────────────────┘</div></div>
+<ul>
+  <li><code>text</code> — fields users will <em>search</em> (title, description)</li>
+  <li><code>keyword</code> — fields to <em>filter, sort, aggregate</em> (status, email)</li>
+</ul>`, "advanced"]
+      ],
+
+      m4: [
+        ["Run a match query to find employees named 'John'.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_search
+{
+  <span class="k">"query"</span>: {
+    <span class="k">"match"</span>: { <span class="k">"name"</span>: <span class="s">"John"</span> }
+  }
+}</div></div>
+<p><strong>Response:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{
+  <span class="k">"hits"</span>: {
+    <span class="k">"total"</span>: { <span class="k">"value"</span>: <span class="n">1</span> },
+    <span class="k">"hits"</span>: [{
+      <span class="k">"_id"</span>:    <span class="s">"1"</span>,
+      <span class="k">"_score"</span>: <span class="n">0.6931</span>,         <span class="c">// relevance score</span>
+      <span class="k">"_source"</span>: {
+        <span class="k">"name"</span>:       <span class="s">"John Smith"</span>,
+        <span class="k">"age"</span>:        <span class="n">30</span>,
+        <span class="k">"department"</span>: <span class="s">"Engineering"</span>
+      }
+    }]
+  }
+}</div></div>`, "beginner"],
+
+        ["Write a bool query with range + filter.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_search
+{
+  <span class="k">"query"</span>: {
+    <span class="k">"bool"</span>: {
+      <span class="k">"must"</span>: {
+        <span class="k">"range"</span>: { <span class="k">"age"</span>: { <span class="k">"gte"</span>: <span class="n">25</span>, <span class="k">"lte"</span>: <span class="n">40</span> } }
+      },
+      <span class="k">"filter"</span>: {
+        <span class="k">"term"</span>: { <span class="k">"department"</span>: <span class="s">"Engineering"</span> }
+      }
+    }
+  }
+}</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Bool Query Clauses:
+
+  must      →  scored match       (like AND)
+  should    →  scored boost       (like OR)
+  filter    →  unscored match     (fast, cached)
+  must_not  →  exclude documents  (no score)</div></div>`, "intermediate"],
+
+        ["Aggregation: average price per category.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
+{
+  <span class="k">"size"</span>: <span class="n">0</span>,
+  <span class="k">"aggs"</span>: {
+    <span class="k">"by_category"</span>: {
+      <span class="k">"terms"</span>: { <span class="k">"field"</span>: <span class="s">"category"</span> },
+      <span class="k">"aggs"</span>: {
+        <span class="k">"avg_price"</span>:   { <span class="k">"avg"</span>:   { <span class="k">"field"</span>: <span class="s">"price"</span> } },
+        <span class="k">"price_stats"</span>: { <span class="k">"stats"</span>: { <span class="k">"field"</span>: <span class="s">"price"</span> } }
+      }
+    }
+  }
+}</div></div>
+<p><strong>Response:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j"><span class="k">"buckets"</span>: [{
+  <span class="k">"key"</span>:       <span class="s">"Electronics"</span>,
+  <span class="k">"doc_count"</span>: <span class="n">2</span>,
+  <span class="k">"avg_price"</span>: { <span class="k">"value"</span>: <span class="n">599.99</span> }
+}]</div></div>`, "intermediate"],
+
+        ["Use ES|QL to find top 3 expensive products.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">ES|QL (pipe syntax):
+
+  FROM products
+  | SORT price DESC
+  | LIMIT 3
+  | KEEP name, price, category</div></div>
+<p><strong>Response:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{
+  <span class="k">"columns"</span>: [
+    { <span class="k">"name"</span>: <span class="s">"name"</span>,  <span class="k">"type"</span>: <span class="s">"text"</span> },
+    { <span class="k">"name"</span>: <span class="s">"price"</span>, <span class="k">"type"</span>: <span class="s">"float"</span> }
+  ],
+  <span class="k">"values"</span>: [
+    [<span class="s">"Laptop"</span>,        <span class="n">999.99</span>],
+    [<span class="s">"Headphones"</span>,    <span class="n">199.99</span>],
+    [<span class="s">"Running Shoes"</span>, <span class="n">129.99</span>]
+  ]
+}</div></div>`, "advanced"],
+
+        ["Use Profile API to analyze query execution.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
+{
+  <span class="k">"profile"</span>: <span class="n">true</span>,
+  <span class="k">"query"</span>: { <span class="k">"match"</span>: { <span class="k">"name"</span>: <span class="s">"laptop"</span> } }
+}</div></div>
+<p>Profile output shows nanosecond timings:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Profile:
+  ├── BooleanQuery              12ms
+  │   ├── TermQuery "laptop"     8ms   ← 68% of total
+  │   └── TermQuery "name"       4ms   ← cached
+  ├── build_scorer                2ms
+  └── collect                    10ms</div></div>
+<p><span class="lb lb-t">TIP</span> Use to identify slow query components.</p>`, "advanced"]
+      ],
+
+      m5: [
+        ["Create an index alias pointing to employees.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _aliases
+{
+  <span class="k">"actions"</span>: [
+    { <span class="k">"add"</span>: { <span class="k">"index"</span>: <span class="s">"employees"</span>, <span class="k">"alias"</span>: <span class="s">"staff"</span> } }
+  ]
+}</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/staff/_search"</span>       <span class="c">// uses alias</span>
+<span class="p">$</span> curl <span class="u">"localhost:9200/employees/_search"</span>  <span class="c">// uses real name</span></div></div>
+<p><strong>Alias swap</strong> (zero-downtime reindex):</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _aliases
+{
+  <span class="k">"actions"</span>: [
+    { <span class="k">"remove"</span>: { <span class="k">"index"</span>: <span class="s">"v1"</span>, <span class="k">"alias"</span>: <span class="s">"staff"</span> } },
+    { <span class="k">"add"</span>:    { <span class="k">"index"</span>: <span class="s">"v2"</span>, <span class="k">"alias"</span>: <span class="s">"staff"</span> } }
+  ]
+}
+<span class="c">// Atomic swap! Zero downtime.</span></div></div>`, "beginner"],
+
+        ["Create a snapshot repository and take a backup.",
+          `<p><strong>Step 1:</strong> Register repository</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _snapshot/my_backup
+{
+  <span class="k">"type"</span>:     <span class="s">"fs"</span>,
+  <span class="k">"settings"</span>: { <span class="k">"location"</span>: <span class="s">"/mount/backups/es"</span> }
+}</div></div>
+<p><strong>Step 2:</strong> Take snapshot</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _snapshot/my_backup/snapshot_2024
+{
+  <span class="k">"indices"</span>:              <span class="s">"products"</span>,
+  <span class="k">"include_global_state"</span>: <span class="n">false</span>
+}</div></div>
+<p><strong>Step 3:</strong> Restore</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _snapshot/my_backup/snapshot_2024/_restore
+{
+  <span class="k">"indices"</span>: <span class="s">"products"</span>
+}</div></div>`, "intermediate"],
+
+        ["Create ILM policy: hot → warm → delete.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ilm/policy/logs_policy
+{
+  <span class="k">"policy"</span>: {
+    <span class="k">"phases"</span>: {
+      <span class="k">"hot"</span>: {
+        <span class="k">"actions"</span>: {
+          <span class="k">"rollover"</span>: {
+            <span class="k">"max_primary_shard_size"</span>: <span class="s">"50gb"</span>,
+            <span class="k">"max_age"</span>: <span class="s">"1d"</span>
+          }
+        }
+      },
+      <span class="k">"warm"</span>: {
+        <span class="k">"min_age"</span>: <span class="s">"7d"</span>,
+        <span class="k">"actions"</span>: {
+          <span class="k">"shrink"</span>:     { <span class="k">"number_of_shards"</span>: <span class="n">1</span> },
+          <span class="k">"forcemerge"</span>: { <span class="k">"max_num_segments"</span>: <span class="n">1</span> }
+        }
+      },
+      <span class="k">"delete"</span>: {
+        <span class="k">"min_age"</span>: <span class="s">"30d"</span>,
+        <span class="k">"actions"</span>: { <span class="k">"delete"</span>: {} }
+      }
+    }
+  }
+}</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Day 0───────Day 7────────Day 30─────►
+
+│    HOT    │    WARM     │   DELETE   │
+│  Indexing │  Read-only  │  Removed   │
+│  + Search │  Shrink     │            │</div></div>`, "advanced"],
+
+        ["Create a Data Stream for time-series metrics.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _index_template/metrics_template
+{
+  <span class="k">"index_patterns"</span>: [<span class="s">"metrics-*"</span>],
+  <span class="k">"data_stream"</span>: {},
+  <span class="k">"template"</span>: {
+    <span class="k">"mappings"</span>: {
+      <span class="k">"properties"</span>: {
+        <span class="k">"@timestamp"</span>: { <span class="k">"type"</span>: <span class="s">"date"</span> },
+        <span class="k">"cpu"</span>:        { <span class="k">"type"</span>: <span class="s">"float"</span> },
+        <span class="k">"host"</span>:       { <span class="k">"type"</span>: <span class="s">"keyword"</span> }
+      }
+    }
+  }
+}</div></div>
+<p>Index a doc (auto-creates stream):</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST metrics-cpu/_doc
+{
+  <span class="k">"@timestamp"</span>: <span class="s">"2024-10-15T10:00:00Z"</span>,
+  <span class="k">"cpu"</span>:  <span class="n">75.5</span>,
+  <span class="k">"host"</span>: <span class="s">"server-1"</span>
+}</div></div>`, "intermediate"],
+
+        ["Downsampling with a Transform.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _transform/downsample_cpu
+{
+  <span class="k">"source"</span>: { <span class="k">"index"</span>: <span class="s">"metrics-cpu"</span> },
+  <span class="k">"dest"</span>:   { <span class="k">"index"</span>: <span class="s">"metrics-cpu-hourly"</span> },
+  <span class="k">"pivot"</span>: {
+    <span class="k">"group_by"</span>: {
+      <span class="k">"hour"</span>: {
+        <span class="k">"date_histogram"</span>: {
+          <span class="k">"field"</span>: <span class="s">"@timestamp"</span>,
+          <span class="k">"fixed_interval"</span>: <span class="s">"1h"</span>
+        }
+      }
+    },
+    <span class="k">"aggregations"</span>: {
+      <span class="k">"avg_cpu"</span>: { <span class="k">"avg"</span>: { <span class="k">"field"</span>: <span class="s">"cpu"</span> } },
+      <span class="k">"max_cpu"</span>: { <span class="k">"max"</span>: { <span class="k">"field"</span>: <span class="s">"cpu"</span> } }
+    }
+  }
+}
+
+POST _transform/downsample_cpu/_start</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Result:
+  3,600 per-second docs  →  1 per-hour summary
+  Storage reduction: ~99.97%!</div></div>`, "advanced"]
+      ],
+
+      m6: [
+        ["Update a document's age and add a new field.",
+          `<p><strong>Partial update (merge):</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST employees/_update/1
+{
+  <span class="k">"doc"</span>: {
+    <span class="k">"age"</span>:   <span class="n">35</span>,
+    <span class="k">"title"</span>: <span class="s">"Senior Engineer"</span>
+  }
+}</div></div>
+<p><strong>Verify:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_doc/1
+{
+  <span class="k">"_source"</span>: {
+    <span class="k">"name"</span>:       <span class="s">"John Smith"</span>,
+    <span class="k">"age"</span>:        <span class="n">35</span>,                    <span class="c">// updated</span>
+    <span class="k">"department"</span>: <span class="s">"Engineering"</span>,
+    <span class="k">"title"</span>:      <span class="s">"Senior Engineer"</span>       <span class="c">// added</span>
+  }
+}</div></div>`, "beginner"],
+
+        ["Delete a document and an entire index.",
+          `<p><strong>Delete single document:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">DELETE employees/_doc/1
+{ <span class="k">"result"</span>: <span class="s">"deleted"</span> }</div></div>
+<p><strong>Delete by query (bulk):</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST employees/_delete_by_query
+{
+  <span class="k">"query"</span>: { <span class="k">"range"</span>: { <span class="k">"age"</span>: { <span class="k">"lt"</span>: <span class="n">25</span> } } }
+}
+{ <span class="k">"deleted"</span>: <span class="n">3</span> }</div></div>
+<p><strong>Delete entire index:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">DELETE employees
+{ <span class="k">"acknowledged"</span>: <span class="n">true</span> }</div></div>
+<p><span class="lb lb-w">WARNING</span> Index deletion is <strong>irreversible</strong>!</p>`, "intermediate"],
+
+        ["Painless script to increase salaries by 10%.",
+          `<p><strong>Single document:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST employees/_update/1
+{
+  <span class="k">"script"</span>: {
+    <span class="k">"source"</span>: <span class="s">"ctx._source.salary *= params.factor"</span>,
+    <span class="k">"lang"</span>:   <span class="s">"painless"</span>,
+    <span class="k">"params"</span>: { <span class="k">"factor"</span>: <span class="n">1.10</span> }
+  }
+}</div></div>
+<p><strong>Bulk update all:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST employees/_update_by_query
+{
+  <span class="k">"script"</span>: { <span class="k">"source"</span>: <span class="s">"ctx._source.salary *= 1.10"</span> },
+  <span class="k">"query"</span>:  { <span class="k">"match_all"</span>: {} }
+}
+{ <span class="k">"updated"</span>: <span class="n">5</span> }</div></div>
+<p><span class="lb lb-t">TIP</span> Always use <code>params</code> — enables script caching.</p>`, "advanced"],
+
+        ["Use _cat APIs for a quick cluster overview.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/nodes?v&amp;h=name,role,heap.percent,cpu"</span>
+
+name    role  heap.percent  cpu
+node-1  dim             45   12
+node-2  d               62    8</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/indices?v&amp;s=store.size:desc"</span>
+
+index       health  docs.count  store.size
+products    yellow           4       15kb
+employees   yellow           5       12kb</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/thread_pool?v&amp;h=node_name,name,active,queue,rejected"</span>
+
+node_name  name    active  queue  rejected
+node-1     search       0      0         0
+node-1     write        1      0         0</div></div>
+<p><span class="lb lb-t">TIP</span> <code>?v</code> = headers, <code>?help</code> = all columns.</p>`, "intermediate"],
+
+        ["Script field to calculate discounted price.",
+          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
+{
+  <span class="k">"query"</span>: { <span class="k">"match_all"</span>: {} },
+  <span class="k">"script_fields"</span>: {
+    <span class="k">"discounted_price"</span>: {
+      <span class="k">"script"</span>: {
+        <span class="k">"source"</span>: <span class="s">"doc['price'].value * params.discount"</span>,
+        <span class="k">"params"</span>: { <span class="k">"discount"</span>: <span class="n">0.80</span> }
+      }
+    },
+    <span class="k">"savings"</span>: {
+      <span class="k">"script"</span>: {
+        <span class="k">"source"</span>: <span class="s">"doc['price'].value * (1-params.discount)"</span>,
+        <span class="k">"params"</span>: { <span class="k">"discount"</span>: <span class="n">0.80</span> }
+      }
+    }
+  },
+  <span class="k">"_source"</span>: [<span class="s">"name"</span>, <span class="s">"price"</span>]
+}</div></div>
+<p><strong>Response:</strong></p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{
+  <span class="k">"_source"</span>: { <span class="k">"name"</span>: <span class="s">"Laptop"</span>, <span class="k">"price"</span>: <span class="n">999.99</span> },
+  <span class="k">"fields"</span>: {
+    <span class="k">"discounted_price"</span>: [<span class="n">799.99</span>],
+    <span class="k">"savings"</span>:          [<span class="n">200.00</span>]
+  }
+}</div></div>
+<p><span class="lb lb-t">TIP</span> Script fields are computed at query time — they don't modify stored data.</p>`, "advanced"]
+      ]
+    };
+
+    let cur = null, items = [], idx = 0;
+    function go(k) { cur = k; items = L[k]; idx = 0; document.getElementById("ms").style.display = "none"; document.getElementById("ls").style.display = "block"; document.getElementById("mt").innerText = T[k]; ld(); }
+    function ld() { document.getElementById("lq").innerText = items[idx][0]; document.getElementById("sb").innerHTML = items[idx][1]; document.getElementById("sb").style.display = "none"; document.getElementById("ct").innerText = (idx + 1) + " / " + items.length; document.getElementById("pf").style.width = (idx / items.length * 100) + "%"; let v = items[idx][2], b = document.getElementById("bg"); b.className = "badge " + v; b.innerText = v.charAt(0).toUpperCase() + v.slice(1); }
+    function nx() { if (idx < items.length - 1) { idx++; ld(); } }
+    function pv() { if (idx > 0) { idx--; ld(); } }
+    function rv() { document.getElementById("sb").style.display = "block"; document.getElementById("pf").style.width = ((idx + 1) / items.length * 100) + "%"; }
+    function bk() { document.getElementById("ls").style.display = "none"; document.getElementById("ms").style.display = "block"; }
+  
+    function cpCode(btn) {
+      var el = btn.parentElement.querySelector('.c0,.j,.d,.cmd-block,.json-block,.diagram');
+      var txt = el ? (el.innerText || el.textContent) : '';
+      navigator.clipboard.writeText(txt).catch(function(){
+        var t=document.createElement('textarea'); t.value=txt;
+        document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+      });
+      btn.textContent = '\u2713 Copied!'; btn.classList.add('ok');
+      setTimeout(function(){ btn.innerHTML='&#128203; Copy'; btn.classList.remove('ok'); }, 2000);
+    }
+
+  </script>
+</body>
+
+</html>

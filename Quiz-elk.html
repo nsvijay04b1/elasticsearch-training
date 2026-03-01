@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Elasticsearch Training Quiz</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            width: 960px;
+            max-width: 95vw;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+            max-height: 92vh;
+            overflow: auto;
+        }
+
+        h1 {
+            color: #1a3a5c;
+            margin-bottom: 6px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #1a3a5c, #2c5364);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 6px 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .module-select button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 16px 20px;
+            font-size: 16px;
+            text-align: left;
+            border-left: 4px solid #00bcd4;
+        }
+
+        .module-select button .mod-num {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: #00bcd4;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 12px;
+            color: #fff;
+        }
+
+        .counter {
+            color: #888;
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin: 10px 0 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00bcd4, #1a3a5c);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .answer-box {
+            display: none;
+            margin-top: 16px;
+            padding: 24px;
+            background: #f8faff;
+            border-left: 4px solid #1a3a5c;
+            border-radius: 8px;
+            line-height: 1.8;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .answer-box p {
+            margin: 10px 0;
+        }
+
+        .answer-box strong {
+            color: #1a3a5c;
+        }
+
+        .answer-box code {
+            background: #e8eef6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            color: #c7254e;
+        }
+
+        .answer-box ul,
+        .answer-box ol {
+            margin: 8px 0 8px 20px;
+            line-height: 2;
+        }
+
+        .diagram {
+            background: #1a1a2e;
+            color: #a0e8a0;
+            padding: 18px 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 14px 0;
+            overflow-x: auto;
+            white-space: pre;
+            border: 1px solid #2d2d4e;
+        }
+
+        .json-block {
+            background: #1e1e2e;
+            color: #d4d4d4;
+            padding: 18px 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 14px 0;
+            overflow-x: auto;
+            white-space: pre;
+            border: 1px solid #333;
+        }
+
+        .json-block .key {
+            color: #9cdcfe;
+        }
+
+        .json-block .str {
+            color: #ce9178;
+        }
+
+        .json-block .num {
+            color: #b5cea8;
+        }
+
+        .json-block .comment {
+            color: #6a9955;
+            font-style: italic;
+        }
+
+        .cmd-block {
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 14px 0;
+            overflow-x: auto;
+            white-space: pre;
+            border: 1px solid #30363d;
+        }
+
+        .cmd-block .prompt {
+            color: #7ee787;
+        }
+
+        .cmd-block .url {
+            color: #79c0ff;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            margin: 4px 2px;
+        }
+
+        .label-tip {
+            background: #00897b;
+        }
+
+        .label-warn {
+            background: #ef6c00;
+        }
+
+        .question-text {
+            font-size: 20px;
+            color: #1a3a5c;
+            margin: 16px 0;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #00bcd4;
+        }
+
+        .nav-btns {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btns button {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .btn-back {
+            background: #78909c !important;
+        }
+
+        .btn-reveal {
+            background: linear-gradient(135deg, #00897b, #00bcd4) !important;
+        }
+    
+    .copy-wrap { position: relative; margin: 14px 0; }
+    .copy-btn-overlay {
+      position: absolute; top: 6px; right: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.6);
+      padding: 3px 10px; border-radius: 4px;
+      cursor: pointer; font-size: 11px; font-family: sans-serif;
+      transition: all 0.2s; white-space: nowrap; z-index: 10;
+    }
+    .copy-btn-overlay:hover { background: rgba(255,255,255,0.18); color: #fff; }
+    .copy-btn-overlay.ok { color: #7dde8a; border-color: #7dde8a; }
+
+  </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="topicScreen" class="module-select">
+            <h1>🎓 Elasticsearch Training Quiz</h1>
+            <p class="subtitle">5 questions per module — click to reveal answers with diagrams</p>
+            <button onclick="startTopic('m1')"><span class="mod-num">1</span>Introduction & Cluster Basics</button>
+            <button onclick="startTopic('m2')"><span class="mod-num">2</span>Install, Security & Monitoring</button>
+            <button onclick="startTopic('m3')"><span class="mod-num">3</span>Data Ingestion & Mapping</button>
+            <button onclick="startTopic('m4')"><span class="mod-num">4</span>Search & Query DSL</button>
+            <button onclick="startTopic('m5')"><span class="mod-num">5</span>Data Management & Snapshots</button>
+            <button onclick="startTopic('m6')"><span class="mod-num">6</span>APIs & Scripting</button>
+        </div>
+        <div id="quizScreen" style="display:none;">
+            <h1 id="topicTitle"></h1>
+            <div class="counter" id="counter"></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+            <div class="question-text" id="question"></div>
+            <button class="btn-reveal" onclick="reveal()">💡 Reveal Answer</button>
+            <div id="answerBox" class="answer-box"></div>
+            <div class="nav-btns">
+                <button onclick="prevQ()">← Previous</button>
+                <button onclick="nextQ()">Next →</button>
+                <button class="btn-back" onclick="back()">↩ Back to Topics</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const titles = {
+            m1: "Module 1: Introduction & Cluster Basics",
+            m2: "Module 2: Install, Security & Monitoring",
+            m3: "Module 3: Data Ingestion & Mapping",
+            m4: "Module 4: Search & Query DSL",
+            m5: "Module 5: Data Management & Snapshots",
+            m6: "Module 6: APIs & Scripting"
+        };
+
+        const quizData = {
+            m1: [
+                // Q1
+                ["What is a shard in Elasticsearch?",
+                    `<p>A shard is a <strong>partition of an index</strong>. Each index is divided into one or more shards, each being a self-contained Lucene index that can be hosted on any node.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">┌─────────────── Index: products ───────────────┐
+│                                                │
+│  ┌───────────┐  ┌───────────┐     Primary      │
+│  │  Shard 0  │  │  Shard 1  │     Shards       │
+│  │ docs 0-499│  │docs 500-999│                  │
+│  └───────────┘  └───────────┘                   │
+│                                                │
+│  ┌───────────┐  ┌───────────┐     Replica      │
+│  │ Replica 0 │  │ Replica 1 │     Shards       │
+│  └───────────┘  └───────────┘                   │
+└────────────────────────────────────────────────┘</div></div>
+<ul>
+  <li><strong>Primary shards</strong> hold the original data</li>
+  <li><strong>Replica shards</strong> are backup copies on different nodes</li>
+  <li>Default: 1 primary, 1 replica per index</li>
+</ul>`],
+
+                // Q2
+                ["What does yellow cluster health status mean?",
+                    `<p>Yellow means all <strong>primary shards</strong> are allocated, but one or more <strong>replica shards</strong> are unassigned.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Cluster Health Status:
+
+  🟢 GREEN    All primaries + all replicas assigned
+  🟡 YELLOW   All primaries OK, some replicas missing
+  🔴 RED      Some primaries are unassigned (data loss risk!)</div></div>
+<p>Common cause: Running a single-node cluster where replicas cannot be placed on a different node.</p>
+<p>Check with:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block"><span class="prompt">$</span> curl -X GET <span class="url">"localhost:9200/_cluster/health?pretty"</span></div></div>`],
+
+                // Q3
+                ["What is the default port for Elasticsearch?",
+                    `<p><strong>9200</strong> — the REST API HTTP port.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Port Layout:
+
+  ┌────────┬───────────────────────────────────────┐
+  │  9200  │  REST API (HTTP)  ← client requests   │
+  ├────────┼───────────────────────────────────────┤
+  │  9300  │  Transport (TCP)  ← node-to-node      │
+  ├────────┼───────────────────────────────────────┤
+  │  5601  │  Kibana Web UI                        │
+  └────────┴───────────────────────────────────────┘</div></div>
+<p>Kibana connects to Elasticsearch on port <strong>9200</strong>.<br>
+Kibana itself serves its UI on port <strong>5601</strong>.</p>`],
+
+                // Q4
+                ["What is an inverted index and why does Elasticsearch use it?",
+                    `<p>An inverted index maps each unique <strong>term</strong> to the list of <strong>document IDs</strong> containing it — like a book's back-of-the-book index.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Documents:
+  Doc 1: "Running Shoes"
+  Doc 2: "Hiking Shoes"
+  Doc 3: "Running Gear"
+
+Inverted Index:
+  ┌───────────┬──────────┐
+  │   Term    │  Doc IDs │
+  ├───────────┼──────────┤
+  │ running   │  [1, 3]  │
+  │ shoes     │  [1, 2]  │
+  │ hiking    │  [2]     │
+  │ gear      │  [3]     │
+  └───────────┴──────────┘</div></div>
+<p>This makes full-text search <strong>O(1)</strong> per term lookup instead of scanning every document.</p>`],
+
+                // Q5
+                ["What is the role of the Coordinating Node?",
+                    `<p>The <strong>Coordinating Node</strong> is the node that receives the client request. It orchestrates the search across all shards.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">        Client
+          │
+          ▼
+  ┌───────────────────┐
+  │ Coordinating Node │  ← receives request
+  └────────┬──────────┘
+           │  scatter
+     ┌─────┴─────┐
+     ▼           ▼
+  ┌───────┐  ┌───────┐
+  │Shard 0│  │Shard 1│  ← local search
+  └───┬───┘  └───┬───┘
+      │  gather  │
+      └────┬─────┘
+           ▼
+     Merge + Rank
+           ▼
+       Response</div></div>
+<ol>
+  <li><strong>Scatters</strong> the query to all relevant shards</li>
+  <li><strong>Gathers</strong> partial results from each shard</li>
+  <li><strong>Merges & ranks</strong> the combined results</li>
+  <li><strong>Returns</strong> the final response to the client</li>
+</ol>`]
+            ],
+
+            m2: [
+                // Q1
+                ["What does the master node manage?",
+                    `<p>The master node is the <strong>brain</strong> of the cluster, responsible for lightweight coordination tasks:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Node Roles:
+
+  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+  │   MASTER    │  │    DATA     │  │   INGEST    │
+  ├─────────────┤  ├─────────────┤  ├─────────────┤
+  │ • Cluster   │  │ • Stores    │  │ • Runs      │
+  │   state     │  │   shards    │  │   ingest    │
+  │ • Shard     │  │ • Executes  │  │   pipelines │
+  │   allocation│  │   CRUD &    │  │ • Pre-      │
+  │ • Index     │  │   search    │  │   processes │
+  │   management│  │ • I/O heavy │  │   documents │
+  └─────────────┘  └─────────────┘  └─────────────┘</div></div>
+<p><span class="label label-tip">TIP</span> In production, dedicate 3 master-eligible nodes for high availability.</p>`],
+
+                // Q2
+                ["What is RBAC in Elasticsearch?",
+                    `<p><strong>Role-Based Access Control</strong> — security mechanism where permissions are assigned to <em>roles</em>, and roles are assigned to <em>users</em>.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">User: "analyst"
+  └── Role: "read_only"
+       └── Privileges:
+            • indices:data/read on logs-*
+            • cluster:monitor
+
+User: "admin"
+  └── Role: "superuser"
+       └── Privileges:
+            • ALL on ALL indices</div></div>
+<p>Enabled via <code>elasticsearch.yml</code>:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block">xpack.security.enabled: true</div></div>`],
+
+                // Q3
+                ["Which API checks cluster health?",
+                    `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block"><span class="prompt">$</span> curl -X GET <span class="url">"localhost:9200/_cluster/health?pretty"</span></div></div>
+<p>Response:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">{
+  <span class="key">"cluster_name"</span>: <span class="str">"my-cluster"</span>,
+  <span class="key">"status"</span>:       <span class="str">"green"</span>,            <span class="comment">// overall health</span>
+  <span class="key">"number_of_nodes"</span>: <span class="num">3</span>,
+  <span class="key">"active_primary_shards"</span>: <span class="num">10</span>,
+  <span class="key">"active_shards"</span>: <span class="num">20</span>,          <span class="comment">// primaries + replicas</span>
+  <span class="key">"unassigned_shards"</span>: <span class="num">0</span>       <span class="comment">// should be 0 if green</span>
+}</div></div>`],
+
+                // Q4
+                ["How do you reset the elastic superuser password?",
+                    `<p><strong>Method 1: CLI tool</strong> (works even if you forgot the password)</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block"><span class="prompt">$</span> sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i</div></div>
+<p><strong>Method 2: REST API</strong> (requires knowing current password)</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">POST _security/user/elastic/_password
+{
+  <span class="key">"password"</span>: <span class="str">"new_secure_password"</span>
+}</div></div>
+<p><span class="label label-tip">TIP</span> The CLI tool is the recommended approach for recovery scenarios.</p>`],
+
+                // Q5
+                ["What is the difference between a rolling upgrade and a full-cluster restart?",
+                    `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Rolling Upgrade (zero downtime):
+  Node 1  ──stop──upgrade──start─────────────────
+  Node 2  ─────────────────stop──upgrade──start──
+  Node 3  ───────────────────────stop──upgrade──start
+
+Full-Cluster Restart (downtime required):
+  Node 1  ──stop──┐
+  Node 2  ──stop──┤  upgrade all  ──start all
+  Node 3  ──stop──┘</div></div>
+<ul>
+  <li><strong>Rolling</strong> — one node at a time, no downtime, for minor versions</li>
+  <li><strong>Full restart</strong> — all nodes stop, simpler for major version jumps</li>
+</ul>
+<p><span class="label label-warn">NOTE</span> Disable shard allocation before stopping nodes:<br>
+<code>PUT _cluster/settings { "persistent": { "cluster.routing.allocation.enable": "none" } }</code></p>`]
+            ],
+
+            m3: [
+                // Q1
+                ["What is a mapping in Elasticsearch?",
+                    `<p>A mapping defines the <strong>schema</strong> of an index — the data type of each field.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">PUT products
+{
+  <span class="key">"mappings"</span>: {
+    <span class="key">"properties"</span>: {
+      <span class="key">"name"</span>:  { <span class="key">"type"</span>: <span class="str">"text"</span> },       <span class="comment">// analyzed for search</span>
+      <span class="key">"sku"</span>:   { <span class="key">"type"</span>: <span class="str">"keyword"</span> },    <span class="comment">// exact match</span>
+      <span class="key">"price"</span>: { <span class="key">"type"</span>: <span class="str">"float"</span> },
+      <span class="key">"date"</span>:  { <span class="key">"type"</span>: <span class="str">"date"</span> }
+    }
+  }
+}</div></div>
+<p><span class="label label-warn">WARNING</span> Mappings are <strong>immutable</strong> once set — you cannot change a field's type after creation.</p>`],
+
+                // Q2
+                ["What is the difference between text and keyword field types?",
+                    `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Input value: "Running Shoes"
+
+┌──────────────┬─────────────────────────────────────┐
+│   Field Type │   What Happens                      │
+├──────────────┼─────────────────────────────────────┤
+│   text       │   Analyzed → tokens:                │
+│              │   ["running", "shoes"]              │
+│              │   Use: full-text search              │
+│              │   Matches: "running", "shoes", "run"│
+├──────────────┼─────────────────────────────────────┤
+│   keyword    │   NOT analyzed → stored as-is:      │
+│              │   "Running Shoes"                    │
+│              │   Use: filtering, sorting, aggs      │
+│              │   Matches: exact "Running Shoes"     │
+└──────────────┴─────────────────────────────────────┘</div></div>
+<p><strong>Rule of thumb:</strong></p>
+<ul>
+  <li><code>text</code> — fields users will <em>search</em> (title, description)</li>
+  <li><code>keyword</code> — fields used to <em>filter, sort, aggregate</em> (status, email)</li>
+</ul>`],
+
+                // Q3
+                ["What is the Bulk API used for?",
+                    `<p>The Bulk API indexes <strong>multiple documents in a single HTTP request</strong>, dramatically reducing network overhead.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">POST _bulk
+{"index":{"_index":"products","_id":"1"}}
+{"name":"Laptop","price":999}
+{"index":{"_index":"products","_id":"2"}}
+{"name":"Mouse","price":25}
+{"index":{"_index":"products","_id":"3"}}
+{"name":"Keyboard","price":75}</div></div>
+<ul>
+  <li>Format: <strong>NDJSON</strong> (Newline-Delimited JSON)</li>
+  <li>File must end with a trailing newline</li>
+  <li>Actions: <code>index</code>, <code>create</code>, <code>update</code>, <code>delete</code></li>
+</ul>`],
+
+                // Q4
+                ["What are the 3 stages of a Logstash pipeline?",
+                    `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">┌──────────────┐     ┌────────────────┐     ┌────────────────┐
+│    INPUT     │ ──► │     FILTER     │ ──► │     OUTPUT     │
+│   (source)   │     │  (transform)   │     │ (destination)  │
+└──────────────┘     └────────────────┘     └────────────────┘
+
+Input plugins:        Filter plugins:       Output plugins:
+  • stdin               • grok                • elasticsearch
+  • file                • mutate              • stdout
+  • beats               • date                • file
+  • kafka               • geoip               • kafka</div></div>
+<p><strong>Input</strong> reads data → <strong>Filter</strong> transforms it → <strong>Output</strong> sends it.</p>`],
+
+                // Q5
+                ["What is a Mapping Explosion and how do you prevent it?",
+                    `<p>A Mapping Explosion occurs when <strong>dynamic mapping</strong> creates thousands of fields automatically from uncontrolled input data.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">❌ Bad: dynamic mapping on user-generated JSON
+   { "user_field_abc123": "val" }  → new mapping!
+   { "user_field_xyz789": "val" }  → another!
+   ... × 100,000 fields = 💥 Mapping Explosion
+
+✅ Good: strict mapping
+   PUT my_index
+   { "mappings": { "dynamic": "strict" } }
+   → unknown fields are REJECTED</div></div>
+<p><strong>Prevention:</strong></p>
+<ul>
+  <li>Set <code>"dynamic": "strict"</code> to reject unknown fields</li>
+  <li>Use <code>index.mapping.total_fields.limit</code> (default: 1000)</li>
+  <li>Define <strong>explicit mappings</strong> before indexing</li>
+</ul>`]
+            ],
+
+            m4: [
+                // Q1
+                ["What is the difference between match and term queries?",
+                    `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">┌─────────────────────┬─────────────────────────┐
+│    match query      │      term query          │
+├─────────────────────┼─────────────────────────┤
+│ Input is ANALYZED   │ Input is NOT analyzed    │
+│                     │                         │
+│ "Running Shoes"     │ "Running Shoes"         │
+│ → ["running",       │ → exact string match    │
+│    "shoes"]         │                         │
+│                     │                         │
+│ Use on: text fields │ Use on: keyword fields  │
+└─────────────────────┴─────────────────────────┘</div></div>
+<ul>
+  <li><code>match</code> → full-text search (analyzed, fuzzy-friendly)</li>
+  <li><code>term</code> → exact value lookup (not analyzed, for IDs/statuses)</li>
+</ul>`],
+
+                // Q2
+                ["What does filter do in a bool query?",
+                    `<p>A <code>filter</code> clause matches documents <strong>yes/no</strong> without scoring, making it <strong>faster and cacheable</strong>.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">GET products/_search
+{
+  <span class="key">"query"</span>: {
+    <span class="key">"bool"</span>: {
+      <span class="key">"must"</span>:   { <span class="key">"match"</span>: { <span class="key">"name"</span>: <span class="str">"laptop"</span> } },
+      <span class="key">"filter"</span>: { <span class="key">"range"</span>: { <span class="key">"price"</span>: { <span class="key">"lte"</span>: <span class="num">1000</span> } } }
+    }
+  }
+}</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Bool Query Clauses:
+
+  must      →  scored match     (like AND)
+  should    →  scored boost     (like OR)
+  filter    →  unscored match   (fast, cached)
+  must_not  →  exclude docs     (no score)</div></div>`],
+
+                // Q3
+                ["What is an aggregation?",
+                    `<p>Aggregations perform <strong>analytics</strong> over search results — like SQL's <code>GROUP BY</code> + aggregate functions.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">GET products/_search
+{
+  <span class="key">"size"</span>: <span class="num">0</span>,
+  <span class="key">"aggs"</span>: {
+    <span class="key">"by_category"</span>: {
+      <span class="key">"terms"</span>: { <span class="key">"field"</span>: <span class="str">"category.keyword"</span> },
+      <span class="key">"aggs"</span>: {
+        <span class="key">"avg_price"</span>: { <span class="key">"avg"</span>: { <span class="key">"field"</span>: <span class="str">"price"</span> } }
+      }
+    }
+  }
+}</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Aggregation Types:
+
+  Bucket    →  groups documents    (terms, histogram, date_histogram)
+  Metrics   →  calculates values   (avg, sum, min, max, cardinality)
+  Pipeline  →  agg of aggs         (cumulative_sum, derivative)</div></div>`],
+
+                // Q4
+                ["What is ES|QL and how does it differ from Query DSL?",
+                    `<p><strong>ES|QL</strong> (Elasticsearch Query Language) uses a <strong>pipe syntax</strong> like Unix shell commands.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">ES|QL (Pipe syntax — simple to write):
+
+  FROM products
+  | WHERE price > 50
+  | STATS avg_price = AVG(price) BY category
+  | SORT avg_price DESC
+  | LIMIT 10</div></div>
+<p>Same query in Query DSL (JSON — more verbose):</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">{
+  <span class="key">"query"</span>: { <span class="key">"range"</span>: { <span class="key">"price"</span>: { <span class="key">"gt"</span>: <span class="num">50</span> } } },
+  <span class="key">"aggs"</span>: {
+    <span class="key">"by_cat"</span>: {
+      <span class="key">"terms"</span>: { <span class="key">"field"</span>: <span class="str">"category"</span> },
+      <span class="key">"aggs"</span>: {
+        <span class="key">"avg_p"</span>: { <span class="key">"avg"</span>: { <span class="key">"field"</span>: <span class="str">"price"</span> } }
+      }
+    }
+  }
+}</div></div>`],
+
+                // Q5
+                ["What does the Profile API tell you?",
+                    `<p>Adding <code>"profile": true</code> returns a <strong>detailed timing breakdown</strong> at the Lucene level.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">GET products/_search
+{
+  <span class="key">"profile"</span>: <span class="num">true</span>,
+  <span class="key">"query"</span>: { <span class="key">"match"</span>: { <span class="key">"name"</span>: <span class="str">"laptop"</span> } }
+}</div></div>
+<p>Profile output shows nanosecond timings per operation:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Profile:
+  ├── BooleanQuery              12ms
+  │   ├── TermQuery "laptop"     8ms  ← 68% of total
+  │   └── TermQuery "name"       4ms
+  ├── build_scorer                2ms
+  └── collect                    10ms</div></div>
+<p><span class="label label-tip">TIP</span> Use it to identify which part of a query is slow.</p>`]
+            ],
+
+            m5: [
+                // Q1
+                ["What is ILM (Index Lifecycle Management)?",
+                    `<p>ILM automates managing indices through lifecycle phases:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">  ┌───────┐    ┌───────┐    ┌───────┐    ┌────────┐    ┌────────┐
+  │  HOT  │ ─► │ WARM  │ ─► │ COLD  │ ─► │ FROZEN │ ─► │ DELETE │
+  └───────┘    └───────┘    └───────┘    └────────┘    └────────┘
+  Indexing      Read-only    Infrequent   Rare           Remove
+  + Search      + Shrink     + Cheaper    + Cheapest     data
+                + Merge       storage      storage</div></div>
+<p><strong>Example:</strong> Logs stay HOT for 7 days, move to WARM for 30 days, then DELETE.</p>`],
+
+                // Q2
+                ["What is a snapshot used for?",
+                    `<p>Snapshots create <strong>backups</strong> of indices and cluster state to an external repository.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block"><span class="comment">// Step 1: Register repository</span>
+PUT _snapshot/my_backup
+{
+  <span class="key">"type"</span>: <span class="str">"fs"</span>,
+  <span class="key">"settings"</span>: { <span class="key">"location"</span>: <span class="str">"/mount/backups"</span> }
+}
+
+<span class="comment">// Step 2: Take snapshot</span>
+PUT _snapshot/my_backup/snap_2024?wait_for_completion=true
+
+<span class="comment">// Step 3: Restore</span>
+POST _snapshot/my_backup/snap_2024/_restore</div></div>
+<ul>
+  <li>Snapshots are <strong>incremental</strong> (only new segments)</li>
+  <li>Repository types: filesystem, S3, Azure, GCS</li>
+</ul>`],
+
+                // Q3
+                ["What is an index alias?",
+                    `<p>An alias is a <strong>virtual name</strong> that points to one or more real indices.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">POST _aliases
+{
+  <span class="key">"actions"</span>: [
+    { <span class="key">"add"</span>: { <span class="key">"index"</span>: <span class="str">"logs-2024-01"</span>, <span class="key">"alias"</span>: <span class="str">"logs_current"</span> } }
+  ]
+}</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Application  ──►  "logs_current" (alias)
+                        │
+                        ├──►  logs-2024-01  (real index)
+                        └──►  logs-2024-02  (real index)
+
+Swap underlying index with ZERO code changes!</div></div>`],
+
+                // Q4
+                ["What is a Data Stream?",
+                    `<p>A Data Stream is an <strong>append-only, time-series</strong> abstraction that automatically manages backing indices.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Data Stream: "metrics-cpu"
+
+  ┌──────────────────────────┐
+  │ .ds-metrics-cpu-000001   │  oldest, read-only
+  ├──────────────────────────┤
+  │ .ds-metrics-cpu-000002   │  read-only
+  ├──────────────────────────┤
+  │ .ds-metrics-cpu-000003   │  ← write index (new docs here)
+  └──────────────────────────┘</div></div>
+<p><strong>Requirements:</strong></p>
+<ul>
+  <li>Must have <code>@timestamp</code> field</li>
+  <li>Append-only (no updates/deletes)</li>
+  <li>Automatic rollover via ILM</li>
+</ul>`],
+
+                // Q5
+                ["What is Downsampling?",
+                    `<p>Downsampling aggregates <strong>granular time-series data</strong> into summarized records to save storage.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Before (per-second, 86,400 docs/day):
+
+  10:00:01   cpu=45%
+  10:00:02   cpu=47%
+  10:00:03   cpu=43%
+  ...
+
+After downsampling (per-minute, 1,440 docs/day):
+
+  10:00   cpu_avg=45%   cpu_min=43%   cpu_max=47%
+  10:01   cpu_avg=52%   cpu_min=50%   cpu_max=55%
+
+  ✅ Storage reduction: ~98%!</div></div>`]
+            ],
+
+            m6: [
+                // Q1
+                ["What are the 4 core HTTP verbs used by the Elasticsearch REST API?",
+                    `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">┌─────────┬──────────────────────────────────────────┐
+│  Verb   │  Usage                                   │
+├─────────┼──────────────────────────────────────────┤
+│  GET    │  Retrieve data / search                  │
+│  POST   │  Create document / run queries           │
+│  PUT    │  Create index / upsert document          │
+│  DELETE │  Remove document / index                 │
+└─────────┴──────────────────────────────────────────┘</div></div>
+<p>Examples:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block"><span class="prompt">$</span> curl -X GET    <span class="url">"localhost:9200/_cluster/health"</span>
+<span class="prompt">$</span> curl -X POST   <span class="url">"localhost:9200/products/_search"</span>
+<span class="prompt">$</span> curl -X PUT    <span class="url">"localhost:9200/products/_doc/1"</span> -d '{...}'
+<span class="prompt">$</span> curl -X DELETE <span class="url">"localhost:9200/products/_doc/1"</span></div></div>`],
+
+                // Q2
+                ["What is Painless scripting?",
+                    `<p>Painless is Elasticsearch's <strong>secure, sandboxed scripting language</strong> (Java-like syntax).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">POST employees/_update/1
+{
+  <span class="key">"script"</span>: {
+    <span class="key">"source"</span>: <span class="str">"ctx._source.salary *= params.factor"</span>,
+    <span class="key">"lang"</span>:   <span class="str">"painless"</span>,
+    <span class="key">"params"</span>: {
+      <span class="key">"factor"</span>: <span class="num">1.10</span>
+    }
+  }
+}</div></div>
+<p><span class="label label-warn">WARNING</span> Always use <strong>params</strong> for values — this enables script caching and prevents recompilation.</p>`],
+
+                // Q3
+                ["What does the _update API do?",
+                    `<p>The <code>_update</code> API modifies an <strong>existing document</strong> without replacing it entirely.</p>
+<p><strong>Partial update</strong> (merge fields):</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">POST employees/_update/1
+{
+  <span class="key">"doc"</span>: {
+    <span class="key">"age"</span>: <span class="num">35</span>,
+    <span class="key">"title"</span>: <span class="str">"Senior Engineer"</span>
+  }
+}</div></div>
+<p><strong>Script update</strong> (computed change):</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="json-block">POST employees/_update/1
+{
+  <span class="key">"script"</span>: {
+    <span class="key">"source"</span>: <span class="str">"ctx._source.age += 1"</span>
+  }
+}</div></div>`],
+
+                // Q4
+                ["What is the _cat API used for?",
+                    `<p>The <code>_cat</code> API returns <strong>human-readable tabular output</strong> for quick monitoring.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block"><span class="prompt">$</span> curl <span class="url">"localhost:9200/_cat/indices?v"</span>
+
+health status index       docs.count store.size
+green  open   products             4      15kb
+yellow open   employees            5      12kb</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block"><span class="prompt">$</span> curl <span class="url">"localhost:9200/_cat/nodes?v&h=name,role,heap.percent,cpu"</span>
+
+name    role heap.percent cpu
+node-1  dim           45  12
+node-2  d             62   8</div></div>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block"><span class="prompt">$</span> curl <span class="url">"localhost:9200/_cat/shards/products?v"</span>
+
+index    shard prirep state      docs store node
+products 0     p      STARTED       4  15kb node-1
+products 0     r      UNASSIGNED</div></div>
+<p><span class="label label-tip">TIP</span> Add <code>?v</code> for headers, <code>?help</code> for all columns.</p>`],
+
+                // Q5
+                ["What is the analysis-icu plugin and when do you need it?",
+                    `<p>The <strong>ICU Analyzer plugin</strong> provides proper Unicode text analysis, critical for CJK (Chinese, Japanese, Korean) languages.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="diagram">Standard Analyzer on Japanese: "東京都"
+  → tokens: ["東", "京", "都"]      ← WRONG (character-by-character)
+
+ICU Analyzer on Japanese: "東京都"
+  → tokens: ["東京", "都"]          ← CORRECT ("Tokyo" + "metropolis")</div></div>
+<p>Install:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block"><span class="prompt">$</span> sudo elasticsearch-plugin install analysis-icu
+<span class="prompt">$</span> sudo systemctl restart elasticsearch</div></div>`]
+            ]
+        };
+
+        let currentTopic = null, questions = [], index = 0;
+        function startTopic(key) {
+            currentTopic = key; questions = quizData[key]; index = 0;
+            document.getElementById("topicScreen").style.display = "none";
+            document.getElementById("quizScreen").style.display = "block";
+            document.getElementById("topicTitle").innerText = titles[key];
+            loadQ();
+        }
+        function loadQ() {
+            document.getElementById("question").innerText = questions[index][0];
+            document.getElementById("answerBox").innerHTML = questions[index][1];
+            document.getElementById("answerBox").style.display = "none";
+            document.getElementById("counter").innerText = (index + 1) + " / " + questions.length;
+            document.getElementById("progressFill").style.width = (index / questions.length * 100) + "%";
+        }
+        function nextQ() { if (index < questions.length - 1) { index++; loadQ(); } }
+        function prevQ() { if (index > 0) { index--; loadQ(); } }
+        function reveal() {
+            document.getElementById("answerBox").style.display = "block";
+            document.getElementById("progressFill").style.width = ((index + 1) / questions.length * 100) + "%";
+        }
+        function back() {
+            document.getElementById("quizScreen").style.display = "none";
+            document.getElementById("topicScreen").style.display = "block";
+        }
+    
+    function cpCode(btn) {
+      var el = btn.parentElement.querySelector('.c0,.j,.d,.cmd-block,.json-block,.diagram');
+      var txt = el ? (el.innerText || el.textContent) : '';
+      navigator.clipboard.writeText(txt).catch(function(){
+        var t=document.createElement('textarea'); t.value=txt;
+        document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+      });
+      btn.textContent = '\u2713 Copied!'; btn.classList.add('ok');
+      setTimeout(function(){ btn.innerHTML='&#128203; Copy'; btn.classList.remove('ok'); }, 2000);
+    }
+
+  </script>
+</body>
+
+</html>

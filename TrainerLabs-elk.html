@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elasticsearch Trainer Labs</title>
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #11131a; color: #d0d4de; min-height: 100vh; }
+header { background: linear-gradient(135deg, #0d1b40 0%, #1a1f35 100%); padding: 18px 40px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid #2a3060; }
+.header-logo { font-size: 32px; }
+.header-title { font-size: 22px; font-weight: 700; color: #fff; }
+.header-sub { font-size: 13px; color: #7b8ec8; margin-top: 3px; }
+.nav { background: #141829; padding: 12px 40px; display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid #1e2444; position: sticky; top: 0; z-index: 100; }
+.nav-btn { background: transparent; border: 1px solid #2a3060; color: #7b8ec8; padding: 7px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; white-space: nowrap; }
+.nav-btn:hover { background: #1e2857; color: #c0ccff; border-color: #3a4880; }
+.nav-btn.active { background: linear-gradient(135deg, #1a3a90, #2050c0); color: #fff; border-color: #3060d0; box-shadow: 0 2px 8px rgba(32,80,192,0.4); }
+.content { padding: 30px 40px; max-width: 1150px; margin: 0 auto; }
+.module-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; padding-bottom: 18px; border-bottom: 2px solid #1e2444; }
+.mod-badge { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.mod-title { font-size: 20px; font-weight: 700; color: #fff; }
+.mod-desc { font-size: 13px; color: #7b8ec8; margin-top: 4px; }
+.mod-expand-all { margin-left: auto; display: flex; gap: 8px; }
+.mod-expand-all button { background: #1e2444; border: 1px solid #2a3060; color: #7b8ec8; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+.mod-expand-all button:hover { background: #2a3060; color: #c0ccff; }
+.lab-card { background: #141829; border: 1px solid #1e2444; border-radius: 10px; margin-bottom: 16px; overflow: hidden; }
+.lab-header { display: flex; align-items: flex-start; gap: 14px; padding: 14px 20px; cursor: pointer; transition: background 0.2s; }
+.lab-header:hover { background: #1a2040; }
+.lab-num { background: #e65100; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.lab-meta { flex: 1; }
+.lab-title { font-size: 15px; font-weight: 600; color: #e0e6ff; }
+.lab-goal { font-size: 12px; color: #6a80b8; margin-top: 3px; }
+.toggle-icon { color: #6a80b8; font-size: 14px; transition: transform 0.25s; margin-top: 4px; flex-shrink: 0; }
+.lab-body { display: none; padding: 0 22px 22px; border-top: 1px solid #1e2444; }
+.lab-body.open { display: block; }
+.lab-body h4 { color: #7b9cff; margin: 18px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+.code-block { border-radius: 8px; margin: 8px 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; }
+.code-label { font-size: 11px; font-weight: 600; padding: 5px 14px; letter-spacing: 0.8px; text-transform: uppercase; flex: 1; }
+.copy-btn { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.55); padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 8px; transition: all 0.2s; white-space: nowrap; }
+.copy-btn:hover { background: rgba(255,255,255,0.12); color: #fff; border-color: rgba(255,255,255,0.35); }
+.copy-btn.copied { color: #7bc67e; border-color: #7bc67e; }
+.code-block.bash .code-header { background: #1a2d1a; }
+.code-block.bash .code-label { color: #6abf69; }
+.code-block.bash pre { background: #0d1a0d; color: #b0d8a0; padding: 14px; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.6; white-space: pre; overflow-x: auto; }
+.code-block.kibana .code-header { background: #1a2040; }
+.code-block.kibana .code-label { color: #7b9cff; }
+.code-block.kibana pre { background: #0d1228; color: #c8d0f0; padding: 14px; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.6; white-space: pre; overflow-x: auto; }
+.code-block.info .code-header { background: #2a1f10; }
+.code-block.info .code-label { color: #f0b250; }
+.code-block.info pre { background: #1a1308; color: #e0c080; padding: 14px; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.6; white-space: pre; overflow-x: auto; }
+.diagram { background: #0a0f1a; border: 1px solid #1e2830; border-radius: 8px; margin: 12px 0; }
+.diagram pre { color: #60c060; font-family: 'Consolas','Courier New',monospace; font-size: 12px; line-height: 1.5; padding: 14px; white-space: pre; overflow-x: auto; }
+.note { background: #12180a; border-left: 3px solid #7bc67e; border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 10px 0; font-size: 13px; color: #a0d898; line-height: 1.6; }
+.warn { background: #1a100a; border-left: 3px solid #ef6c00; border-radius: 0 6px 6px 0; padding: 10px 14px; margin: 10px 0; font-size: 13px; color: #f0a060; line-height: 1.6; }
+table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+th { background: #1a2444; color: #7b9cff; padding: 9px 14px; text-align: left; }
+td { border-bottom: 1px solid #1e2444; padding: 8px 14px; color: #b0bce8; }
+tr:hover td { background: #161c38; }
+
+</style>
+</head>
+<body>
+<header>
+  <div class="header-logo">&#x1F393;</div>
+  <div>
+    <div class="header-title">Elasticsearch Trainer Labs</div>
+    <div class="header-sub">21 hands-on labs &middot; 6 modules &middot; Complete trainer reference</div>
+  </div>
+</header>
+<div class="nav" id="nav">
+<button class="nav-btn" data-mod="1" onclick="showModule(1)">M1: Environment &amp;</button>
+<button class="nav-btn" data-mod="2" onclick="showModule(2)">M2: Install, Security</button>
+<button class="nav-btn" data-mod="3" onclick="showModule(3)">M3: Data Ingestion</button>
+<button class="nav-btn" data-mod="4" onclick="showModule(4)">M4: Search, Query</button>
+<button class="nav-btn" data-mod="5" onclick="showModule(5)">M5: Data Management</button>
+<button class="nav-btn" data-mod="6" onclick="showModule(6)">M6: APIs, Scripting</button>
+</div>
+<div class="content">
+
+    <div class="module-section" id="mod1" style="display:none">
+      <div class="module-header">
+        <div class="mod-badge" style="background:#e53935">1</div>
+        <div>
+          <div class="mod-title">Module 1: Environment &amp; REST Basics</div>
+          <div class="mod-desc">Labs 1, 2 · Labs 1–2 · JSON, curl, REST verbs, tarball node</div>
+        </div>
+        <div class="mod-expand-all">
+          <button onclick="expandAll(1)">Expand All</button>
+          <button onclick="collapseAll(1)">Collapse All</button>
+        </div>
+      </div>
+      
+    <div class="lab-card" id="lab1">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L1</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 1: Exploring JSON and REST APIs</div>
+          <div class="lab-goal">Verify Ubuntu env, practice curl, jq, and HTTP verbs</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Install tools</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get update &amp;&amp; sudo apt-get install -y curl jq</pre></div>
+<h4>Verify curl</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>curl --version</pre></div>
+<h4>Create JSON doc</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>echo '{"title": "Intro to ES", "author": "Trainer", "year": 2024}' &gt; doc1.json</pre></div>
+<h4>Pretty-print with jq</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat doc1.json | jq .</pre></div>
+<h4>Practice HTTP verbs</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre># GET
+curl -s https://httpbin.org/get | jq .url
+# POST
+curl -s -X POST https://httpbin.org/post -H 'Content-Type: application/json' -d '{"name":"test"}' | jq .json
+# PUT
+curl -s -X PUT https://httpbin.org/put -H 'Content-Type: application/json' -d '{"name":"updated"}' | jq .json
+# DELETE
+curl -s -X DELETE https://httpbin.org/delete | jq .url</pre></div>
+        
+        
+        <div class="note">💡 jq is a command-line JSON processor. jq . pretty-prints; jq .field extracts a field.</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab2">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L2</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 2: Starting a Temporary Dev Node via Tarball</div>
+          <div class="lab-goal">Spin up ES in foreground, observe bootstrap, create index</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        <div class="warn">⚠️ Write down the auto-generated elastic password printed in the console!</div>
+        <h4>Download tarball</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre># x86/Intel:
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-linux-x86_64.tar.gz
+# ARM:
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.10.4-linux-aarch64.tar.gz</pre></div>
+<h4>Extract and start</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>tar -xzf elasticsearch-8.10.4-linux-x86_64.tar.gz
+cd elasticsearch-8.10.4/
+./bin/elasticsearch</pre></div>
+<h4>Second terminal: create index</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>curl -X PUT "https://localhost:9200/my_test_index" --insecure -u elastic:&lt;PASSWORD&gt;
+curl -X GET "https://localhost:9200/_cat/shards/my_test_index?v" --insecure -u elastic:&lt;PASSWORD&gt;</pre></div>
+<h4>Stop node</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre># Press Ctrl+C in terminal 1 to stop</pre></div>
+        <div class="diagram"><pre>Shard output on single-node:
+  index         shard prirep state
+  my_test_index 0     p      STARTED
+  my_test_index 0     r      UNASSIGNED  ← expected on 1 node</pre></div>
+        
+        
+      </div>
+    </div>
+    </div>
+
+    <div class="module-section" id="mod2" style="display:none">
+      <div class="module-header">
+        <div class="mod-badge" style="background:#1565c0">2</div>
+        <div>
+          <div class="mod-title">Module 2: Install, Security &amp; Monitoring</div>
+          <div class="mod-desc">Labs 3, 4, 5 · Labs 3–5 · APT install, Kibana setup, troubleshooting</div>
+        </div>
+        <div class="mod-expand-all">
+          <button onclick="expandAll(2)">Expand All</button>
+          <button onclick="collapseAll(2)">Collapse All</button>
+        </div>
+      </div>
+      
+    <div class="lab-card" id="lab3">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L3</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 3: Installing Elasticsearch &amp; Kibana on Ubuntu</div>
+          <div class="lab-goal">APT install, systemd service, verify health endpoint</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        <div class="warn">⚠️ Write down the auto-generated elastic password shown during installation!</div>
+        <h4>Install dependencies</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get update &amp;&amp; sudo apt-get install apt-transport-https wget</pre></div>
+<h4>Import GPG key</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg</pre></div>
+<h4>Add APT repo</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list</pre></div>
+<h4>Install ES + Kibana</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get update &amp;&amp; sudo apt-get install elasticsearch kibana</pre></div>
+<h4>Start service</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo systemctl daemon-reload
+sudo systemctl enable elasticsearch.service
+sudo systemctl start elasticsearch.service</pre></div>
+<h4>Verify installation</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200</pre></div>
+<h4>Reset elastic password (if needed)</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -i</pre></div>
+        
+        <table><thead><tr><th>Setting</th><th>File</th><th>Purpose</th></tr></thead><tbody><tr><td>network.host: 0.0.0.0</td><td>elasticsearch.yml</td><td>Allow VM host browser to reach port 9200</td></tr><tr><td>server.host: 0.0.0.0</td><td>kibana.yml</td><td>Allow VM host browser to reach port 5601</td></tr><tr><td>discovery.type: single-node</td><td>elasticsearch.yml</td><td>Demo mode, saves CPU/RAM</td></tr><tr><td>-Xms1g / -Xmx1g</td><td>jvm.options.d/memory.options</td><td>Limit heap to 1GB</td></tr></tbody></table>
+        
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab4">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L4</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 4: Configuring Basic Security &amp; Kibana Setup</div>
+          <div class="lab-goal">Enrollment token, Kibana UI, Dev Tools navigation</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Start Kibana</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo systemctl enable kibana.service
+sudo systemctl start kibana.service</pre></div>
+<h4>Generate enrollment token</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana</pre></div>
+<h4>Get verification code</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo /usr/share/kibana/bin/kibana-verification-code</pre></div>
+        
+        <table><thead><tr><th>Kibana Section</th><th>Purpose</th></tr></thead><tbody><tr><td>Elasticsearch</td><td>Search APIs and tools</td></tr><tr><td>Observability</td><td>Logs, metrics, APM traces</td></tr><tr><td>Security</td><td>SIEM, threat detection</td></tr><tr><td>Analytics -&gt; Discover</td><td>Raw KQL searching</td></tr><tr><td>Analytics -&gt; Dashboards</td><td>Visualizations</td></tr><tr><td>Management -&gt; Dev Tools</td><td>Interactive REST console</td></tr></tbody></table>
+        <div class="note">💡 Kibana takes 1-3 minutes to initialize. Watch: sudo journalctl -fu kibana</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab5">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L5</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 5: Simulating &amp; Advanced Troubleshooting</div>
+          <div class="lab-goal">Intentionally create yellow cluster, diagnose with allocation API</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Check baseline health (should be green)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET _cluster/health</pre></div>
+<h4>Force yellow (1 node cannot host replica)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT /troubleshoot_index
+{
+  "settings": { "number_of_replicas": 1 }
+}</pre></div>
+<h4>Check degraded health (now yellow)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET _cluster/health</pre></div>
+<h4>Diagnose WHY with Allocation Explain API</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET _cluster/allocation/explain</pre></div>
+<h4>Check node resources</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET _cat/nodes?v&amp;h=name,heap.percent,ram.percent,cpu,disk.used_percent</pre></div>
+<h4>Check thread pools</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET _cat/thread_pool/search,write?v&amp;h=node_name,name,active,queue,rejected</pre></div>
+        <div class="diagram"><pre>Cluster Status:
+  GREEN  — All primary AND replica shards assigned
+  YELLOW — All primaries OK, some replicas unassigned
+  RED    — One or more primary shards unassigned (DATA LOSS RISK!)</pre></div>
+        
+        
+      </div>
+    </div>
+    </div>
+
+    <div class="module-section" id="mod3" style="display:none">
+      <div class="module-header">
+        <div class="mod-badge" style="background:#00897b">3</div>
+        <div>
+          <div class="mod-title">Module 3: Data Ingestion &amp; Mapping</div>
+          <div class="mod-desc">Labs 6, 7, 8, 9 · Labs 6–9 · Bulk API, Filebeat, Logstash, mappings, pipelines</div>
+        </div>
+        <div class="mod-expand-all">
+          <button onclick="expandAll(3)">Expand All</button>
+          <button onclick="collapseAll(3)">Collapse All</button>
+        </div>
+      </div>
+      
+    <div class="lab-card" id="lab6">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L6</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 6: Indexing Data via Bulk API</div>
+          <div class="lab-goal">Format NDJSON file, execute bulk request, verify docs</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Create NDJSON file (requests.json)</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>{ "index" : { "_index" : "products", "_id" : "1" } }
+{ "name": "Running Shoe", "price": 95, "category": "Footwear", "in_stock": true }
+{ "index" : { "_index" : "products", "_id" : "2" } }
+{ "name": "Winter Hat", "price": 25, "category": "Accessories", "in_stock": true }
+{ "index" : { "_index" : "products", "_id" : "3" } }
+{ "name": "Leather Belt", "price": 45, "category": "Accessories", "in_stock": false }
+{ "index" : { "_index" : "products", "_id" : "4" } }
+{ "name": "Walking Shoe", "price": 120, "category": "Footwear", "in_stock": true }
+{ "index" : { "_index" : "products", "_id" : "5" } }
+{ "name": "Summer T-Shirt", "price": 30, "category": "Apparel", "in_stock": true }
+{ "index" : { "_index" : "products", "_id" : "6" } }
+{ "name": "Winter Jacket", "price": 150, "category": "Apparel", "in_stock": true }
+{ "index" : { "_index" : "products", "_id" : "7" } }
+{ "name": "Hiking Boots", "price": 180, "category": "Footwear", "in_stock": false }
+{ "index" : { "_index" : "products", "_id" : "8" } }
+{ "name": "Wool Scarf", "price": 35, "category": "Accessories", "in_stock": true }</pre></div>
+<h4>Execute Bulk API</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>curl -X POST "https://localhost:9200/_bulk" \
+  -H 'Content-Type: application/json' \
+  --cacert /etc/elasticsearch/certs/http_ca.crt \
+  -u elastic \
+  --data-binary @requests.json</pre></div>
+<h4>Verify insertion</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET products/_count
+GET products/_doc/1</pre></div>
+        <div class="diagram"><pre>NDJSON Bulk Format:
+  {"index":{"_index":"products","_id":"1"}}   &lt;- action
+  {"name":"Running Shoe","price":95}            &lt;- document
+  {"index":{"_index":"products","_id":"2"}}   &lt;- action
+  {"name":"Winter Hat","price":25}              &lt;- document</pre></div>
+        
+        <div class="note">💡 NDJSON format: action line followed immediately by document line. File MUST end with trailing newline!</div><div class="note">💡 Check errors:false in response to confirm all docs indexed successfully.</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab7">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L7</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 7: Installing and Configuring Filebeat</div>
+          <div class="lab-goal">Ingest Ubuntu syslog via Filebeat, then build a Logstash pipeline</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Install Filebeat</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get install filebeat</pre></div>
+<h4>Enable system module</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo filebeat modules enable system</pre></div>
+<h4>Setup Filebeat assets</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo filebeat setup -e \
+  -E output.elasticsearch.hosts=['https://localhost:9200'] \
+  -E output.elasticsearch.username=elastic \
+  -E output.elasticsearch.password='&lt;YOUR_PASSWORD&gt;' \
+  -E output.elasticsearch.ssl.certificate_authorities=['/etc/elasticsearch/certs/http_ca.crt']</pre></div>
+<h4>Start Filebeat</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo systemctl enable filebeat &amp;&amp; sudo systemctl start filebeat</pre></div>
+<h4>Verify in Kibana</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre># Kibana -&gt; Analytics -&gt; Discover -&gt; select filebeat-* data view</pre></div>
+<h4>Install Logstash (Part 2)</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get update &amp;&amp; sudo apt-get install logstash</pre></div>
+<h4>Create Logstash pipeline</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre># Create /etc/logstash/conf.d/my_pipeline.conf:
+# input { stdin { } }
+# filter { mutate { add_field =&gt; { "processed_by" =&gt; "logstash_lab" } } }
+# output { elasticsearch { hosts =&gt; ["https://localhost:9200"] ... } stdout { codec =&gt; rubydebug } }</pre></div>
+<h4>Run and test</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/my_pipeline.conf
+# Type: Hello from the Logstash Lab!
+# Press Ctrl+C to stop</pre></div>
+        
+        
+        <div class="note">💡 Kibana: Analytics -&gt; Discover -&gt; select filebeat-* data view to see live Ubuntu logs</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab8">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L8</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 8: Installing and Configuring Logstash</div>
+          <div class="lab-goal">CSV file -&gt; Logstash pipeline -&gt; Elasticsearch</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Install Logstash</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get install -y logstash
+sudo /usr/share/logstash/bin/logstash --version</pre></div>
+<h4>Create CSV pipeline</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre># /etc/logstash/conf.d/csv-pipeline.conf
+# input { file { path =&gt; "/tmp/employees.csv" start_position =&gt; "beginning" sincedb_path =&gt; "/dev/null" } }
+# filter { csv { separator =&gt; "," columns =&gt; ["employee_id","name","department","salary"] } mutate { convert =&gt; { "salary" =&gt; "integer" } remove_field =&gt; ["message","event","log","@version"] } }
+# output { elasticsearch { hosts =&gt; ["https://localhost:9200"] index =&gt; "employees" ... } stdout { codec =&gt; rubydebug } }</pre></div>
+<h4>Create CSV data file</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre># /tmp/employees.csv:
+# id,name,department,salary
+# 1,Alice Johnson,Engineering,95000
+# 2,Bob Smith,Marketing,72000
+# 3,Carol Williams,Engineering,105000
+# 4,Dave Brown,Sales,68000
+# 5,Eve Davis,Engineering,98000</pre></div>
+<h4>Run CSV pipeline</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/csv-pipeline.conf
+# Press Ctrl+C after all 5 records processed</pre></div>
+<h4>Verify in Kibana Dev Tools</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET employees/_search
+{
+  "query": { "match_all": {} },
+  "sort": [{ "employee_id": "asc" }]
+}
+
+# Find engineers &gt; $90k:
+GET employees/_search
+{
+  "query": {
+    "bool": {
+      "must": { "match": { "department": "Engineering" } },
+      "filter": { "range": { "salary": { "gte": 90000 } } }
+    }
+  }
+}</pre></div>
+        <div class="diagram"><pre>Logstash Architecture:
+  INPUT          FILTER             OUTPUT
+  stdin  -----&gt; mutate, grok ----&gt; elasticsearch
+  file           date, geoip       stdout
+  beats                            file</pre></div>
+        
+        
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab9">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L9</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 9: Explicit Mappings &amp; Ingest Pipelines</div>
+          <div class="lab-goal">Create pipeline with set processor + explicit index mapping</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Create ingest pipeline</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _ingest/pipeline/my_pipeline
+{
+  "description": "Add timestamp on ingest",
+  "processors": [
+    {
+      "set": { "field": "ingest_time", "value": "{{_ingest.timestamp}}" }
+    }
+  ]
+}</pre></div>
+<h4>Create index with explicit mapping</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT my_logs
+{
+  "mappings": {
+    "properties": {
+      "status":  { "type": "keyword" },
+      "message": { "type": "text" }
+    }
+  }
+}</pre></div>
+<h4>Index with pipeline</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST my_logs/_doc/1?pipeline=my_pipeline
+{
+  "status": "ERROR",
+  "message": "Failed to connect to the database securely."
+}</pre></div>
+<h4>Verify timestamp + mapping</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET my_logs/_doc/1
+GET my_logs/_mapping</pre></div>
+        <div class="diagram"><pre>Text vs Keyword:
+  keyword -&gt; NOT analyzed -&gt; exact match, sorting, aggregations
+             "Running Shoes" -&gt; token: ["Running Shoes"]
+
+  text    -&gt; ANALYZED -&gt; full-text search
+             "Running Shoes" -&gt; tokens: ["running", "shoes"]</pre></div>
+        
+        <div class="note">💡 Use keyword for filtering/aggregations, text for full-text search</div>
+      </div>
+    </div>
+    </div>
+
+    <div class="module-section" id="mod4" style="display:none">
+      <div class="module-header">
+        <div class="mod-badge" style="background:#6a1b9a">4</div>
+        <div>
+          <div class="mod-title">Module 4: Search, Query DSL &amp; Analytics</div>
+          <div class="mod-desc">Labs 10, 11, 12, 13, 14 · Labs 10–14 · bool queries, aggs, dashboards, Profile API, ES|QL</div>
+        </div>
+        <div class="mod-expand-all">
+          <button onclick="expandAll(4)">Expand All</button>
+          <button onclick="collapseAll(4)">Collapse All</button>
+        </div>
+      </div>
+      
+    <div class="lab-card" id="lab10">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L10</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 10: Query vs. Filter Contexts</div>
+          <div class="lab-goal">Understand scoring (must) vs binary gate (filter)</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Insert sample data</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST /products/_bulk
+{"index":{"_id":"1"}}
+{"name": "Running Shoe", "category": "Footwear", "price": 90}
+{"index":{"_id":"2"}}
+{"name": "Walking Shoe", "category": "Footwear", "price": 120}
+{"index":{"_id":"3"}}
+{"name": "Winter Jacket", "category": "Apparel", "price": 150}</pre></div>
+<h4>Mixed context: must (scored) + filter (cached)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET products/_search
+{
+  "query": {
+    "bool": {
+      "must":   { "match": { "name": "shoe" } },
+      "filter": { "range": { "price": { "lt": 100 } } }
+    }
+  }
+}</pre></div>
+<h4>All in filter: _score = 0.0 (faster, cached)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET products/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        { "match": { "name": "shoe" } },
+        { "range": { "price": { "lt": 100 } } }
+      ]
+    }
+  }
+}</pre></div>
+        <div class="diagram"><pre>Bool Query Clauses:
+  must      -&gt; scored match  (affects _score)
+  should    -&gt; scored boost  (optional)
+  filter    -&gt; binary match  (fast, cached, no score)
+  must_not  -&gt; exclude docs  (no score impact)</pre></div>
+        
+        
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab11">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L11</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 11: Aggregations Framework</div>
+          <div class="lab-goal">Bucket + Metrics aggs: average price per category</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Insert sample sales data</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST /sales/_bulk
+{"index":{}}
+{"product": "Laptop", "category": "Electronics", "price": 1200}
+{"index":{}}
+{"product": "Mouse", "category": "Electronics", "price": 25}
+{"index":{}}
+{"product": "Chair", "category": "Furniture", "price": 150}</pre></div>
+<h4>Bucket + Metrics aggregation</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET products/_search
+{
+  "size": 0,
+  "aggs": {
+    "categories": {
+      "terms": { "field": "category.keyword" },
+      "aggs": {
+        "avg_price": { "avg": { "field": "price" } }
+      }
+    }
+  }
+}</pre></div>
+        
+        
+        <div class="note">💡 size:0 skips document hits — we only care about aggregation results.</div><div class="note">💡 Scroll past the empty hits array to the aggregations block in the response.</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab12">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L12</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 12: Building Kibana Dashboards</div>
+          <div class="lab-goal">Data view, pie chart, bar chart, data table, cross-filter</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Create Data View</h4><div class="code-block info"><div class="code-header"><span class="code-label">Steps</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>Kibana -&gt; hamburger -&gt; Stack Management -&gt; Data Views -&gt; Create data view
+Name: products, Index pattern: products
+Timestamp: I don't want to use the time filter</pre></div>
+<h4>Pie Chart: Products by Category</h4><div class="code-block info"><div class="code-header"><span class="code-label">Steps</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>Kibana -&gt; Analytics -&gt; Dashboards -&gt; Create dashboard -&gt; Create visualization
+Type: Pie, Data view: products
+Slice by: category.keyword (Terms)
+Click Save and return</pre></div>
+<h4>Bar Chart: Price per Product</h4><div class="code-block info"><div class="code-header"><span class="code-label">Steps</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>Create visualization -&gt; Type: Bar vertical
+Horizontal axis: Terms -&gt; name.keyword
+Vertical axis: Average -&gt; price
+Click Save and return</pre></div>
+<h4>Data Table</h4><div class="code-block info"><div class="code-header"><span class="code-label">Steps</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>Create visualization -&gt; Type: Table
+Rows: name.keyword, category.keyword
+Metrics: Average -&gt; price
+Click Save and return</pre></div>
+<h4>Save dashboard + Discover</h4><div class="code-block info"><div class="code-header"><span class="code-label">Steps</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>Click Save -&gt; Title: Product Catalog Dashboard -&gt; Save
+
+BONUS - Discover:
+category : "Footwear" and price &gt; 100
+-&gt; Only Walking Shoe ($120) and Hiking Boots ($180)</pre></div>
+        
+        
+        <div class="note">💡 Try clicking a pie slice — other charts automatically cross-filter!</div><div class="note">💡 Cross-filtering is one of Kibana's most powerful interactive features.</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab13">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L13</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 13: Analyzing Search Performance</div>
+          <div class="lab-goal">Profile API to see Lucene timing breakdowns</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Verify data exists (count should be 8)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET products/_count</pre></div>
+<h4>Execute query with profiling enabled</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET products/_search
+{
+  "profile": true,
+  "query": { "match": { "name": "shoe" } }
+}</pre></div>
+<h4>Compare: filter context (breakdown.score = 0)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET products/_search
+{
+  "profile": true,
+  "query": {
+    "bool": {
+      "filter": { "term": { "category.keyword": "Footwear" } }
+    }
+  }
+}</pre></div>
+        
+        
+        <div class="note">💡 time_in_nanos: Total execution time for this query component.</div><div class="note">💡 breakdown.score = 0 in filter context because scoring is skipped entirely.</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab14">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L14</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 14: Querying with ES|QL, EQL, and SQL</div>
+          <div class="lab-goal">Three alternative query languages against the same dataset</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>ES|QL (pipe syntax)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _query
+{
+  "query": "FROM products | WHERE category == \"Footwear\" | SORT price DESC | LIMIT 10"
+}
+
+POST _query
+{
+  "query": "FROM products | STATS avg_price = AVG(price) BY category"
+}</pre></div>
+<h4>SQL</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _sql?format=txt
+{
+  "query": "SELECT name, price, category FROM products WHERE price &gt; 50 ORDER BY price DESC"
+}
+
+POST _sql?format=txt
+{
+  "query": "SELECT category, COUNT(*) AS total, AVG(price) AS avg_price FROM products GROUP BY category"
+}</pre></div>
+<h4>EQL — Brute-force detection</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST /security_events/_bulk
+{"index":{}}
+{"event.category":"authentication","event.action":"login_attempt","user.name":"admin","@timestamp":"2024-10-15T10:00:00Z","event.outcome":"failure"}
+{"index":{}}
+{"event.category":"authentication","event.action":"login_attempt","user.name":"admin","@timestamp":"2024-10-15T10:00:05Z","event.outcome":"failure"}
+{"index":{}}
+{"event.category":"authentication","event.action":"login_attempt","user.name":"admin","@timestamp":"2024-10-15T10:00:10Z","event.outcome":"success"}
+
+GET /security_events/_eql/search
+{
+  "query": "sequence by user.name [authentication where event.outcome == \"failure\"] [authentication where event.outcome == \"failure\"] [authentication where event.outcome == \"success\"]"
+}</pre></div>
+        <div class="diagram"><pre>ES|QL pipe syntax:
+  FROM products          &lt;- source
+  | WHERE category == .. &lt;- filter
+  | SORT price DESC      &lt;- sort
+  | STATS avg = AVG(x)   &lt;- aggregate
+  | LIMIT 10             &lt;- limit</pre></div>
+        
+        
+      </div>
+    </div>
+    </div>
+
+    <div class="module-section" id="mod5" style="display:none">
+      <div class="module-header">
+        <div class="mod-badge" style="background:#00838f">5</div>
+        <div>
+          <div class="mod-title">Module 5: Data Management &amp; Snapshots</div>
+          <div class="mod-desc">Labs 15, 16, 17, 18 · Labs 15–18 · ILM, Data Streams, Snapshots, Downsampling</div>
+        </div>
+        <div class="mod-expand-all">
+          <button onclick="expandAll(5)">Expand All</button>
+          <button onclick="collapseAll(5)">Collapse All</button>
+        </div>
+      </div>
+      
+    <div class="lab-card" id="lab15">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L15</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 15: Implementing Index Lifecycle Management (ILM)</div>
+          <div class="lab-goal">ILM policy hot-&gt;delete, index template, rollover alias</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Create ILM policy</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _ilm/policy/logs_policy
+{
+  "policy": {
+    "phases": {
+      "hot": { "actions": { "rollover": { "max_age": "1d", "max_size": "50gb" } } },
+      "delete": { "min_age": "30d", "actions": { "delete": {} } }
+    }
+  }
+}</pre></div>
+<h4>Create index template with ILM</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _index_template/logs_template
+{
+  "index_patterns": ["logs-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "index.lifecycle.name": "logs_policy",
+      "index.lifecycle.rollover_alias": "logs"
+    }
+  }
+}</pre></div>
+<h4>Create initial write index</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT logs-000001
+{
+  "aliases": {
+    "logs": { "is_write_index": true }
+  }
+}</pre></div>
+<h4>Index via alias, verify ILM attached</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST logs/_doc
+{
+  "message": "Service started",
+  "level": "INFO",
+  "@timestamp": "2024-10-15T10:00:00Z"
+}
+
+GET logs-000001/_ilm/explain</pre></div>
+        <div class="diagram"><pre>ILM Phases:
+  HOT    -&gt; Active indexing (rollover on size/age)
+  WARM   -&gt; Read-only, shrink, forcemerge
+  COLD   -&gt; Searchable, frozen
+  DELETE -&gt; Gone after min_age</pre></div>
+        
+        
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab16">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L16</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 16: Working with Data Streams</div>
+          <div class="lab-goal">Component templates -&gt; index template -&gt; data stream</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Component template: mappings</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _component_template/logs-mappings
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "@timestamp":   { "type": "date" },
+        "message":      { "type": "text" },
+        "log.level":    { "type": "keyword" },
+        "service.name": { "type": "keyword" }
+      }
+    }
+  }
+}</pre></div>
+<h4>Component template: settings</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _component_template/logs-settings
+{
+  "template": {
+    "settings": { "number_of_shards": 1, "number_of_replicas": 0 }
+  }
+}</pre></div>
+<h4>Index template for data stream</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _index_template/app-logs-template
+{
+  "index_patterns": ["app-logs-*"],
+  "data_stream": {},
+  "composed_of": ["logs-mappings", "logs-settings"],
+  "priority": 500
+}</pre></div>
+<h4>Index documents (auto-creates stream)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST app-logs-training/_doc
+{ "@timestamp": "2024-10-15T10:00:00Z", "message": "App started", "log.level": "INFO", "service.name": "auth-service" }
+POST app-logs-training/_doc
+{ "@timestamp": "2024-10-15T10:01:00Z", "message": "Failed login", "log.level": "WARN", "service.name": "auth-service" }
+POST app-logs-training/_doc
+{ "@timestamp": "2024-10-15T10:02:00Z", "message": "DB pool exhausted", "log.level": "ERROR", "service.name": "payment-service" }</pre></div>
+<h4>Verify and search</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET _data_stream/app-logs-training
+GET app-logs-training/_search
+{ "query": { "match": { "log.level": "ERROR" } } }
+GET _cat/indices/.ds-app-logs-*?v&amp;h=index,docs.count,store.size</pre></div>
+        
+        <table><thead><tr><th>Feature</th><th>Regular Index</th><th>Data Stream</th></tr></thead><tbody><tr><td>Append-only</td><td>No</td><td>Yes</td></tr><tr><td>Auto-creates backing indices</td><td>No</td><td>Yes</td></tr><tr><td>Requires @timestamp</td><td>No</td><td>Yes</td></tr><tr><td>ILM auto-rollover</td><td>Manual</td><td>Built-in</td></tr></tbody></table>
+        
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab17">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L17</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 17: Configuring Local Snapshots</div>
+          <div class="lab-goal">Register fs repo, take snapshot, simulate data loss, restore</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Register backup path</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>echo 'path.repo: ["/var/backups/es_repo"]' | sudo tee -a /etc/elasticsearch/elasticsearch.yml
+sudo mkdir -p /var/backups/es_repo
+sudo chown -R elasticsearch:elasticsearch /var/backups/es_repo
+sudo systemctl restart elasticsearch.service</pre></div>
+<h4>Register repository</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _snapshot/my_fs_backup
+{
+  "type": "fs",
+  "settings": { "location": "/var/backups/es_repo" }
+}</pre></div>
+<h4>Take snapshot</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true</pre></div>
+<h4>Simulate loss + restore</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>DELETE /products
+
+POST /_snapshot/my_fs_backup/snapshot_1/_restore
+{
+  "indices": "products",
+  "ignore_unavailable": true,
+  "include_global_state": false
+}
+
+GET products/_count</pre></div>
+        
+        
+        <div class="note">💡 wait_for_completion=true blocks HTTP response until backup finishes.</div><div class="note">💡 After restore, GET products/_count should return 8.</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab18">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L18</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 18: Downsampling Time-Series Data</div>
+          <div class="lab-goal">Create metrics index, Transform to downsample per-minute</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Create metrics index</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT server_metrics
+{
+  "mappings": {
+    "properties": {
+      "hostname": { "type": "keyword" },
+      "cpu_percent": { "type": "float" },
+      "memory_percent": { "type": "float" },
+      "@timestamp": { "type": "date" }
+    }
+  }
+}</pre></div>
+<h4>Insert raw time-series data</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST server_metrics/_bulk
+{"index":{}}
+{"hostname":"web-01","cpu_percent":45.2,"memory_percent":68.1,"@timestamp":"2024-10-15T10:00:00Z"}
+{"index":{}}
+{"hostname":"web-01","cpu_percent":52.8,"memory_percent":70.3,"@timestamp":"2024-10-15T10:00:30Z"}
+{"index":{}}
+{"hostname":"web-01","cpu_percent":48.1,"memory_percent":69.5,"@timestamp":"2024-10-15T10:01:00Z"}
+{"index":{}}
+{"hostname":"db-01","cpu_percent":78.9,"memory_percent":85.4,"@timestamp":"2024-10-15T10:00:00Z"}
+{"index":{}}
+{"hostname":"db-01","cpu_percent":82.3,"memory_percent":87.1,"@timestamp":"2024-10-15T10:00:30Z"}</pre></div>
+<h4>Create + start Transform</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT _transform/downsample_metrics
+{
+  "source": { "index": "server_metrics" },
+  "dest":   { "index": "server_metrics_1m" },
+  "pivot": {
+    "group_by": {
+      "hostname":  { "terms":          { "field": "hostname" } },
+      "timestamp": { "date_histogram": { "field": "@timestamp", "fixed_interval": "1m" } }
+    },
+    "aggregations": {
+      "avg_cpu":    { "avg": { "field": "cpu_percent" } },
+      "max_cpu":    { "max": { "field": "cpu_percent" } },
+      "avg_memory": { "avg": { "field": "memory_percent" } }
+    }
+  }
+}
+
+POST _transform/downsample_metrics/_start</pre></div>
+<h4>Verify downsampled data</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET server_metrics_1m/_search
+{ "sort": [{ "hostname": "asc" }] }</pre></div>
+        
+        
+        <div class="note">💡 9 raw per-second docs -&gt; ~6 per-minute summaries (grouped by hostname per minute).</div>
+      </div>
+    </div>
+    </div>
+
+    <div class="module-section" id="mod6" style="display:none">
+      <div class="module-header">
+        <div class="mod-badge" style="background:#4e342e">6</div>
+        <div>
+          <div class="mod-title">Module 6: APIs, Scripting &amp; Plugins</div>
+          <div class="mod-desc">Labs 19, 20, 21 · Labs 19–21 · Painless scripts, REST API, Python client, plugins</div>
+        </div>
+        <div class="mod-expand-all">
+          <button onclick="expandAll(6)">Expand All</button>
+          <button onclick="collapseAll(6)">Collapse All</button>
+        </div>
+      </div>
+      
+    <div class="lab-card" id="lab19">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L19</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 19: Using Painless Scripts</div>
+          <div class="lab-goal">Script-based field update, conditional logic, script_fields</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Insert target document</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT /products/_doc/1
+{ "name": "Running Shoe", "category": "Footwear", "price": 90 }</pre></div>
+<h4>Increment price with parameterized script</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST products/_update/1
+{
+  "script": {
+    "source": "ctx._source.price += params.markup",
+    "params": { "markup": 10 }
+  }
+}
+
+GET products/_doc/1
+// price: 90 -&gt; 100</pre></div>
+<h4>Conditional script: 20% discount if price &gt; 50</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST products/_update/1
+{
+  "script": {
+    "source": "if (ctx._source.price &gt; params.threshold) { ctx._source.price = (int)(ctx._source.price * 0.8) }",
+    "params": { "threshold": 50 }
+  }
+}
+
+GET products/_doc/1
+// price: 100 -&gt; 80 (20% discount applied)</pre></div>
+<h4>Script fields at search time</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET products/_search
+{
+  "query": { "match_all": {} },
+  "script_fields": {
+    "price_with_tax": {
+      "script": { "source": "doc['price'].value * 1.15" }
+    }
+  }
+}
+// Adds virtual price_with_tax field — does NOT modify stored data</pre></div>
+        
+        
+        <div class="note">💡 Always use params in scripts — Elasticsearch caches compiled bytecode when params are used!</div><div class="note">💡 ctx._source allows read/write access to the document fields.</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab20">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L20</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 20: REST API Deep Dive &amp; Python Client</div>
+          <div class="lab-goal">Cluster/node/stats APIs + Python elasticsearch-py client</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>Essential REST APIs</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET _cluster/health
+GET _nodes/stats/jvm,os
+GET _cat/indices?v&amp;h=index,docs.count,store.size&amp;s=docs.count:desc
+GET products/_stats/docs,store
+GET _cluster/settings?include_defaults=true&amp;flat_settings=true&amp;filter_path=defaults.cluster.routing*</pre></div>
+<h4>Install Python client</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>pip3 install elasticsearch</pre></div>
+<h4>Create Python script</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre># Create es_demo.py:
+# from elasticsearch import Elasticsearch
+# es = Elasticsearch(
+#     "https://localhost:9200",
+#     basic_auth=("elastic", "YOUR_PASSWORD_HERE"),
+#     ca_certs="/etc/elasticsearch/certs/http_ca.crt"
+# )
+# health = es.cluster.health()
+# print(f"Cluster Status: {h}" .format(h=health['status']))
+# resp = es.index(index="products", id="100", document={"name":"SDK Sneaker","price":110})
+# results = es.search(index="products", query={"match":{"category":"Footwear"}})
+# es.delete(index="products", id="100")</pre></div>
+<h4>Run script</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>python3 es_demo.py</pre></div>
+        
+        
+        <div class="note">💡 Expected output: Cluster Status: yellow | 4 Footwear products listed | Cleaned up test document.</div>
+      </div>
+    </div>
+
+    <div class="lab-card" id="lab21">
+      <div class="lab-header" onclick="toggleLab(this)">
+        <div class="lab-num">L21</div>
+        <div class="lab-meta">
+          <div class="lab-title">Lab 21: Installing and Managing Plugins</div>
+          <div class="lab-goal">Install analysis-icu, verify, use ICU analyzer for CJK text</div>
+        </div>
+        <div class="toggle-icon">&#9654;</div>
+      </div>
+      <div class="lab-body">
+        
+        <h4>List installed plugins (empty by default)</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo /usr/share/elasticsearch/bin/elasticsearch-plugin list</pre></div>
+<h4>Install ICU Analysis plugin</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
+sudo systemctl restart elasticsearch.service</pre></div>
+<h4>Verify plugin loaded</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>GET _cat/plugins?v</pre></div>
+<h4>Compare standard vs ICU analyzer</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _analyze
+{ "analyzer": "standard", "text": "Tokyo is Japan's capital" }
+// Standard: basic word tokenization
+
+POST _analyze
+{ "analyzer": "icu_analyzer", "text": "Tokyo is Japan's capital" }
+// ICU: proper Unicode word segmentation</pre></div>
+<h4>Create multilingual index + search</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>PUT multilingual_docs
+{
+  "settings": {
+    "analysis": { "analyzer": { "my_icu": { "type": "icu_analyzer" } } }
+  },
+  "mappings": {
+    "properties": {
+      "title":   { "type": "text", "analyzer": "my_icu" },
+      "content": { "type": "text", "analyzer": "my_icu" }
+    }
+  }
+}
+
+POST multilingual_docs/_doc/1
+{ "title": "Tokyo Tower History", "content": "Tokyo Tower was built in 1958" }
+
+GET multilingual_docs/_search
+{ "query": { "match": { "content": "Tokyo" } } }</pre></div>
+<h4>Remove plugin (cleanup)</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo /usr/share/elasticsearch/bin/elasticsearch-plugin remove analysis-icu
+sudo systemctl restart elasticsearch.service</pre></div>
+        
+        <table><thead><tr><th>Plugin</th><th>Purpose</th></tr></thead><tbody><tr><td>analysis-icu</td><td>Unicode/CJK text analysis</td></tr><tr><td>analysis-phonetic</td><td>Phonetic (sounds-like) search</td></tr><tr><td>ingest-attachment</td><td>Extract text from PDF/Word/Excel</td></tr><tr><td>repository-s3</td><td>Snapshots to Amazon S3</td></tr><tr><td>repository-gcs</td><td>Snapshots to Google Cloud Storage</td></tr><tr><td>repository-azure</td><td>Snapshots to Azure Blob Storage</td></tr></tbody></table>
+        
+      </div>
+    </div>
+    </div>
+</div>
+<script>
+
+function copyCode(btn) {
+  var pre = btn.closest('.code-block').querySelector('pre');
+  var text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.innerHTML = '&#128203; Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.innerHTML = '&#128203; Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+function showModule(n) {
+  document.querySelectorAll('.module-section').forEach(function(s) { s.style.display = 'none'; });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('mod' + n).style.display = 'block';
+  document.querySelector('.nav-btn[data-mod="' + n + '"]').classList.add('active');
+}
+function toggleLab(header) {
+  var body = header.nextElementSibling;
+  var icon = header.querySelector('.toggle-icon');
+  var open = body.classList.toggle('open');
+  icon.style.transform = open ? 'rotate(90deg)' : '';
+}
+function expandAll(n) {
+  document.querySelectorAll('#mod' + n + ' .lab-body').forEach(function(b) { b.classList.add('open'); });
+  document.querySelectorAll('#mod' + n + ' .toggle-icon').forEach(function(i) { i.style.transform = 'rotate(90deg)'; });
+}
+function collapseAll(n) {
+  document.querySelectorAll('#mod' + n + ' .lab-body').forEach(function(b) { b.classList.remove('open'); });
+  document.querySelectorAll('#mod' + n + ' .toggle-icon').forEach(function(i) { i.style.transform = ''; });
+}
+showModule(1);
+
+</script>
+</body>
+</html>
