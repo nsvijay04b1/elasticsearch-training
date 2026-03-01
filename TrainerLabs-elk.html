@@ -325,7 +325,7 @@ your-node    write        0     0        0</pre></div>
       </div>
       <div class="lab-body">
         
-        <h4>Create the NDJSON bulk file using a heredoc: The cat &lt;&lt;EOF ... EOF syntax lets you paste a multi-line file directly into the terminal without opening a text editor. The Bulk API requires NDJSON format: one action line followed immediately by one document line, repeating. The file MUST end with a trailing newline (the EOF line ensures this).</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' &gt; requests.json
+        <h4>Create the bulk data file (requests.json)<br>Copy and paste the entire block below into your terminal — it creates the file automatically, no editor needed.<br>The Bulk API requires a specific format called NDJSON: each product needs exactly two lines — an action line (tells ES which index and ID to use) immediately followed by the document line (the actual product data).</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' &gt; requests.json
 { "index" : { "_index" : "products", "_id" : "1" } }
 { "name": "Running Shoe", "price": 95, "category": "Footwear", "in_stock": true }
 { "index" : { "_index" : "products", "_id" : "2" } }
@@ -399,7 +399,7 @@ GET products/_doc/1</pre></div><div class="expected"><div class="expected-label"
 # host.name, log.file.path, message, @timestamp
 # process.name (e.g. sshd, sudo, systemd)</pre></div>
 <h4>Install Logstash (Part 2 of this lab): Logstash is the full ETL pipeline — more powerful than Filebeat for transformations. It runs on the JVM so it uses more memory but can parse any format via its filter plugins.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get update &amp;&amp; sudo apt-get install logstash</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Setting up logstash (8.10.4)...</pre></div>
-<h4>Create the Logstash pipeline config file using a heredoc: This pipeline reads text you type (stdin), adds a processed_by field via the mutate filter, and sends it both to Elasticsearch AND to the terminal (stdout rubydebug) so you can see the output immediately. Replace &lt;PASSWORD&gt; with your elastic password.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' | sudo tee /etc/logstash/conf.d/my_pipeline.conf
+<h4>Create the Logstash pipeline configuration file<br>Copy and paste the block below — it writes the config file directly, no editor needed. Replace &lt;PASSWORD&gt; with your elastic password.<br>• input: reads lines you type in the terminal<br>• filter: automatically adds a processed_by field to every event<br>• output: sends to Elasticsearch AND prints to screen so you can see results live</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' | sudo tee /etc/logstash/conf.d/my_pipeline.conf
 input { stdin { } }
 filter {
   mutate { add_field =&gt; { "processed_by" =&gt; "logstash_lab" } }
@@ -442,7 +442,7 @@ EOF</pre></div><div class="expected"><div class="expected-label">&#9654; Expecte
         
         <h4>Install Logstash and verify the version: Logstash is the ETL pipeline of the Elastic Stack. It can ingest from hundreds of sources (files, databases, Kafka, syslog) and output to ES, S3, HDFS and more.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get install -y logstash
 sudo /usr/share/logstash/bin/logstash --version</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre>logstash 8.10.4</pre></div>
-<h4>Create the CSV pipeline config using a heredoc: The file input reads the CSV. The csv filter splits each line into named fields. The mutate filter converts salary from a string to an integer (so ES maps it as a number, not text). sincedb_path=/dev/null forces Logstash to re-read the file every run — useful for demos.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' | sudo tee /etc/logstash/conf.d/csv-pipeline.conf
+<h4>Create the Logstash CSV pipeline configuration<br>Copy and paste the block below — it writes the config file directly, no editor needed. Replace &lt;PASSWORD&gt; with your elastic password.<br>• input: reads the CSV file from disk, starting from the first line every time<br>• filter: splits each row into named fields, then converts salary to a number (so Elasticsearch stores it as an integer, not text)<br>• output: sends each record to Elasticsearch AND prints it to the screen</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' | sudo tee /etc/logstash/conf.d/csv-pipeline.conf
 input {
   file {
     path =&gt; "/tmp/employees.csv"
@@ -471,7 +471,7 @@ output {
   stdout { codec =&gt; rubydebug }
 }
 EOF</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># /etc/logstash/conf.d/csv-pipeline.conf written</pre></div>
-<h4>Create the sample CSV data file using a heredoc: This is a simple comma-separated values file with 5 employees across 3 departments. The first line is the header — note that columns in the Logstash config must match this order exactly.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' &gt; /tmp/employees.csv
+<h4>Create the sample employee data file<br>Copy and paste the block below — it creates employees.csv in /tmp with 5 records across 3 departments.<br>Important: the column order here must exactly match the columns list in the pipeline config above.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' &gt; /tmp/employees.csv
 employee_id,name,department,salary
 1,Alice Johnson,Engineering,95000
 2,Bob Smith,Marketing,72000
