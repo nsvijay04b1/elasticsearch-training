@@ -781,23 +781,88 @@ category : "Footwear" and price &gt; 100
       <div class="lab-header" onclick="toggleLab(this)">
         <div class="lab-num">L14</div>
         <div class="lab-meta">
-          <div class="lab-title">Lab 14: Querying with ES|QL, EQL, and SQL</div>
-          <div class="lab-goal">Three alternative query languages against the same dataset</div>
+          <div class="lab-title">Lab 14: ES|QL — Elasticsearch Query Language</div>
+          <div class="lab-goal">Use ES|QL pipe syntax to filter, compute, and aggregate data</div>
         </div>
         <div class="toggle-icon">&#9654;</div>
       </div>
       <div class="lab-body">
         
-        <h4>ES|QL (pipe syntax)</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _query
+        <h4>What is ES|QL and where to use it<br>Added in Elasticsearch 8.11. Your cluster is running 8.19 so all features are available.</h4><div class="code-block info"><div class="code-header"><span class="code-label">Steps</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>ES|QL is available in Kibana two ways:
+1. Dev Tools — POST _query { "query": "FROM ..." }
+2. Kibana Discover — click the language dropdown and choose 'ES|QL'
+
+ES|QL uses a pipe (|) to chain commands left-to-right, similar to Unix pipes or pandas.
+Each pipe transforms the result of the previous step.</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># ES|QL pipe model:
+# FROM source
+#   | filter / transform / aggregate
+#   | next step
+#   | LIMIT N</pre></div>
+<h4>Basics — FROM and LIMIT<br>FROM selects the source index (or data stream). LIMIT caps the rows returned.<br>ES|QL always requires a LIMIT — default max is 10,000 rows.</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _query
 {
-  "query": "FROM products | WHERE category == \"Footwear\" | SORT price DESC | LIMIT 10"
+  "query": "FROM products | LIMIT 5"
+}</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre>{
+  "columns": [
+    {"name":"category","type":"keyword"},
+    {"name":"in_stock","type":"boolean"},
+    {"name":"name","type":"text"},
+    {"name":"price","type":"long"}
+  ],
+  "values": [
+    ["Footwear", true, "Running Shoe", 95],
+    ...
+  ]
+}</pre></div>
+<h4>WHERE and SORT — filter and order results<br>WHERE is like SQL WHERE. Multiple WHERE clauses are AND-ed together.<br>SORT orders the results. ASC is default; use DESC for high-to-low.</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _query
+{
+  "query": "FROM products | WHERE category == \"Footwear\" | WHERE price &gt; 100 | SORT price DESC"
+}</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Expected: Walking Shoe (120) and Hiking Boots (180)
+# Running Shoe (95) excluded because price &lt;= 100</pre></div>
+<h4>STATS BY — aggregate and group<br>STATS is ES|QL's aggregation command. Supports: COUNT, AVG, SUM, MIN, MAX, COUNT_DISTINCT.<br>BY groups the results — equivalent to GROUP BY in SQL.</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _query
+{
+  "query": "FROM products | STATS count = COUNT(*), avg_price = AVG(price), max_price = MAX(price) BY category | SORT avg_price DESC"
+}</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre>{"values":[
+  ["Footwear",   3, 131.67, 180],
+  ["Apparel",    2, 90.0,   150],
+  ["Accessories",3, 35.0,    45]
+]}</pre></div>
+<h4>EVAL and KEEP — compute new fields and select columns<br>EVAL creates computed columns (like a calculated field). CASE() is a conditional expression.<br>KEEP selects only the columns you want in the output (like SELECT in SQL).</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _query
+{
+  "query": "FROM products | EVAL price_with_tax = price * 1.2, price_band = CASE(price &lt; 50, \"budget\", price &lt; 100, \"mid-range\", \"premium\") | WHERE in_stock == true | KEEP name, price, price_with_tax, price_band | SORT price DESC"
+}</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Expected:
+# name            price  price_with_tax  price_band
+# Winter Jacket     150          180.0   premium
+# Walking Shoe      120          144.0   premium
+# Running Shoe       95          114.0   mid-range
+# Summer T-Shirt     30           36.0   budget
+# Wool Scarf         35           42.0   budget</pre></div>
+<h4>LIKE and RLIKE — wildcard and regex matching<br>LIKE uses glob-style wildcards (* = any chars, ? = one char).<br>RLIKE uses full Java regular expressions.</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _query
+{
+  "query": "FROM products | WHERE name LIKE \"*Shoe*\" | SORT price ASC"
 }
 
 POST _query
 {
-  "query": "FROM products | STATS avg_price = AVG(price) BY category"
-}</pre></div>
-<h4>SQL</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _sql?format=txt
+  "query": "FROM products | WHERE name RLIKE \".*Shoe.*\" | STATS total = COUNT(*), avg = AVG(price)"
+}</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># LIKE result: Running Shoe (95), Walking Shoe (120)
+# RLIKE STATS: total=2, avg=107.5</pre></div>
+<h4>Real data — query your live Filebeat logs with ES|QL<br>This runs against the 10,000+ real syslog events Filebeat collected from your VM.<br>Change the time range in Kibana if needed: add | WHERE @timestamp &gt; NOW() - 1 day</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _query
+{
+  "query": "FROM filebeat-* | WHERE process.name == \"sudo\" | STATS login_count = COUNT(*) BY host.name | SORT login_count DESC | LIMIT 10"
+}
+
+POST _query
+{
+  "query": "FROM filebeat-* | WHERE log.file.path LIKE \"*/auth*\" | STATS events = COUNT(*) BY process.name | SORT events DESC | LIMIT 10"
+}</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Expected output (will vary on your VM):
+# host.name      login_count
+# elk-training   43
+
+# process.name  events
+# sshd           1200
+# sudo            43
+# systemd         8900</pre></div>
+<h4>Bonus — SQL query language<br>Elasticsearch also supports a SQL-compatible API. Useful if your team already knows SQL.<br>Format options: txt (table), json, csv, yaml.</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST _sql?format=txt
 {
   "query": "SELECT name, price, category FROM products WHERE price &gt; 50 ORDER BY price DESC"
 }
@@ -805,8 +870,12 @@ POST _query
 POST _sql?format=txt
 {
   "query": "SELECT category, COUNT(*) AS total, AVG(price) AS avg_price FROM products GROUP BY category"
-}</pre></div>
-<h4>EQL — Brute-force detection</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST /security_events/_bulk
+}</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre>#     name         |    price    |   category   
+# ---------------+-------------+--------------
+# Hiking Boots   |     180     |   Footwear
+# Winter Jacket  |     150     |   Apparel
+# Walking Shoe   |     120     |   Footwear</pre></div>
+<h4>Bonus — EQL (Event Query Language) for security use cases<br>EQL detects sequences of events — perfect for threat hunting.<br>This example detects the classic brute-force pattern: fail, fail, then succeed.</h4><div class="code-block kibana"><div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>POST /security_events/_bulk
 {"index":{}}
 {"event.category":"authentication","event.action":"login_attempt","user.name":"admin","@timestamp":"2024-10-15T10:00:00Z","event.outcome":"failure"}
 {"index":{}}
@@ -817,14 +886,16 @@ POST _sql?format=txt
 GET /security_events/_eql/search
 {
   "query": "sequence by user.name [authentication where event.outcome == \"failure\"] [authentication where event.outcome == \"failure\"] [authentication where event.outcome == \"success\"]"
-}</pre></div>
-        <div class="diagram"><pre>ES|QL pipe syntax:
-  FROM products          &lt;- source
-  | WHERE category == .. &lt;- filter
-  | SORT price DESC      &lt;- sort
-  | STATS avg = AVG(x)   &lt;- aggregate
-  | LIMIT 10             &lt;- limit</pre></div>
-        
+}</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Expected: sequence match found for user admin
+# fail @ 10:00:00 → fail @ 10:00:05 → success @ 10:00:10</pre></div>
+        <div class="diagram"><pre>ES|QL Pipe Model:
+  FROM filebeat-*                    &lt;- source index
+  | WHERE process.name == "sshd"     &lt;- filter rows
+  | EVAL hour = DATE_TRUNC(1h, @timestamp)  &lt;- compute field
+  | STATS events = COUNT(*) BY hour  &lt;- aggregate
+  | SORT hour ASC                    &lt;- sort
+  | LIMIT 24                         &lt;- cap output</pre></div>
+        <table><thead><tr><th>Feature</th><th>Query DSL</th><th>ES|QL</th><th>SQL</th></tr></thead><tbody><tr><td>Syntax</td><td>JSON request body</td><td>Pipe-based text</td><td>SQL SELECT</td></tr><tr><td>Aggregations</td><td>aggs block</td><td>STATS BY</td><td>GROUP BY</td></tr><tr><td>Computed fields</td><td>script fields</td><td>EVAL</td><td>expression alias</td></tr><tr><td>Best for</td><td>Full-text, scored search</td><td>Analytics, transforms</td><td>BI tools, SQL users</td></tr><tr><td>Available since</td><td>ES 1.0</td><td>ES 8.11</td><td>ES 6.3</td></tr></tbody></table>
         
       </div>
     </div>
