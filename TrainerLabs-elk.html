@@ -210,7 +210,20 @@ my_test_index 0     r      UNASSIGNED           ← normal on 1 node</pre></div>
 # --------------------------- Security autoconfiguration information ------------------------------
 # Password for the elastic user: &lt;COPY THIS&gt;
 # Setting up kibana (8.10.4) ...</pre></div>
-<h4>Enable and start the Elasticsearch service: daemon-reload makes systemd aware of the new unit file. enable makes it start automatically on boot. start launches it right now.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo systemctl daemon-reload
+<h4>Check what elasticsearch.yml already contains<br>ES 8.x auto-configures some settings during install. This shows you the current relevant lines before we make any changes.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo grep -n "network.host\|discovery.type\|cluster.initial" /etc/elasticsearch/elasticsearch.yml | head -10</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Example output (line numbers will vary):
+# 56:#network.host: 192.168.0.1
+# 72:discovery.type: single-node    ← already set by autoconfiguration</pre></div>
+<h4>Open Elasticsearch to all network interfaces<br>By default ES only listens on localhost. Setting 0.0.0.0 lets Kibana reach it even if they use different loopback addresses, and lets your laptop browser hit port 9200 directly.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo sed -i 's/#network.host:.*/network.host: 0.0.0.0/' /etc/elasticsearch/elasticsearch.yml</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># (no output — line updated in place)
+# Verify: sudo grep network.host /etc/elasticsearch/elasticsearch.yml
+# → network.host: 0.0.0.0</pre></div>
+<h4>Limit the Java heap to 1 GB<br>Without this, Elasticsearch will claim up to 50% of total RAM. On a 4 GB training VM that leaves almost nothing for the OS, Kibana, and Filebeat — causing OOM crashes.<br>Ruleof thumb: heap = half of available RAM, max 31 GB.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' | sudo tee /etc/elasticsearch/jvm.options.d/memory.options
+-Xms1g
+-Xmx1g
+EOF</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># /etc/elasticsearch/jvm.options.d/memory.options written
+# Verify: cat /etc/elasticsearch/jvm.options.d/memory.options
+# -Xms1g
+# -Xmx1g</pre></div>
+<h4>Enable and start Elasticsearch: daemon-reload makes systemd aware of the new unit file. enable makes it start automatically on boot. start launches it right now.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo systemctl daemon-reload
 sudo systemctl enable elasticsearch.service
 sudo systemctl start elasticsearch.service</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Synchronizing state of elasticsearch.service with SysV service script...
 # Created symlink /etc/systemd/system/multi-user.target.wants/elasticsearch.service</pre></div>
@@ -385,7 +398,7 @@ GET products/_doc/1</pre></div><div class="expected"><div class="expected-label"
         
         <h4>Install Filebeat<br>Since we already added the Elastic APT repository in Lab 3, this is a single command.<br>Filebeat is the lightweight log shipper — it reads log files and forwards them to Elasticsearch.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo apt-get install filebeat</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Setting up filebeat (8.10.4)...
 # Processing triggers for systemd (252-13)</pre></div>
-<h4>Configure Filebeat to connect to Elasticsearch and Kibana<br>Copy and paste the block below — it writes the config file directly, no editor needed.<br>Replace BOTH occurrences of &lt;YOUR_PASSWORD&gt; with your elastic user password.<br>• output.elasticsearch: tells Filebeat where to ship the logs<br>• setup.kibana: tells Filebeat where to upload the pre-built dashboards<br>• ssl.certificate_authorities: the TLS cert so Filebeat trusts Elasticsearch</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' | sudo tee /etc/filebeat/filebeat.yml
+<h4>Configure Filebeat to connect to Elasticsearch and Kibana<br>Copy and paste the block below — it writes /etc/filebeat/filebeat.yml directly.<br>Replace BOTH occurrences of &lt;YOUR_PASSWORD&gt; with your elastic user password.<br><br>⚠️  CRITICAL: output.elasticsearch.hosts MUST start with https:// (not http://)<br>    ES 8.x enforces TLS. Using http:// causes:<br>    "Failed to connect: Get http://localhost:9200: EOF"<br><br>• output.elasticsearch: where Filebeat ships the logs (HTTPS + cert)<br>• setup.kibana: where Filebeat uploads pre-built dashboards (plain HTTP is OK for Kibana)<br>• ssl.certificate_authorities: trusts the auto-generated ES TLS certificate</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>cat &lt;&lt;'EOF' | sudo tee /etc/filebeat/filebeat.yml
 filebeat.inputs: []
 
 filebeat.config.modules:
@@ -405,7 +418,9 @@ output.elasticsearch:
 
 setup.ilm.enabled: true
 EOF</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># /etc/filebeat/filebeat.yml written
-# Verify: sudo grep -A3 output.elasticsearch /etc/filebeat/filebeat.yml</pre></div>
+# Quick sanity check:
+sudo filebeat test config    # should print: Config OK
+sudo filebeat test output    # should print: Talk to server... OK</pre></div>
 <h4>Enable the System module<br>This tells Filebeat to look for the native Unix log files on this machine:<br>• /var/log/syslog — general OS messages (kernel, services, cron)<br>• /var/log/auth.log — SSH logins, sudo, failed auth attempts<br>It also activates pre-built Kibana dashboards for these log types.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo filebeat modules enable system</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre>Enabled system</pre></div>
 <h4>Load the index templates and Kibana dashboards into Elasticsearch<br>This connects to both Elasticsearch (uploads the index template + ILM policy) and Kibana (uploads the pre-built dashboards).<br>Both services must be running. This can take 1–2 minutes.</h4><div class="code-block bash"><div class="code-header"><span class="code-label">Terminal</span><button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button></div><pre>sudo filebeat setup -e</pre></div><div class="expected"><div class="expected-label">&#9654; Expected Output</div><pre># Index setup finished.
 # Loading dashboards (Kibana must be running and accessible)
