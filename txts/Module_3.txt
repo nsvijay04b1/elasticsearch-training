@@ -1,0 +1,219 @@
+MODULE 3 – Data Ingestion & Processing (Full
+In-Depth Trainer Edition)
+
+This module explains what happens internally during indexing, how data flows into Elasticsearch,
+segment lifecycle, bulk performance mechanics, Logstash & Beats architecture, ingest pipelines,
+mapping strategy, and enterprise logging design.
+
+
+3.1 Indexing Internals – What Happens During Indexing
+
+        Client
+           |
+           v
+        Primary Shard
+           |
+           v
+        Document Analyzed
+           |
+           v
+        Tokens Created
+           |
+           v
+        Written to New Segment
+           |
+           v
+        Replica Shard Sync
+
+
+
+Indexing is near real-time. Documents are written to an in-memory buffer and periodically flushed
+into immutable segments.
+
+
+Refresh Cycle
+
+
+•   Default refresh interval: 1 second
+
+•   Refresh makes new documents searchable
+
+•   Refresh is lightweight (not full disk flush)
+
+
+
+Segment Creation & Merge Process
+
+        Segment 1
+        Segment 2
+        Segment 3
+           |
+           v
+        Background Merge
+           |
+           v
+        Larger Optimized Segment
+
+
+
+Segments are immutable. Updates create new documents and mark old ones deleted. Merge
+process reduces segment count and improves search performance.
+3.2 Bulk API – Throughput vs Latency
+
+Bulk API batches multiple indexing operations in a single request.
+
+        POST _bulk
+        { index }
+        { doc1 }
+        { index }
+        { doc2 }
+        { index }
+        { doc3 }
+
+
+
+•   Higher throughput
+
+•   Reduced HTTP overhead
+
+•   Better resource utilization
+
+•   Tradeoff: Slightly higher latency per document
+
+
+In production systems, bulk indexing is mandatory for performance.
+
+
+3.3 Logstash Architecture
+
+        Input   --->    Filter    --->   Output
+
+        Example:
+        File Input ---> Grok Filter ---> Elasticsearch Output
+
+
+
+•   Input: Reads data (file, kafka, jdbc)
+
+•   Filter: Transforms data (grok, mutate, date)
+
+•   Output: Sends to ES, Kafka, etc.
+
+
+Logstash acts as ETL pipeline before data reaches Elasticsearch.
+
+
+3.4 Beats Architecture
+
+        Application Logs
+              |
+              v
+        Filebeat
+              |
+              v
+        Elasticsearch or Logstash
+
+
+
+•   Lightweight data shippers
+
+•   Filebeat – Logs
+
+•   Metricbeat – Metrics
+
+•   Packetbeat – Network traffic
+3.5 Ingest Pipelines
+
+        Client --> Ingest Node --> Primary Shard
+                      |
+                      v
+                 Processors:
+                    - Grok
+                    - GeoIP
+                    - Date
+
+
+
+•   Grok – Parse unstructured logs
+
+•   GeoIP – Add geo location from IP
+
+•   Date – Normalize timestamps
+
+•   Set / Rename – Modify fields
+
+
+Ingest pipelines allow preprocessing without external tools.
+
+
+3.6 Mapping Strategy
+
+
+Dynamic Mapping Risks
+
+
+•   Automatic field creation
+
+•   Unexpected data types
+
+•   Mapping explosion
+
+
+
+Mapping Explosion
+
+Occurs when too many unique fields are created dynamically (e.g., JSON with variable keys).
+
+
+Fielddata & Doc Values
+
+
+•   Doc values used for sorting & aggregations
+
+•   Fielddata loads text fields into memory
+
+•   Improper usage can increase heap usage
+
+
+
+3.7 Enterprise Logging Platform Case Study
+
+        Applications
+             |
+             v
+        Filebeat
+             |
+             v
+        Logstash Cluster
+             |
+             v
+        Elasticsearch Cluster
+             |
+             v
+        Kibana Dashboard
+
+
+
+•   Daily time-based indices
+
+•   ILM policy for retention
+
+•   Separate hot and warm nodes
+
+•   Centralized monitoring
+
+
+
+3.8 Trainer Interview Questions
+
+
+•   What happens internally during indexing?
+
+•   Explain refresh vs flush.
+
+•   Why are segments immutable?
+
+•   How does bulk improve performance?
+
+•   What is mapping explosion?
+
