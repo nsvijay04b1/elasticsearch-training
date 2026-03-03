@@ -34,6 +34,12 @@ Welcome to the comprehensive 2-day Elasticsearch training program. This reposito
    - [Lab 19: Using Painless Scripts](module6/lab19.md)
    - [Lab 20: REST API Deep Dive & Python Client](module6/lab20.md)
    - [Lab 21: Installing and Managing Plugins](module6/lab21.md)
+7. **[Module 7: Advanced Use Cases & Day 2 Operations](module7/module7.md)**
+   - [Lab 22: Security Threat Hunting](module7/lab22.md)
+   - [Lab 23: Application Debugging](module7/lab23.md)
+   - [Lab 24: Performance Troubleshooting](module7/lab24.md)
+   - [Lab 25: Advanced Data Lifecycle](module7/lab25.md)
+   - [Lab 26: Cluster Resilience](module7/lab26.md)
 
 ## Instructor Preparation
 Please ensure the students' Ubuntu environments have `curl`, `wget`, `docker.io`, and standard developer packages installed prior to Day 1.

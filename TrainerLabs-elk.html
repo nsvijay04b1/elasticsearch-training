@@ -2804,7 +2804,9 @@ sudo systemctl restart elasticsearch.service</pre>
 
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
-            <pre>Refer to Module 7 README docs for dynamic output specifics.</pre>
+            <pre>source.ip    |user.name|failed_attempts
+-------------+---------+---------------
+192.168.1.100|admin    |4</pre>
           </div>
         </div>
       </div>
@@ -2877,7 +2879,7 @@ PUT apm-traces
 
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
-            <pre>Refer to Module 7 README docs for dynamic output specifics.</pre>
+            <pre># By searching the logs associated with trace-456, we instantly see that a "Database connection timeout" led to an "Unhandled RuntimeException", explaining the 8.5 second duration and the HTTP 5xx error.</pre>
           </div>
         </div>
       </div>
@@ -2924,7 +2926,9 @@ GET _tasks?detailed=true&actions=*search*</pre>
 
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
-            <pre>Refer to Module 7 README docs for dynamic output specifics.</pre>
+            <pre># Look closely at the JSON response.
+# Under shards -> searches -> query, you'll see a time breakdown in nanoseconds.
+# You will notice the MultiTermQueryConstantScoreWrapper taking up the majority of the time, demonstrating the cost of evaluating leading wildcards.</pre>
           </div>
         </div>
       </div>
@@ -3000,7 +3004,7 @@ PUT syslogs-000001
 
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
-            <pre>Refer to Module 7 README docs for dynamic output specifics.</pre>
+            <pre># You should see "step": "check-rollover-ready" indicating that ILM is successfully monitoring the index against your advanced_logs_policy parameters.</pre>
           </div>
         </div>
       </div>
@@ -3053,7 +3057,7 @@ PUT _cluster/settings
 
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
-            <pre>Refer to Module 7 README or instructor guide for dynamic query output examples.</pre>
+            <pre># Look at the deciders portion of the response. You should see node_match returning NO because the node does not match the requested storage: high_io attribute.</pre>
           </div>
         </div>
       </div>
