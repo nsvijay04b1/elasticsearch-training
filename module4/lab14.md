@@ -167,7 +167,7 @@ Footwear      |3            |131.67
 
 ### Part 3: EQL (Event Query Language)
 
-EQL is designed for detecting sequences of events over time. It is primarily used in Security/SIEM use cases. Let's create some sample event data first.
+EQL is designed for detecting sequences of events over time. It is primarily used in Security Information and Event Management (SIEM) use cases. Let's create some sample event data first.
 
 **1. Insert sample security events:**
 ```json

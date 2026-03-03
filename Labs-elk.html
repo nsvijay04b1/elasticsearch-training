@@ -650,28 +650,29 @@ POST employees/_doc/1
       ],
 
       m4: [
-        ["Run a match query to find employees named 'John'.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_search
+        ["Search, Scoring & Analysis: Find employees named 'John', test Analyzers, and use Boosting.",
+          `<p><strong>Step 1:</strong> Match query (Scoring context)</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_search
 {
-  <span class="k">"query"</span>: {
-    <span class="k">"match"</span>: { <span class="k">"name"</span>: <span class="s">"John"</span> }
+  "query": { "match": { "name": "John" } }
+}</div></div>
+<p><strong>Step 2:</strong> Test Standard Analyzer</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _analyze
+{
+  "analyzer": "standard",
+  "text": "Elasticsearch is FAST!"
+}</div></div>
+<p><strong>Step 3:</strong> Field Boosting (^3 weight)</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "shoe",
+      "fields": ["name^3", "description"]
+    }
   }
 }</div></div>
-<p><strong>Response:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{
-  <span class="k">"hits"</span>: {
-    <span class="k">"total"</span>: { <span class="k">"value"</span>: <span class="n">1</span> },
-    <span class="k">"hits"</span>: [{
-      <span class="k">"_id"</span>:    <span class="s">"1"</span>,
-      <span class="k">"_score"</span>: <span class="n">0.6931</span>,         <span class="c">// relevance score</span>
-      <span class="k">"_source"</span>: {
-        <span class="k">"name"</span>:       <span class="s">"John Smith"</span>,
-        <span class="k">"age"</span>:        <span class="n">30</span>,
-        <span class="k">"department"</span>: <span class="s">"Engineering"</span>
-      }
-    }]
-  }
-}</div></div>`, "beginner"],
+<p><strong>Why?</strong> The Standard analyzer shows how text is tokenized (lower-cased, punctuation removed). Boosting allows you to give title matches more weight than body-text matches.</p>`, "beginner"],
 
         ["Write a bool query with range + filter.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_search
@@ -692,7 +693,8 @@ POST employees/_doc/1
   must      →  scored match       (like AND)
   should    →  scored boost       (like OR)
   filter    →  unscored match     (fast, cached)
-  must_not  →  exclude documents  (no score)</div></div>`, "intermediate"],
+  must_not  →  exclude documents  (no score)</div></div>
+<p><strong>Why?</strong> Using <code>filter</code> instead of <code>must</code> tells Elasticsearch to skip scoring. This is faster and allows the results to be cached.</p>`, "intermediate"],
 
         ["Aggregation: average price per category.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
@@ -713,7 +715,8 @@ POST employees/_doc/1
   <span class="k">"key"</span>:       <span class="s">"Electronics"</span>,
   <span class="k">"doc_count"</span>: <span class="n">2</span>,
   <span class="k">"avg_price"</span>: { <span class="k">"value"</span>: <span class="n">599.99</span> }
-}]</div></div>`, "intermediate"],
+}]</div></div>
+<p><strong>Why?</strong> Aggregations provide insights from data. Using <code>size: 0</code> skips document hits, returning only the summary results, which is much faster.</p>`, "intermediate"],
 
         ["Use ES|QL to find top 3 expensive products.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">ES|QL (pipe syntax):
@@ -733,7 +736,8 @@ POST employees/_doc/1
     [<span class="s">"Headphones"</span>,    <span class="n">199.99</span>],
     [<span class="s">"Running Shoes"</span>, <span class="n">129.99</span>]
   ]
-}</div></div>`, "advanced"],
+}</div></div>
+<p><strong>Why?</strong> ES|QL uses a pipe-based syntax that is far easier to read and write than deeply nested Query DSL JSON.</p>`, "advanced"],
 
         ["Use Profile API to analyze query execution.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
@@ -748,7 +752,7 @@ POST employees/_doc/1
   │   └── TermQuery "name"       4ms   ← cached
   ├── build_scorer                2ms
   └── collect                    10ms</div></div>
-<p><span class="lb lb-t">TIP</span> Use to identify slow query components.</p>`, "advanced"]
+<p><strong>Why?</strong> The Profile API reveals nanosecond-level timing for every stage of your query, helping you diagnose slow searches.</p>`, "advanced"]
       ],
 
       m5: [
@@ -769,7 +773,8 @@ POST employees/_doc/1
     { <span class="k">"add"</span>:    { <span class="k">"index"</span>: <span class="s">"v2"</span>, <span class="k">"alias"</span>: <span class="s">"staff"</span> } }
   ]
 }
-<span class="c">// Atomic swap! Zero downtime.</span></div></div>`, "beginner"],
+<span class="c">// Atomic swap! Zero downtime.</span></div></div>
+<p><strong>Why?</strong> Aliases allow for zero-downtime reindexing. You can point your application to a new index version without changing any code.</p>`, "beginner"],
 
         ["Create a snapshot repository and take a backup.",
           `<p><strong>Step 1:</strong> Register repository</p>
@@ -788,7 +793,8 @@ POST employees/_doc/1
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _snapshot/my_backup/snapshot_2024/_restore
 {
   <span class="k">"indices"</span>: <span class="s">"products"</span>
-}</div></div>`, "intermediate"],
+}</div></div>
+<p><strong>Why?</strong> Snapshots are point-in-time backups. They protect against human error and data corruption, allowing you to restore to a known good state.</p>`, "intermediate"],
 
         ["Create ILM policy: hot → warm → delete.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ilm/policy/logs_policy
@@ -819,9 +825,9 @@ POST employees/_doc/1
 }</div></div>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Day 0───────Day 7────────Day 30─────►
 
-│    HOT    │    WARM     │   DELETE   │
-│  Indexing │  Read-only  │  Removed   │
-│  + Search │  Shrink     │            │</div></div>`, "advanced"],
+│  │  Indexing │  Read-only  │  Removed   │
+│  + Search │  Shrink     │            │</div></div>
+<p><strong>Why?</strong> ILM automates the data lifecycle, ensuring that old data is moved to cheaper hardware or deleted to save costs.</p>`, "advanced"],
 
         ["Create a Data Stream for time-series metrics.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _index_template/metrics_template
@@ -844,7 +850,8 @@ POST employees/_doc/1
   <span class="k">"@timestamp"</span>: <span class="s">"2024-10-15T10:00:00Z"</span>,
   <span class="k">"cpu"</span>:  <span class="n">75.5</span>,
   <span class="k">"host"</span>: <span class="s">"server-1"</span>
-}</div></div>`, "intermediate"],
+}</div></div>
+<p><strong>Why?</strong> Data streams are the optimized way to handle logs and metrics, treating multiple indices as a single virtual resource.</p>`, "intermediate"],
 
         ["Downsampling with a Transform.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _transform/downsample_cpu
@@ -870,7 +877,8 @@ POST employees/_doc/1
 POST _transform/downsample_cpu/_start</div></div>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Result:
   3,600 per-second docs  →  1 per-hour summary
-  Storage reduction: ~99.97%!</div></div>`, "advanced"]
+  Storage reduction: ~99.97%!</div></div>
+<p><strong>Why?</strong> Downsampling reduces storage costs by orders of magnitude for older data while preserving the ability to query trends.</p>`, "advanced"]
       ],
 
       m6: [
@@ -892,7 +900,8 @@ POST _transform/downsample_cpu/_start</div></div>
     <span class="k">"department"</span>: <span class="s">"Engineering"</span>,
     <span class="k">"title"</span>:      <span class="s">"Senior Engineer"</span>       <span class="c">// added</span>
   }
-}</div></div>`, "beginner"],
+}</div></div>
+<p><strong>Why?</strong> Partial updates simplify application logic by only sending the fields that changed, rather than the entire document.</p>`, "beginner"],
 
         ["Delete a document and an entire index.",
           `<p><strong>Delete single document:</strong></p>
@@ -907,7 +916,7 @@ POST _transform/downsample_cpu/_start</div></div>
 <p><strong>Delete entire index:</strong></p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">DELETE employees
 { <span class="k">"acknowledged"</span>: <span class="n">true</span> }</div></div>
-<p><span class="lb lb-w">WARNING</span> Index deletion is <strong>irreversible</strong>!</p>`, "intermediate"],
+<p><strong>Why?</strong> Deleting an index is much faster and more efficient than deleting every document individually using <code>_delete_by_query</code>.</p>`, "intermediate"],
 
         ["Painless script to increase salaries by 10%.",
           `<p><strong>Single document:</strong></p>
@@ -926,7 +935,7 @@ POST _transform/downsample_cpu/_start</div></div>
   <span class="k">"query"</span>:  { <span class="k">"match_all"</span>: {} }
 }
 { <span class="k">"updated"</span>: <span class="n">5</span> }</div></div>
-<p><span class="lb lb-t">TIP</span> Always use <code>params</code> — enables script caching.</p>`, "advanced"],
+<p><strong>Why?</strong> Painless scripts allow for complex server-side logic (like conditional pricing) that would be slow or difficult to implement client-side.</p>`, "advanced"],
 
         ["Use _cat APIs for a quick cluster overview.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/nodes?v&amp;h=name,role,heap.percent,cpu"</span>
@@ -944,7 +953,7 @@ employees   yellow           5       12kb</div></div>
 node_name  name    active  queue  rejected
 node-1     search       0      0         0
 node-1     write        1      0         0</div></div>
-<p><span class="lb lb-t">TIP</span> <code>?v</code> = headers, <code>?help</code> = all columns.</p>`, "intermediate"],
+<p><strong>Why?</strong> The CAT APIs provide human-readable summaries of cluster state, perfect for a quick health check from the command line.</p>`, "intermediate"],
 
         ["Script field to calculate discounted price.",
           `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
@@ -974,7 +983,7 @@ node-1     write        1      0         0</div></div>
     <span class="k">"savings"</span>:          [<span class="n">200.00</span>]
   }
 }</div></div>
-<p><span class="lb lb-t">TIP</span> Script fields are computed at query time — they don't modify stored data.</p>`, "advanced"]
+<p><strong>Why?</strong> Script fields allow you to compute "virtual" fields on the fly at search time without modifying the stored data on disk.</p>`, "advanced"]
       ],
 
       m7: [

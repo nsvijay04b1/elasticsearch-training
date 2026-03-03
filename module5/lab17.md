@@ -40,12 +40,14 @@ While backing up to S3 is standard for production, you need to execute a rapid, 
      "settings": { "location": "/var/backups/es_repo" }
    }
    ```
+   * **Why?** You must link the physical directory on disk to a logical "repository" name in Elasticsearch. This allows you to manage multiple backup locations (local, S3, Azure) using a single API.
 
 5. **Execute a Snapshot:**
    The `wait_for_completion` flag blocks the HTTP response until the backup finishes.
    ```json
    PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true
    ```
+   * **Why?** Taking manual snapshots is a safety requirement before risky operations (like cluster upgrades or mass data deletions). The `wait_for_completion` flag is useful for scripting, ensuring your script doesn't move to the next step until the data is safe.
 
 **Expected Output:**
 ```json

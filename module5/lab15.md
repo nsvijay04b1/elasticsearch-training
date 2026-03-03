@@ -32,6 +32,7 @@ PUT _ilm/policy/logs_policy
   }
 }
 ```
+* **Why?** Index Lifecycle Management (ILM) is essential for production clusters. It automates the "grunt work" of managing data, ensuring you don't run out of disk space by automatically rolling over active indices and deleting old ones.
 
 **Expected Output:**
 ```json
@@ -78,6 +79,7 @@ PUT _index_template/logs_template
   }
 }
 ```
+* **Why?** Connecting a policy to an index template is the "set it and forget it" step. Any new index matching `logs-*` will now automatically inherit your retention and rollover rules.
 
 **Expected Output:**
 ```json

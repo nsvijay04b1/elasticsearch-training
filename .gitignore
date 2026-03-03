@@ -1,5 +1,6 @@
 # Ignore content directories
 txts/
+*.txt
 
 # Ignore documents and presentations
 *.pdf

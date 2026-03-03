@@ -37,6 +37,7 @@ sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
 -> Installed analysis-icu
 -> Please restart Elasticsearch to activate any plugins installed
 ```
+* **Why?** Plugins extend the core functionality of Elasticsearch. While the "Standard" analyzer is great for English, specialized plugins like `analysis-icu` are required for high-quality multi-lingual search across different character sets like CJK.
 
 ### 3. Restart Elasticsearch
 ```bash

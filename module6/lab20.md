@@ -75,6 +75,7 @@ products                  8      12.5kb
 my_logs                   1       4.2kb
 server_metrics            9       8.1kb
 ```
+* **Why?** The CAT APIs are designed for humans, not machines. They provide concise, tabular views of your cluster's state, making it much easier to spot disk space issues or unassigned shards compared to parsing deep JSON responses.
 
 #### 4. Index Stats API
 ```json
@@ -149,6 +150,7 @@ es.delete(index="products", id="100")
 print("Cleaned up test document.")
 PYEOF
 ```
+* **Why?** Connecting via the official client ensures your application benefits from built-in features like automatic retry logic, connection pooling, and load balancing across nodes in the cluster.
 
 #### 3. Run the Script
 ```bash

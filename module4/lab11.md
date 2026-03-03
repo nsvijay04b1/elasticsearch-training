@@ -31,6 +31,8 @@ POST /sales/_bulk
    - We nest an `avg` aggregation inside the bucket to calculate the mean `price`.
    - We set `"size": 0` because we only care about the math results, not the actual product JSON documents.
 
+   * **Why?** Bucket aggregations group data like a SQL `GROUP BY`, and metrics aggregations (like `avg`) perform the math on those groups. Setting `size: 0` makes the query much faster because Elasticsearch doesn't have to fetch and return the individual product documents.
+
    ```json
    GET products/_search
    {

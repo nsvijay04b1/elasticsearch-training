@@ -42,7 +42,7 @@ graph TD
 
 ## 4.5 ES|QL, EQL, and SQL
 - **ES|QL**: A pipeline processing language designed specifically for real-time analytics. Combines filtering, sorting, joins, and time-series logic.
-- **EQL**: Event Query Language. Built specifically for detecting behavioral sequences across events (common in security SIEMs).
+- **EQL**: Event Query Language. Built specifically for detecting behavioral sequences across events (common in Security Information and Event Management (SIEM) systems).
 - **SQL**: Standard relational querying. Allows you to bridge the gap with existing systems that only understand JDBC/SQL.
 
 ---
@@ -88,3 +88,19 @@ Elasticsearch integrates with ML tools to enhance search capabilities:
 - **Anomaly Detection:** Identify unusual patterns in time-series data automatically.
 - **Query Expansion:** Suggest alternative or related queries based on user behavior.
 - **Auto-Completion:** Predict and suggest search terms as users type, improving the search experience.
+
+## 4.8 Templates vs. Data Views
+
+| Feature | Component Template | Index Template | Index Pattern (Data View) |
+| :--- | :--- | :--- | :--- |
+| **Location** | Elasticsearch | Elasticsearch | Kibana |
+| **Primary Goal** | Reusability | Creation / Automation | Visualization / Search |
+| **Applied to...** | Other templates | Future indices | Existing indices |
+| **Safe to delete?** | Yes (if not in use) | Yes (won't delete data) | Yes (won't delete data) |
+
+```mermaid
+graph LR
+    CT[Component Template<br/>Settings/Mappings] --> IT[Index Template]
+    IT -->|Triggered on Creation| Index[(New Index)]
+    DV[Data View / Index Pattern] -.->|Queries/Visualizes| Index
+```

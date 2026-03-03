@@ -54,6 +54,7 @@ POST products/_update/1
   }
 }
 ```
+* **Why?** Scripted updates allow you to modify data dynamically without the overhead of an "application-side" read-modify-write cycle. Using `params` is critical for performance, as it allows Elasticsearch to reuse the compiled script for different values.
 
 **Expected Output:**
 ```json
@@ -132,6 +133,8 @@ GET products/_search
 }
 ```
 *This adds a computed `price_with_tax` field (15% tax) to every result without modifying the stored data.*
+
+* **Why?** Script fields allow you to create "virtual" data on the fly. This is useful for presentation layers (like calculating a tax-included price) without bloating your primary storage with redundant, pre-calculated fields.
 
 ---
 

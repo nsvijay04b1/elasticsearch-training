@@ -87,6 +87,7 @@ PUT _transform/downsample_metrics
   }
 }
 ```
+* **Why?** Storing every single metric every second forever is extremely expensive. Downsampling summarizes the data (e.g., from seconds to minutes), allowing you to keep long-term trends for years while using 90% less disk space.
 
 **Expected Output:**
 ```json

@@ -65,15 +65,69 @@ Sometimes you don't care about relevance ranking at all; you just want exact mat
      }
    }
    ```
-   - Execute it again. Observe that the `_score` is now exactly `0.0`. 
-   
-**Why do this?** 
-Because you traded relevance ranking for pure speed. Elasticsearch skips the expensive BM25 calculation entirely, simply returning matching documents in arbitrary order. Furthermore, Elasticsearch **automatically caches** the results of frequently used filters, making subsequent identical queries lightning fast!
+   * **Why?** Moving the `match` query to the `filter` block tells Elasticsearch not to calculate scores. Use this when the order of results doesn't matter (e.g., finding all "ERROR" logs), as it is faster and allows the results to be cached in memory.
 
 ---
 
+## Part 3: Text Analysis & Tokenizers
+Before text can be searched, Elasticsearch's **Analyzer** must break it down into searchable tokens.
+
+1. **Test the Standard Analyzer:**
+   ```json
+   POST _analyze
+   {
+     "analyzer": "standard",
+     "text": "Elasticsearch is FAST!"
+   }
+   ```
+   * **Why?** It shows you exactly how text is "shredded". The Standard analyzer lowercases text and removes punctuation.
+
+2. **Test a Custom Analyzer (Edge N-Grams):**
+   This is common for "search-as-you-type".
+   ```json
+   PUT /test_index
+   {
+     "settings": {
+       "analysis": {
+         "analyzer": {
+           "autocomplete": {
+             "tokenizer": "autocomplete_tokenizer",
+             "filter": ["lowercase"]
+           }
+         },
+         "tokenizer": {
+           "autocomplete_tokenizer": {
+             "type": "edge_ngram",
+             "min_gram": 2,
+             "max_gram": 10,
+             "token_chars": ["letter", "digit"]
+           }
+         }
+       }
+     }
+   }
+   ```
+   * **Why?** The `edge_ngram` tokenizer breaks words into prefixes (e.g., "Elastic" becomes "El", "Ela", "Elas"). This allows a search for "El" to instantly find "Elasticsearch".
+
 ---
 
+## Part 4: Relevance Tuning (Boosting)
+You can influence the BM25 algorithm by "boosting" specific fields that are more important.
+
+1. **Search with Boosting:**
+   ```json
+   GET products/_search
+   {
+     "query": {
+       "multi_match": {
+         "query": "shoe",
+         "fields": ["name^3", "description"]
+       }
+     }
+   }
+   ```
+   * **Why?** The `^3` syntax gives the `name` field 3 times more weight than the `description`. Use this when a match in a title is more valuable to the user than a match in the body text.
 
 ---
+
 [Previous Lab: Lab 9](../module3/lab9.md) | [Return to Module 4](module4.md) | [Next Lab: Lab 11](lab11.md)

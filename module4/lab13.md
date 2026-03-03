@@ -34,6 +34,7 @@ GET products/_search
   "query": { "match": { "name": "shoe" } }
 }
 ```
+* **Why?** Adding `"profile": true` allows you to see the exact execution time of every Lucene operation (in nanoseconds). Use this to identify if a query is slow due to complex ranking, expensive aggregations, or hardware bottlenecks.
 
 ### 3. Review the Profile Response
 Look for the `"profile"` object at the bottom of the response.

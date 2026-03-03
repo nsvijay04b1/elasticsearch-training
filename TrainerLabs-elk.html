@@ -887,7 +887,7 @@ sudo systemctl start kibana.service</pre>
               </tr>
               <tr>
                 <td>Security</td>
-                <td>SIEM, threat detection</td>
+                <td>Security Information and Event Management (SIEM), threat detection</td>
               </tr>
               <tr>
                 <td>Analytics -&gt; Discover</td>
@@ -1350,8 +1350,9 @@ sudo /usr/share/logstash/bin/logstash --version</pre>
             <pre>logstash 8.10.4</pre>
           </div>
           <h4>Create the Logstash CSV pipeline configuration<br>Copy and paste the block below — it writes the config
-            file directly, no editor needed. Replace &lt;PASSWORD&gt; with your elastic password.<br>• input: reads the
-            CSV file from disk, starting from the first line every time<br>• filter: splits each row into named fields,
+            file directly, no editor needed. Replace &lt;PASSWORD&gt; with your elastic password.<br>• input: reads
+            the CSV file from disk, starting from the first line every time<br>• filter: splits each row into named
+            fields,
             then converts salary to a number (so Elasticsearch stores it as an integer, not text)<br>• output: sends
             each record to Elasticsearch AND prints it to the screen</h4>
           <div class="code-block bash">
@@ -1689,6 +1690,69 @@ GET my_logs/_mapping</pre>
   }
 }</pre>
           </div>
+          <div class="note">💡 <strong>Why?</strong> Moving the match query to the filter block tells Elasticsearch not
+            to calculate scores. Use this when the order of results doesn't matter, as it is faster and allows the
+            results to be cached in memory.</div>
+
+          <h4>Test Analyzers & Tokenizers</h4>
+          <div class="code-block kibana">
+            <div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn"
+                onclick="copyCode(this)">&#128203; Copy</button></div>
+            <pre>POST _analyze
+{
+  "analyzer": "standard",
+  "text": "Elasticsearch is FAST!"
+}</pre>
+          </div>
+          <div class="note">💡 <strong>Why?</strong> It shows you exactly how text is "shredded". The Standard analyzer
+            lowercases text and removes punctuation.</div>
+
+          <h4>Custom Analyzer (Edge N-Grams for Autocomplete)</h4>
+          <div class="code-block kibana">
+            <div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn"
+                onclick="copyCode(this)">&#128203; Copy</button></div>
+            <pre>PUT /test_index
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "autocomplete": {
+          "tokenizer": "autocomplete_tokenizer",
+          "filter": ["lowercase"]
+        }
+      },
+      "tokenizer": {
+        "autocomplete_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 10,
+          "token_chars": ["letter", "digit"]
+        }
+      }
+    }
+  }
+}</pre>
+          </div>
+          <div class="note">💡 <strong>Why?</strong> The edge_ngram tokenizer breaks words into prefixes. This allows a
+            search for "El" to instantly find "Elasticsearch".</div>
+
+          <h4>Relevance Tuning (Boosting Fields)</h4>
+          <div class="code-block kibana">
+            <div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn"
+                onclick="copyCode(this)">&#128203; Copy</button></div>
+            <pre>GET products/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "shoe",
+      "fields": ["name^3", "description"]
+    }
+  }
+}</pre>
+          </div>
+          <div class="note">💡 <strong>Why?</strong> The ^3 syntax gives the name field 3 times more weight than the
+            description. Use this when a match in a title is more valuable to the user than a match in the body text.
+          </div>
           <div class="diagram">
             <pre>Bool Query Clauses:
   must      -&gt; scored match  (affects _score)
@@ -1748,6 +1812,10 @@ GET my_logs/_mapping</pre>
 
           <div class="note">💡 size:0 skips document hits — we only care about aggregation results.</div>
           <div class="note">💡 Scroll past the empty hits array to the aggregations block in the response.</div>
+          <div class="note">💡 <strong>Why?</strong> Aggregations are how you get "insight" from data. Bucket
+            aggregations (like <code>terms</code>) group your data, while metrics aggregations (like <code>avg</code>)
+            calculate values. Using <code>size: 0</code> tells Elasticsearch to skip the individual documents and only
+            return the summary, which is much faster.</div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre>Refer to Module 4 README or instructor guide for exact query match results.</pre>
@@ -1814,6 +1882,9 @@ category : "Footwear" and price &gt; 100
 
 
           <div class="note">💡 Try clicking a pie slice — other charts automatically cross-filter!</div>
+          <div class="note">💡 <strong>Why?</strong> Data Views (formerly Index Patterns) tell Kibana which indices you
+            want to explore. Dashboards allow you to see the "big picture" by combining multiple visualizations.
+            Cross-filtering is one of Kibana's most powerful interactive features.</div>
           <div class="note">💡 Cross-filtering is one of Kibana's most powerful interactive features.</div>
         </div>
       </div>
@@ -1863,6 +1934,9 @@ category : "Footwear" and price &gt; 100
 
           <div class="note">💡 time_in_nanos: Total execution time for this query component.</div>
           <div class="note">💡 breakdown.score = 0 in filter context because scoring is skipped entirely.</div>
+          <div class="note">💡 <strong>Why?</strong> The <code>profile: true</code> flag is the ultimate debugging tool
+            for search performance. It reveals exactly how many milliseconds Lucene spent on each part of your query,
+            helping you identify if a specific term or a complex regex is slowing down your results.</div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre>Refer to Module 4 README or instructor guide for exact query match results.</pre>
@@ -2027,6 +2101,9 @@ POST _query
 # sudo            43
 # systemd         8900</pre>
           </div>
+          <div class="note">💡 <strong>Why?</strong> ES|QL is the future of querying in the Elastic Stack. It is much
+            easier to write and read than deeply nested Query DSL JSON, especially for complex transformations and
+            aggregations like <code>STATS count = COUNT(*) BY host.name</code>.</div>
           <h4>Bonus — SQL query language<br>Elasticsearch also supports a SQL-compatible API. Useful if your team
             already knows SQL.<br>Format options: txt (table), json, csv, yaml.</h4>
           <div class="code-block kibana">
@@ -2167,6 +2244,9 @@ GET /security_events/_eql/search
   }
 }</pre>
           </div>
+          <div class="note">💡 <strong>Why?</strong> Index Lifecycle Management (ILM) is essential for production
+            clusters. It automates the "grunt work" of managing data, ensuring you don't run out of disk space by
+            automatically rolling over active indices and deleting old ones.</div>
           <h4>Create index template with ILM</h4>
           <div class="code-block kibana">
             <div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn"
@@ -2379,6 +2459,9 @@ POST /_snapshot/my_fs_backup/snapshot_1/_restore
 
 GET products/_count</pre>
           </div>
+          <div class="note">💡 <strong>Why?</strong> Snapshots are point-in-time backups of your data. Unlike RAID or
+            replication which protect against hardware failure, snapshots protect against human error (like accidental
+            deletions) and allow you to restore data to a baseline state.</div>
 
 
           <div class="note">💡 wait_for_completion=true blocks HTTP response until backup finishes.</div>
@@ -2459,6 +2542,9 @@ POST _transform/downsample_metrics/_start</pre>
             <pre>GET server_metrics_1m/_search
 { "sort": [{ "hostname": "asc" }] }</pre>
           </div>
+          <div class="note">💡 <strong>Why?</strong> Storing every single metric every second forever is extremely
+            expensive. Downsampling summarizes the data, allowing you to keep long-term trends for years while using 90%
+            less disk space.</div>
 
 
           <div class="note">💡 9 raw per-second docs -&gt; ~6 per-minute summaries (grouped by hostname per minute).
@@ -2528,6 +2614,9 @@ GET products/_doc/1
 GET products/_doc/1
 // price: 100 -&gt; 80 (20% discount applied)</pre>
           </div>
+          <div class="note">💡 <strong>Why?</strong> Painless scripts allow you to modify data dynamically without an
+            application-side read-modify-write cycle. Using <code>params</code> is critical for performance as it allows
+            Elasticsearch to reuse compiled script bytecode.</div>
           <h4>Script fields at search time</h4>
           <div class="code-block kibana">
             <div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn"
@@ -2601,7 +2690,9 @@ GET _cluster/settings?include_defaults=true&amp;flat_settings=true&amp;filter_pa
                 onclick="copyCode(this)">&#128203; Copy</button></div>
             <pre>python3 es_demo.py</pre>
           </div>
-
+          <div class="note">💡 <strong>Why?</strong> Connecting via the official client ensures your application
+            benefits from built-in features like automatic retry logic, connection pooling, and load balancing across
+            nodes in the cluster.</div>
 
           <div class="note">💡 Expected output: Cluster Status: yellow | 4 Footwear products listed | Cleaned up test
             document.</div>
@@ -2632,6 +2723,9 @@ GET _cluster/settings?include_defaults=true&amp;flat_settings=true&amp;filter_pa
             <pre>sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
 sudo systemctl restart elasticsearch.service</pre>
           </div>
+          <div class="note">💡 <strong>Why?</strong> Plugins extend the core functionality of Elasticsearch. Specialized
+            plugins like <code>analysis-icu</code> are required for high-quality multi-lingual search across character
+            sets like CJK.</div>
           <h4>Verify plugin loaded</h4>
           <div class="code-block kibana">
             <div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn"

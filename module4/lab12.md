@@ -27,6 +27,8 @@ Before visualizing data, Kibana needs to know which index to query.
 - **Timestamp field**: Select "I don't want to use the time filter" (our products don't have timestamps).
 - Click **Save data view to Kibana**.
 
+* **Why?** Data views (formerly Index Patterns) are the "bridge" between Kibana and Elasticsearch. They tell Kibana which indices to search and which fields are available for visualization.
+
 ---
 
 ## Part 2: Create Visualizations
@@ -73,6 +75,8 @@ Before visualizing data, Kibana needs to know which index to query.
 4. Click **Save**.
 
 You now have a fully interactive dashboard! Try clicking on a pie slice (e.g., "Footwear") — notice how the other charts automatically filter to show only Footwear products. This is called **cross-filtering**.
+
+* **Why?** Dashboards allow stakeholders to spot trends and outliers visually. Cross-filtering makes data exploration intuitive, allowing you to "drill down" into specific categories without writing any code.
 
 ---
 
