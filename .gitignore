@@ -1,0 +1,20 @@
+# Ignore training and content directories
+training/
+txts/
+module*/
+
+# Ignore documents and presentations
+*.pdf
+*.pptx
+~$*
+
+# Ignore scripts
+*.js
+*.sh
+
+# Ignore local files and testing files
+test_plan.md
+.DS_Store
+
+# Ignore Gemini directory (if any)
+.gemini/
