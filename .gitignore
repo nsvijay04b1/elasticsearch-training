@@ -1,7 +1,5 @@
-# Ignore training and content directories
-training/
+# Ignore content directories
 txts/
-module*/
 
 # Ignore documents and presentations
 *.pdf
