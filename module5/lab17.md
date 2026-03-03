@@ -13,7 +13,7 @@ While backing up to S3 is standard for production, you need to execute a rapid, 
 ## Instructions
 
 1. **Register the backup path in Elasticsearch:**
-   By default, Elasticsearch blocks writing files outside of its data directory for security. We must explicitly permit a backup path in `elasticsearch.yml`.
+   By default, Elasticsearch fundamentally blocks node processes from writing arbitrary files anywhere outside of its predefined `/var/lib/elasticsearch` data directory. This is a crucial security feature preventing malicious actors from using elasticsearch to overwrite system files if the node is compromised. To create a local snapshot repository, we must explicitly whitelist a safe backup path in the `elasticsearch.yml` configuration file first.
    
    *(In your Ubuntu Terminal):*
    ```bash

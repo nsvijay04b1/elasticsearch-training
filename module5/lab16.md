@@ -15,6 +15,15 @@ Your monitoring system generates thousands of log events per minute. Instead of 
 
 ---
 
+### Understanding the Architecture:
+Before we begin, it's crucial to understand how modern data streams are constructed using composable templates:
+
+1. **Component Templates (`logs-mappings`, `logs-settings`):** These are reusable, modular building blocks. You don't apply these directly to indices. Instead, you create separate components for mappings, settings, or aliases so they can be reused across different types of data.
+2. **Index Templates (`app-logs-template`):** This acts as the "glue". It defines an index pattern (e.g., `app-logs-*`) and declares which Component Templates should be "composed" together. When a new index matching the pattern is created, the Index Template applies all its underlying building blocks to it.
+3. **Data Streams / Indices:** The actual data store. When a document comes in matching the Index Template pattern, Elasticsearch uses the blueprint defined in the Index Template (and its Component Templates) to build the underlying backing index for the Data Stream.
+
+---
+
 ### 1. Create a Component Template (Mappings)
 Component templates are reusable building blocks. This one defines the field mappings.
 ```json

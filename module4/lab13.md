@@ -80,6 +80,8 @@ Look for the `"profile"` object at the bottom of the response.
 - `breakdown.build_scorer`: Time building the internal scorer object.
 
 ### 4. Compare with a Filter Context (No Scoring)
+Let's see the performance difference when we ask for the exact same subset of documents, but we don't care *how well* they match, we just want to retrieve them using `filter`.
+
 ```json
 GET products/_search
 {
@@ -91,7 +93,7 @@ GET products/_search
   }
 }
 ```
-*Notice how `breakdown.score` is `0` because filter context skips relevance scoring entirely, making it faster.*
+*Notice how `breakdown.score` in the returned profile JSON is exactly `0`. Because filter context skips relevance scoring entirely, Elasticsearch skips instantiating the BM25 algorithm. This results in far lower `time_in_nanos` execution periods, making filter-heavy queries dramatically faster and cacheable for repeated requests.*
 
 ---
 

@@ -18,51 +18,108 @@ Your team includes database administrators who think in SQL, security analysts w
 
 ES|QL uses a pipe (`|`) syntax similar to Unix shell or Splunk SPL. Data flows left to right through processing stages.
 
-**1. Basic ES|QL query — Find all Footwear products sorted by price:**
+**ES|QL Pipe Model:**
+```text
+  FROM filebeat-*                    <- source index
+  | WHERE process.name == "sshd"     <- filter rows
+  | EVAL hour = DATE_TRUNC(1h, @timestamp)  <- compute field
+  | STATS events = COUNT(*) BY hour  <- aggregate
+  | SORT hour ASC                    <- sort
+  | LIMIT 24                         <- cap output
 ```
+
+#### Basics — FROM and LIMIT
+FROM selects the source index (or data stream). LIMIT caps the rows returned. ES|QL always requires a LIMIT — default max is 10,000 rows.
+```json
 POST _query
 {
-  "query": "FROM products | WHERE category == \"Footwear\" | SORT price DESC | LIMIT 10"
+  "query": "FROM products | WHERE category == \"Footwear\" | WHERE price > 100 | SORT price DESC"
 }
 ```
-
 **Expected Output:**
-```json
-{
-  "columns": [
-    { "name": "name", "type": "text" },
-    { "name": "price", "type": "long" },
-    { "name": "category", "type": "text" }
-  ],
-  "values": [
-    ["Hiking Boots", 180, "Footwear"],
-    ["Walking Shoe", 120, "Footwear"],
-    ["Running Shoe", 95, "Footwear"]
-  ]
-}
+```text
+# Expected: Walking Shoe (120) and Hiking Boots (180)
+# Running Shoe (95) excluded because price <= 100
 ```
 
-**2. ES|QL with aggregation — Average price per category:**
-```
+#### STATS BY — aggregate and group
+STATS is ES|QL's aggregation command. Supports: COUNT, AVG, SUM, MIN, MAX, COUNT_DISTINCT. BY groups the results — equivalent to GROUP BY in SQL.
+```json
 POST _query
 {
-  "query": "FROM products | STATS avg_price = AVG(price) BY category"
+  "query": "FROM products | STATS count = COUNT(*), avg_price = AVG(price), max_price = MAX(price) BY category | SORT avg_price DESC"
 }
 ```
-
 **Expected Output:**
 ```json
+{"values":[
+  ["Footwear",   3, 131.67, 180],
+  ["Apparel",    2, 90.0,   150],
+  ["Accessories",3, 35.0,    45]
+]}
+```
+
+#### EVAL and KEEP — compute new fields and select columns
+EVAL creates computed columns (like a calculated field). CASE() is a conditional expression. KEEP selects only the columns you want in the output (like SELECT in SQL).
+```json
+POST _query
 {
-  "columns": [
-    { "name": "avg_price", "type": "double" },
-    { "name": "category", "type": "text" }
-  ],
-  "values": [
-    [131.67, "Footwear"],
-    [35.0, "Accessories"],
-    [90.0, "Apparel"]
-  ]
+  "query": "FROM products | EVAL price_with_tax = price * 1.2, price_band = CASE(price < 50, \"budget\", price < 100, \"mid-range\", \"premium\") | WHERE in_stock == true | KEEP name, price, price_with_tax, price_band | SORT price DESC"
 }
+```
+**Expected Output:**
+```text
+# Expected:
+# name            price  price_with_tax  price_band
+# Winter Jacket     150          180.0   premium
+# Walking Shoe      120          144.0   premium
+# Running Shoe       95          114.0   mid-range
+# Summer T-Shirt     30           36.0   budget
+# Wool Scarf         35           42.0   budget
+```
+
+#### LIKE and RLIKE — wildcard and regex matching
+LIKE uses glob-style wildcards (* = any chars, ? = one char). RLIKE uses full Java regular expressions.
+```json
+POST _query
+{
+  "query": "FROM products | WHERE name LIKE \"*Shoe*\" | SORT price ASC"
+}
+
+POST _query
+{
+  "query": "FROM products | WHERE name RLIKE \".*Shoe.*\" | STATS total = COUNT(*), avg = AVG(price)"
+}
+```
+**Expected Output:**
+```text
+# LIKE result: Running Shoe (95), Walking Shoe (120)
+# RLIKE STATS: total=2, avg=107.5
+```
+
+#### Real data — query your live Filebeat logs with ES|QL
+This runs against the 10,000+ real syslog events Filebeat collected from your VM. Change the time range in Kibana if needed: add `| WHERE @timestamp > NOW() - 1 day`
+```json
+POST _query
+{
+  "query": "FROM filebeat-* | WHERE process.name == \"sudo\" | STATS login_count = COUNT(*) BY host.name | SORT login_count DESC | LIMIT 10"
+}
+
+POST _query
+{
+  "query": "FROM filebeat-* | WHERE log.file.path LIKE \"*/auth*\" | STATS events = COUNT(*) BY process.name | SORT events DESC | LIMIT 10"
+}
+```
+**Expected Output:**
+```text
+# Expected output (will vary on your VM):
+# host.name      login_count
+# elk-training   43
+
+# process.name  events
+# sshd           1200
+# sudo            43
+# systemd         8900
 ```
 
 ---

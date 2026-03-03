@@ -43,12 +43,15 @@ POST /products/_bulk
    }
    ```
 
-2. **Analyze the Results:**
-   - Look at the `_score` field in the response. The document matched the word "shoe", so BM25 gave it a relevance score!
-   - Notice how the `filter` block simply acted as a binary gate (Yes/No if `< 100`) without affecting the score.
+2. **Analyze the Results (Query Context):**
+   - Look at the `_score` field in the response. Because the document matched the word "shoe" inside the `must` block, Elasticsearch invoked its BM25 scoring algorithm to calculate *how relevant* this match is compared to others, yielding a floating-point score!
+   - Notice how the `filter` block simply acted as a binary gate (Yes/No if `< 100`). It restricted the result pool, but it **did not** contribute to or alter the relevance `_score`.
+
+### Part 2: Pure Filter Context (Speed & Caching)
+Sometimes you don't care about relevance ranking at all; you just want exact matches (e.g., retrieving a specific user ID or filtering by an exact status).
 
 3. **Swap context to see the difference:**
-   Move the `match` query down into the `filter` block.
+   Move the `match` query down into the `filter` block alongside the price range.
    ```json
    GET products/_search
    {
@@ -62,7 +65,10 @@ POST /products/_bulk
      }
    }
    ```
-   - Execute it again. Observe that the `_score` is now exactly `0.0`. You have traded relevance ranking for pure caching speed.
+   - Execute it again. Observe that the `_score` is now exactly `0.0`. 
+   
+**Why do this?** 
+Because you traded relevance ranking for pure speed. Elasticsearch skips the expensive BM25 calculation entirely, simply returning matching documents in arbitrary order. Furthermore, Elasticsearch **automatically caches** the results of frequently used filters, making subsequent identical queries lightning fast!
 
 ---
 

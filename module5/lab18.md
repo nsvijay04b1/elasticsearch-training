@@ -138,6 +138,15 @@ GET server_metrics_1m/_search
 ```
 *9 raw documents were compressed into ~6 summarized records — one per hostname per minute!*
 
+### 7. Reclaiming Storage (Manual Deletion)
+> **Crucial Concept:** It is important to understand that the downsampling transform creates a **brand new** summarized index (`server_metrics_1m`). It does **not** automatically delete the records from your original raw index (`server_metrics`). 
+> 
+> To actually reclaim storage capacity on your servers, you must manually delete the original index (or configure an ILM policy in the "Delete" phase to automatically drop the old indices once the transform has safely summarized them).
+>
+> ```json
+> DELETE server_metrics
+> ```
+
 ---
 
 [Previous Lab: Lab 17](lab17.md) | [Return to Module 5](module5.md) | [Next Lab: Lab 19](../module6/lab19.md)

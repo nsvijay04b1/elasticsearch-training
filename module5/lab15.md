@@ -59,6 +59,11 @@ GET _ilm/policy/logs_policy
 
 ### 3. Create an Index Template that Attaches the Policy
 This template automatically applies `logs_policy` to any new index matching the `logs-*` pattern.
+
+> **Important Notes on Index Templates:**
+> 1. **New Indices Only:** Index templates are only applied during index creation. They do **not** affect existing indices that already match the pattern.
+> 2. **Override Precedence:** If you provide explicit index settings or mappings in your `PUT` request when manually creating an index, those explicit settings will **override** any matching settings defined in the index template.
+
 ```json
 PUT _index_template/logs_template
 {

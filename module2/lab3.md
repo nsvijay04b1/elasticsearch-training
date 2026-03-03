@@ -46,7 +46,23 @@ Now, we need a permanent, production-ready installation that runs in the backgro
 | `xpack.security.enabled` | Both | Activates built-in security, requiring a password for the Mac to connect. |
 
 
-   *Edit `/etc/elasticsearch/elasticsearch.yml` and `/etc/kibana/kibana.yml` respectively with `nano` to apply these settings. To apply the JVM options, create a file named `/etc/elasticsearch/jvm.options.d/memory.options` and add `-Xms1g` and `-Xmx1g` on separate lines.*
+   *Check what elasticsearch.yml already contains (ES 8.x auto-configures some settings):*
+   ```bash
+   sudo grep -n "network.host\|discovery.type\|cluster.initial" /etc/elasticsearch/elasticsearch.yml | head -10
+   ```
+
+   *Open Elasticsearch to all network interfaces:*
+   ```bash
+   sudo sed -i 's/#network.host:.*/network.host: 0.0.0.0/' /etc/elasticsearch/elasticsearch.yml
+   ```
+
+   *Limit the Java heap to 1 GB:*
+   ```bash
+   cat <<'EOF' | sudo tee /etc/elasticsearch/jvm.options.d/memory.options
+   -Xms1g
+   -Xmx1g
+   EOF
+   ```
 
 6. **Start the Elasticsearch Service:**
 

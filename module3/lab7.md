@@ -19,22 +19,52 @@ You need to monitor the health of the very Ubuntu machine you are using to host 
    sudo apt-get install filebeat
    ```
 
-2. **Enable the System module:**
+2. **Configure Filebeat to connect to Elasticsearch and Kibana:**
+   Copy and paste the block below — it writes `/etc/filebeat/filebeat.yml` directly.
+   Replace BOTH occurrences of `<YOUR_PASSWORD>` with your elastic user password.
+
+   ⚠️  **CRITICAL**: `output.elasticsearch.hosts` MUST start with `https://` (not `http://`)
+   ES 8.x enforces TLS. Using http:// causes:
+   "Failed to connect: Get http://localhost:9200: EOF"
+
+   ```bash
+   cat <<'EOF' | sudo tee /etc/filebeat/filebeat.yml
+   filebeat.inputs: []
+
+   filebeat.config.modules:
+     path: ${path.config}/modules.d/*.yml
+     reload.enabled: false
+
+   setup.kibana:
+     host: "0.0.0.0:5601"
+
+   output.elasticsearch:
+     hosts: ["https://localhost:9200"]
+     username: "elastic"
+     password: "<YOUR_PASSWORD>"
+     ssl.certificate_authorities: ["/etc/elasticsearch/certs/http_ca.crt"]
+
+   setup.ilm.enabled: true
+   EOF
+   ```
+
+   *Quick sanity check:*
+   ```bash
+   sudo filebeat test config
+   sudo filebeat test output
+   ```
+
+3. **Enable the System module:**
    This module tells Filebeat to specifically look for native Unix logs.
    ```bash
    sudo filebeat modules enable system
    ```
 
-3. **Setup Filebeat Assets:**
+4. **Setup Filebeat Assets:**
    This command installs the pre-built Kibana dashboards and ingest pipelines required to parse system logs.
    ```bash
-   sudo filebeat setup -e \
-     -E output.elasticsearch.hosts=['https://localhost:9200'] \
-     -E output.elasticsearch.username=elastic \
-     -E output.elasticsearch.password='<YOUR_PASSWORD>' \
-     -E output.elasticsearch.ssl.certificate_authorities=['/etc/elasticsearch/certs/http_ca.crt']
+   sudo filebeat setup -e
    ```
-   *(Wait for this command to finish; it may take a minute).*
 
 4. **Start Filebeat:**
    ```bash
