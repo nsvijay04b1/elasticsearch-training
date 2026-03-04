@@ -1674,6 +1674,11 @@ GET my_logs/_mapping</pre>
   }
 }</pre>
           </div>
+          <div class="note">💡 <strong>Analyze the Results:</strong> Look at the <code>_score</code> field in the
+            response. Because "shoe" is in the <code>must</code> block, Elasticsearch uses its BM25 algorithm to
+            calculate relevance. The <code>filter</code> block restricts the pool but <strong>does not</strong> affect
+            the score.</div>
+
           <h4>All in filter: _score = 0.0 (faster, cached)</h4>
           <div class="code-block kibana">
             <div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn"
@@ -1690,8 +1695,10 @@ GET my_logs/_mapping</pre>
   }
 }</pre>
           </div>
-          <div class="note">💡 <strong>Why?</strong> Moving the match query to the filter block tells Elasticsearch not
-            to calculate scores. Use this when the order of results doesn't matter, as it is faster and allows the
+          <div class="note">💡 <strong>Analyze:</strong> Moving the match query to the filter block tells Elasticsearch
+            not
+            to calculate scores. Notice <code>_score</code> is now <code>0.0</code>. Use this when the order of results
+            doesn't matter, as it is faster and allows the
             results to be cached in memory.</div>
 
           <h4>Test Analyzers & Tokenizers</h4>
@@ -1733,8 +1740,8 @@ GET my_logs/_mapping</pre>
   }
 }</pre>
           </div>
-          <div class="note">💡 <strong>Why?</strong> The edge_ngram tokenizer breaks words into prefixes. This allows a
-            search for "El" to instantly find "Elasticsearch".</div>
+          <div class="note">💡 <strong>Why?</strong> The edge_ngram tokenizer breaks words into prefixes (e.g., "El",
+            "Ela"). This allows a search for "El" to instantly find "Elasticsearch".</div>
 
           <h4>Relevance Tuning (Boosting Fields)</h4>
           <div class="code-block kibana">
@@ -1751,19 +1758,19 @@ GET my_logs/_mapping</pre>
 }</pre>
           </div>
           <div class="note">💡 <strong>Why?</strong> The ^3 syntax gives the name field 3 times more weight than the
-            description. Use this when a match in a title is more valuable to the user than a match in the body text.
-          </div>
+            description. Use this when a match in a title is more valuable than the body.</div>
           <div class="diagram">
             <pre>Bool Query Clauses:
-  must      -&gt; scored match  (affects _score)
-  should    -&gt; scored boost  (optional)
-  filter    -&gt; binary match  (fast, cached, no score)
-  must_not  -&gt; exclude docs  (no score impact)</pre>
+  must      -> scored match  (affects _score)
+  should    -> scored boost  (optional)
+  filter    -> binary match  (fast, cached, no score)
+  must_not  -> exclude docs  (no score impact)</pre>
           </div>
 
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
-            <pre>Refer to Module 4 README or instructor guide for exact query match results.</pre>
+            <pre>Part 1 Match: Running Shoe (Score: ~0.18)
+Part 2 Match: Running Shoe (Score: 0.0)</pre>
           </div>
         </div>
       </div>
@@ -1809,16 +1816,19 @@ GET my_logs/_mapping</pre>
 }</pre>
           </div>
 
+          <div class="note">💡 <strong>Analyze:</strong> Scroll past the empty <code>hits</code> array to the
+            <code>aggregations</code> block. You'll see buckets for each category with their <code>doc_count</code> and
+            <code>avg_price</code> calculation.
+          </div>
+          <div class="note">💡 <strong>Why?</strong> Aggregations provide analytical insights. Using
+            <code>size: 0</code> tells Elasticsearch to skip the individual documents and only return the summary, which
+            is much faster.
+          </div>
 
-          <div class="note">💡 size:0 skips document hits — we only care about aggregation results.</div>
-          <div class="note">💡 Scroll past the empty hits array to the aggregations block in the response.</div>
-          <div class="note">💡 <strong>Why?</strong> Aggregations are how you get "insight" from data. Bucket
-            aggregations (like <code>terms</code>) group your data, while metrics aggregations (like <code>avg</code>)
-            calculate values. Using <code>size: 0</code> tells Elasticsearch to skip the individual documents and only
-            return the summary, which is much faster.</div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
-            <pre>Refer to Module 4 README or instructor guide for exact query match results.</pre>
+            <pre>Electronics: avg_price: 612.5
+Furniture: avg_price: 150.0</pre>
           </div>
         </div>
       </div>
@@ -1881,11 +1891,12 @@ category : "Footwear" and price &gt; 100
           </div>
 
 
-          <div class="note">💡 Try clicking a pie slice — other charts automatically cross-filter!</div>
-          <div class="note">💡 <strong>Why?</strong> Data Views (formerly Index Patterns) tell Kibana which indices you
-            want to explore. Dashboards allow you to see the "big picture" by combining multiple visualizations.
-            Cross-filtering is one of Kibana's most powerful interactive features.</div>
-          <div class="note">💡 Cross-filtering is one of Kibana's most powerful interactive features.</div>
+          <div class="note">💡 <strong>Analyze:</strong> Try clicking a pie slice—other charts automatically
+            <strong>cross-filter</strong>! This is Kibana's most powerful interactive feature.
+          </div>
+          <div class="note">💡 <strong>Why?</strong> Data Views are the "bridge" between raw indices and Kibana.
+            Dashboards transform JSON data into visual insights, allowing stakeholders to see patterns at a glance.
+          </div>
         </div>
       </div>
 
@@ -1932,11 +1943,12 @@ category : "Footwear" and price &gt; 100
           </div>
 
 
-          <div class="note">💡 time_in_nanos: Total execution time for this query component.</div>
-          <div class="note">💡 breakdown.score = 0 in filter context because scoring is skipped entirely.</div>
-          <div class="note">💡 <strong>Why?</strong> The <code>profile: true</code> flag is the ultimate debugging tool
-            for search performance. It reveals exactly how many milliseconds Lucene spent on each part of your query,
-            helping you identify if a specific term or a complex regex is slowing down your results.</div>
+          <div class="note">💡 <strong>Analyze:</strong> Review the <code>breakdown</code> section in the response. In
+            the Filter context (Part 2), notice <code>score</code> is <code>0</code> and execution time is significantly
+            lower.</div>
+          <div class="note">💡 <strong>Why?</strong> The Profile API is the ultimate diagnostics tool. It quantifies how
+            much time Lucene spends on scoring, matching, or building queries, helping you prove the performance
+            advantage of filters.</div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre>Refer to Module 4 README or instructor guide for exact query match results.</pre>
@@ -2101,9 +2113,9 @@ POST _query
 # sudo            43
 # systemd         8900</pre>
           </div>
-          <div class="note">💡 <strong>Why?</strong> ES|QL is the future of querying in the Elastic Stack. It is much
-            easier to write and read than deeply nested Query DSL JSON, especially for complex transformations and
-            aggregations like <code>STATS count = COUNT(*) BY host.name</code>.</div>
+          <div class="note">💡 <strong>Why?</strong> ES|QL simplifies linear logic with its Unix-like pipe syntax. SQL
+            lowers the entry barrier for data analysts familiar with RDBMS. EQL is unique for its ability to find
+            "patterns over time" (sequences), which is critical for security threat hunting.</div>
           <h4>Bonus — SQL query language<br>Elasticsearch also supports a SQL-compatible API. Useful if your team
             already knows SQL.<br>Format options: txt (table), json, csv, yaml.</h4>
           <div class="code-block kibana">
@@ -2288,12 +2300,19 @@ GET /security_events/_eql/search
 
 GET logs-000001/_ilm/explain</pre>
           </div>
+          <div class="note">💡 <strong>Analyze:</strong> Run <code>GET logs-000001/_ilm/explain</code>. You'll see the
+            <code>phase</code> (hot) and <code>action</code> (rollover) currently being tracked by the ILM engine.
+          </div>
+          <div class="note">💡 <strong>Why?</strong> ILM automates the "grunt work" of managing data, ensuring you don't
+            run out of disk space by automatically rolling over active indices and deleting old ones. The
+            <code>is_write_index: true</code> flag is mandatory for the initial index to tell ILM where to start.
+          </div>
           <div class="diagram">
             <pre>ILM Phases:
-  HOT    -&gt; Active indexing (rollover on size/age)
-  WARM   -&gt; Read-only, shrink, forcemerge
-  COLD   -&gt; Searchable, frozen
-  DELETE -&gt; Gone after min_age</pre>
+  HOT    -> Active indexing (rollover on size/age)
+  WARM   -> Read-only, shrink, forcemerge (cheaper disk)
+  COLD   -> Searchable, frozen (slow disk)
+  DELETE -> Gone after min_age (reclaim disk)</pre>
           </div>
 
 
@@ -2367,10 +2386,13 @@ POST app-logs-training/_doc
           <div class="code-block kibana">
             <div class="code-header"><span class="code-label">Kibana Dev Tools</span><button class="copy-btn"
                 onclick="copyCode(this)">&#128203; Copy</button></div>
-            <pre>GET _data_stream/app-logs-training
-GET app-logs-training/_search
-{ "query": { "match": { "log.level": "ERROR" } } }
-GET _cat/indices/.ds-app-logs-*?v&amp;h=index,docs.count,store.size</pre>
+            <div class="note">💡 <strong>Analyze:</strong> Look at the <code>_cat/indices</code> output. Notice the
+              indices start with <code>.ds-</code>. You never query these directly; you always query the stream name
+              <code>app-logs-training</code>.
+            </div>
+            <div class="note">💡 <strong>Why?</strong> Data streams are the gold standard for logs. They treat multiple
+              backing indices as a single resource. The <code>composed_of</code> array in the template allows you to
+              mix-and-match reusable mapping/setting blocks across different streams.</div>
           </div>
 
           <table>
@@ -2459,13 +2481,12 @@ POST /_snapshot/my_fs_backup/snapshot_1/_restore
 
 GET products/_count</pre>
           </div>
-          <div class="note">💡 <strong>Why?</strong> Snapshots are point-in-time backups of your data. Unlike RAID or
-            replication which protect against hardware failure, snapshots protect against human error (like accidental
-            deletions) and allow you to restore data to a baseline state.</div>
-
-
-          <div class="note">💡 wait_for_completion=true blocks HTTP response until backup finishes.</div>
-          <div class="note">💡 After restore, GET products/_count should return 8.</div>
+          <div class="note">💡 <strong>Analyze:</strong> Note that <code>wait_for_completion=true</code> blocks the HTTP
+            response until the backup is safely disk-bound, which is essential for automation scripts.</div>
+          <div class="note">💡 <strong>Why?</strong> Snapshots are point-in-time backups. Whitelisting
+            <code>path.repo</code> is a mandatory security requirement to prevent unauthorized filesystem access.
+            Snapshots are your safety net before risky operations like cluster upgrades.
+          </div>
         </div>
       </div>
 
@@ -2542,12 +2563,12 @@ POST _transform/downsample_metrics/_start</pre>
             <pre>GET server_metrics_1m/_search
 { "sort": [{ "hostname": "asc" }] }</pre>
           </div>
-          <div class="note">💡 <strong>Why?</strong> Storing every single metric every second forever is extremely
-            expensive. Downsampling summarizes the data, allowing you to keep long-term trends for years while using 90%
-            less disk space.</div>
-
-
-          <div class="note">💡 9 raw per-second docs -&gt; ~6 per-minute summaries (grouped by hostname per minute).
+          <div class="note">💡 <strong>Analyze:</strong> Run the transform and query <code>server_metrics_1m</code>.
+            Notice the significantly reduced document count compared to the raw data!</div>
+          <div class="note">💡 <strong>Why?</strong> Storing per-second metrics forever is expensive. Downsampling
+            summarizes data, preserving long-term trends while using up to 90% less disk space.
+            <strong>Warning:</strong> Transforms do not auto-delete raw data; you must manually
+            <code>DELETE server_metrics</code> to reclaim storage.
           </div>
         </div>
       </div>
@@ -2634,9 +2655,13 @@ GET products/_doc/1
           </div>
 
 
-          <div class="note">💡 Always use params in scripts — Elasticsearch caches compiled bytecode when params are
-            used!</div>
-          <div class="note">💡 ctx._source allows read/write access to the document fields.</div>
+          <div class="note">💡 <strong>Analyze:</strong> Compare <code>ctx._source</code> in updates vs
+            <code>doc['field']</code> in search scripts. <code>ctx._source</code> allows read/write access to the stored
+            document, while <code>doc</code> is optimized for fast read-only access during search.
+          </div>
+          <div class="note">💡 <strong>Why?</strong> Painless scripts allow you to modify data dynamically without an
+            application-side read-modify-write cycle. Always use <code>params</code>—Elasticsearch caches the compiled
+            bytecode for re-use, making subsequent executions near-instant.</div>
         </div>
       </div>
 
@@ -2690,12 +2715,12 @@ GET _cluster/settings?include_defaults=true&amp;flat_settings=true&amp;filter_pa
                 onclick="copyCode(this)">&#128203; Copy</button></div>
             <pre>python3 es_demo.py</pre>
           </div>
+          <div class="note">💡 <strong>Analyze:</strong> Verify the cluster health in the Python output matches the
+            <code>GET _cluster/health</code> output in Kibana.
+          </div>
           <div class="note">💡 <strong>Why?</strong> Connecting via the official client ensures your application
-            benefits from built-in features like automatic retry logic, connection pooling, and load balancing across
-            nodes in the cluster.</div>
-
-          <div class="note">💡 Expected output: Cluster Status: yellow | 4 Footwear products listed | Cleaned up test
-            document.</div>
+            benefits from built-in features like automatic retry logic, connection pooling, and load balancing. Note:
+            The <code>ca_certs</code> path is critical for TLS verification in v8.x.</div>
         </div>
       </div>
 
@@ -3207,6 +3232,11 @@ PUT _cluster/settings
 { "index" : { "_index" : "logs-system.auth-default" } }
 { "@timestamp": "2026-03-04T10:00:55Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }</pre>
           </div>
+          <div class="note">💡 <strong>Analyze:</strong> Review the alert flyout. It should specify that "12 events
+            triggered the threshold of 10", pinpointing the specific attacker IP.</div>
+          <div class="note">💡 <strong>Why?</strong> Threshold rules are the most effective way to catch high-volume
+            attacks like Brute Force. Grouping by <code>source.ip</code> is critical to prevent "diluted" counts from
+            multiple sources.</div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre>Alert flyout shows: "12 events triggered the threshold of 10" for Source IP 192.168.1.50.</pre>
@@ -3246,6 +3276,11 @@ process.args : ("*urlcache*", "*split*", "*download*")</pre>
   "user.name": "jdoe"
 }</pre>
           </div>
+          <div class="note">💡 <strong>Analyze:</strong> The alert should reveal the exact <code>process.args</code>
+            used for the download, which provides immediate forensic evidence.</div>
+          <div class="note">💡 <strong>Why?</strong> EQL is designed for event correlation. While a threshold rule
+            counts events, an EQL rule looks for specific <em>behavioral patterns</em>, making it much harder for
+            attackers to evade.</div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre>Alert "Suspicious Certutil Download" shows user: "jdoe", host: "HR-Laptop-01", and the EQL match on the download arguments.</pre>
@@ -3275,6 +3310,11 @@ process.args : ("*urlcache*", "*split*", "*download*")</pre>
 | WHERE total_bytes > 500000000
 | SORT total_bytes DESC</pre>
           </div>
+          <div class="note">💡 <strong>Analyze:</strong> The ES|QL result table should flag user <code>v.kumar</code>
+            for exceeding the 500MB threshold.</div>
+          <div class="note">💡 <strong>Why?</strong> ES|QL rules allow for complex mathematical filtering (like
+            <code>SUM</code>) within the detection logic, which is much more expressive than standard KQL for
+            volume-based threats like exfiltration.</div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre>ES|QL Result table flags user "v.kumar" with exactly 600,000,000 bytes (above the 500MB threshold).</pre>
@@ -3325,6 +3365,12 @@ POST /_bulk
 POST /logs-rare-logins/_doc
 { "@timestamp": "2026-03-04T10:00:00Z", "user.name": "alice", "source.geo.country_iso_code": "CN" }</pre>
           </div>
+          <div class="note">💡 <strong>Analyze:</strong> The Security Alert should show a "Critical" anomaly score for
+            Alice. The CN login is flagged not because CN is inherently "bad", but because it is "rare" based on her
+            historical profile.</div>
+          <div class="note">💡 <strong>Why?</strong> Machine Learning finds "unknown unknowns". It automatically learns
+            the baseline of "normal" behavior and flags deviations without requiring manually tuned static thresholds.
+          </div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre>Security Alert shows "Critical" anomaly for user "alice" with a score > 75 (CN is rare for her profile).</pre>
@@ -3356,6 +3402,10 @@ POST /logs-rare-logins/_doc
             <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
             <pre>GET /api/detection_engine/rules/_find?per_page=1</pre>
           </div>
+          <div class="note">💡 <strong>Analyze:</strong> The verify counts API should confirm roughly 800+ rules are now
+            active and ready for use in the cluster.</div>
+          <div class="note">💡 <strong>Why?</strong> Installing prebuilt rules gives you instant access to high-quality
+            detection patterns researched by expert security teams, saving weeks of manual engineering effort.</div>
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre>API Response: { "rules_installed": 842, ... }. Security Rules UI now shows hundreds of Elastic prebuilt rules.</pre>

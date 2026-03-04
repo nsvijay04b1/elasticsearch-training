@@ -651,7 +651,7 @@ POST employees/_doc/1
 
       m4: [
         ["Lab 10: Query vs. Filter Contexts",
-          `<p><strong>Step 1:</strong> Insert sample products.</p>
+          `<p><strong>Part 0: Insert Sample Data.</strong></p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /products/_bulk
 {"index":{"_id":"1"}}
 {"name": "Running Shoe", "category": "Footwear", "price": 90}
@@ -659,7 +659,7 @@ POST employees/_doc/1
 {"name": "Walking Shoe", "category": "Footwear", "price": 120}
 {"index":{"_id":"3"}}
 {"name": "Winter Jacket", "category": "Apparel", "price": 150}</div></div>
-<p><strong>Step 2:</strong> Mixed context (must + filter).</p>
+<p><strong>Step 1: Mixed context (must + filter).</strong></p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
   "query": {
@@ -669,7 +669,8 @@ POST employees/_doc/1
     }
   }
 }</div></div>
-<p><strong>Step 3:</strong> Pure filter (no scoring).</p>
+<p><strong>Analyze the Results:</strong> Look at the <code>_score</code> field. Because "shoe" is in the <code>must</code> block, Elasticsearch uses BM25 scoring. The <code>filter</code> block restricts results but <strong>does not</strong> affect the score.</p>
+<p><strong>Step 2: Pure filter (no scoring).</strong></p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
   "query": {
@@ -681,7 +682,8 @@ POST employees/_doc/1
     }
   }
 }</div></div>
-<p><strong>Step 4:</strong> Field Boosting (^3 weight).</p>
+<p><strong>Wait, what?</strong> Moving "match" to the filter block tells ES not to score. Notice <code>_score</code> is now <code>0.0</code> or <code>1.0</code>. This is faster and results are cached!</p>
+<p><strong>Step 3: Field Boosting (^3 weight).</strong></p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
   "query": {
@@ -694,84 +696,85 @@ POST employees/_doc/1
 <p><strong>Why?</strong> The filter context skips relevance scoring, making it much faster and allowing results to be cached. Boosting allows you to prioritize matches in specific fields (like titles) over others.</p>`, "beginner"],
 
         ["Lab 11: Aggregations Framework",
-          `<p><strong>Step 1:</strong> Average price per category.</p>
+          `<p><strong>Step 1:</strong> Insert sample sales data.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /sales/_bulk
+{"index":{}}
+{"product": "Laptop", "category": "Electronics", "price": 1200}
+{"index":{}}
+{"product": "Mouse", "category": "Electronics", "price": 25}
+{"index":{}}
+{"product": "Chair", "category": "Furniture", "price": 150}</div></div>
+<p><strong>Step 2: Bucket + Metrics Aggregation.</strong> We use <code>terms</code> to group by category and <code>avg</code> to find the mean price.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
   "size": 0,
   "aggs": {
-    "by_category": {
+    "categories": {
       "terms": { "field": "category.keyword" },
       "aggs": {
-        "avg_price":   { "avg":   { "field": "price" } },
-        "price_stats": { "stats": { "field": "price" } }
+        "avg_price": { "avg": { "field": "price" } }
       }
     }
   }
 }</div></div>
-<p><strong>Why?</strong> Aggregations provide analytical insights from your data. Using <code>size: 0</code> skips the document hit list and only returns the summary results, preserving performance.</p>`, "intermediate"],
+<p><strong>Analyze:</strong> Scroll past the empty <code>hits</code> to the <code>aggregations</code> block. You'll see buckets for each category with their <code>doc_count</code> and <code>avg_price</code> calculation.</p>
+<p><strong>Why?</strong> Aggregations provide analytical insights. Using <code>size: 0</code> skips the document hit list and only returns summary results, preserving performance.</p>`, "intermediate"],
 
         ["Lab 12: Building Kibana Dashboards",
-          `<p><strong>Step 1:</strong> Create a Data View for <code>products</code> in <strong>Stack Management</strong>.</p>
-<p><strong>Step 2:</strong> Create visualizations (Pie, Bar, Table) in <strong>Dashboards</strong>.</p>
-<p><strong>Step 3:</strong> Use <strong>Discover</strong> to query with KQL:</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">category : "Footwear" and price > 100</div></div>
-<p><strong>Why?</strong> Dashboards transform raw JSON data into visual insights for stakeholders. Data views are the necessary bridge that tells Kibana which indices to read.</p>`, "beginner"],
+          `<p><strong>Step 1:</strong> Create a Data View for <code>products</code> in <strong>Stack Management</strong>. This is the "bridge" between Kibana and ES.</p>
+<p><strong>Step 2:</strong> Create visualizations: Pie (Slice by <code>category.keyword</code>), Bar (Horizontal: <code>name.keyword</code>, Vertical: <code>avg(price)</code>), and Table.</p>
+<p><strong>Step 3:</strong> Assemble in a Dashboard. Try <strong>cross-filtering</strong> by clicking a pie slice.</p>
+<p><strong>Bonus:</strong> In <strong>Discover</strong>, use KQL to filter results:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">category : \"Footwear\" and price > 100</div></div>
+<p><strong>Why?</strong> Dashboards transform raw JSON data into visual insights. Data views tell Kibana which indices to search and which fields are available.</p>`, "beginner"],
 
         ["Lab 13: Analyzing Search Performance",
-          `<p><strong>Step 1:</strong> Execute query with profiling enabled.</p>
+          `<p><strong>Step 1:</strong> Execute query with <code>"profile": true</code>.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
   "profile": true,
   "query": { "match": { "name": "shoe" } }
 }</div></div>
-<p><strong>Step 2:</strong> Compare with filter context profiling.</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
-{
-  "profile": true,
-  "query": {
-    "bool": {
-      "filter": { "term": { "category.keyword": "Footwear" } }
-    }
-  }
-}</div></div>
+<p><strong>Step 2:</strong> Review the <code>shards.searches.query.breakdown</code> section at the bottom.</p>
+<p><strong>Step 3:</strong> Compare with filter context profiling. Notice how <code>breakdown.score</code> becomes <code>0</code> when using <code>filter</code>.</p>
 <p><strong>Why?</strong> The Profile API reveals exactly where Lucene spends time (scoring, matching, or building). Filter context shows 0ms for scoring, proving its performance advantage.</p>`, "advanced"],
 
         ["Lab 14: ES|QL, SQL, and EQL",
-          `<p><strong>Query 1:</strong> ES|QL (Pipe-based analysis).</p>
+          `<p><strong>Query 1:</strong> ES|QL (Pipe-based analysis). Intuitive Unix-like pipeline syntax.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">FROM products
 | STATS avg_p = AVG(price) BY category
 | SORT avg_p DESC</div></div>
-<p><strong>Query 2:</strong> SQL (Traditional relational syntax).</p>
+<p><strong>Query 2:</strong> SQL (Structured Query Language). Bridges the gap for RDBMS users.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _sql?format=txt
 {
   "query": "SELECT name, price FROM products WHERE category = 'Footwear' ORDER BY price DESC"
 }</div></div>
-<p><strong>Query 3:</strong> EQL (Event correlation syntax).</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_eql/search
+<p><strong>Query 3:</strong> EQL (Event Query Language). Optimized for sequence-based threat hunting.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET /security_events/_eql/search
 {
-  "query": "any where category == 'Footwear' and price > 100"
+  "query": "sequence by user.name [authentication where event.outcome == 'failure'] [authentication where event.outcome == 'success']"
 }</div></div>
-<p><strong>Why?</strong> ES|QL simplifies complex aggregations into linear pipes. SQL lowers the barrier for RDBMS users, and EQL is optimized for sequence-based threat hunting.</p>`, "advanced"]
+<p><strong>Why?</strong> ES|QL simplifies complex logic. SQL lowers the barrier for newcomers. EQL excels at finding "patterns over time" (like a failed login followed by a success).</p>`, "advanced"]
       ],
 
       m5: [
         ["Lab 15: Index Lifecycle Management (ILM)",
-          `<p><strong>Step 1:</strong> Create ILM policy (hot → warm → delete).</p>
+          `<p><strong>Step 1: Create ILM policy.</strong> We define a rollover at 50GB or 1 day, and a delete phase after 30 days.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ilm/policy/logs_policy
 {
   "policy": {
     "phases": {
       "hot": {
-        "actions": { "rollover": { "max_primary_shard_size": "50gb", "max_age": "30d" } }
+        "actions": { "rollover": { "max_age": "1d", "max_size": "50gb" } }
       },
       "delete": {
-        "min_age": "90d",
+        "min_age": "30d",
         "actions": { "delete": {} }
       }
     }
   }
 }</div></div>
-<p><strong>Step 2:</strong> Attach policy to an index template.</p>
+<p><strong>Step 2: Create Index Template.</strong> Connects the policy to <code>logs-*</code> indices.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _index_template/logs_template
 {
   "index_patterns": ["logs-*"],
@@ -782,15 +785,16 @@ POST employees/_doc/1
     }
   }
 }</div></div>
-<p><strong>Step 3:</strong> Bootstrap the first index.</p>
+<p><strong>Step 3: Bootstrap the first index.</strong> The <code>is_write_index</code> flag is mandatory for the initial index.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT logs-000001
 {
   "aliases": { "logs": { "is_write_index": true } }
 }</div></div>
-<p><strong>Why?</strong> ILM automates the management of indices over time. It ensures that data is moved to cheaper storage or deleted automatically, reducing manual operations and costs.</p>`, "advanced"],
+<p><strong>Step 4: Verify.</strong> Run <code>GET logs-000001/_ilm/explain</code> to see the policy in action.</p>
+<p><strong>Why?</strong> ILM automates the "grunt work" of managing data, ensuring you don't run out of disk space by automatically rolling over active indices and deleting old ones.</p>`, "advanced"],
 
         ["Lab 16: Working with Data Streams",
-          `<p><strong>Step 1:</strong> Create component templates for mappings and settings.</p>
+          `<p><strong>Step 1: Composable Components.</strong> Create reusable templates for mappings and settings.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _component_template/logs-mappings
 {
   "template": {
@@ -803,7 +807,7 @@ POST employees/_doc/1
     }
   }
 }</div></div>
-<p><strong>Step 2:</strong> Create an index template for the data stream.</p>
+<p><strong>Step 2: Create Index Template.</strong> Tying components together with <code>"data_stream": {}</code>.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _index_template/app-logs-template
 {
   "index_patterns": ["app-logs-*"],
@@ -811,33 +815,30 @@ POST employees/_doc/1
   "composed_of": ["logs-mappings"],
   "priority": 500
 }</div></div>
-<p><strong>Step 3:</strong> Index a document (automatically creates the stream).</p>
+<p><strong>Step 3: Index Data.</strong> Simply POST to the stream name. ES creates the backing index automatically.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST app-logs-training/_doc
 {
   "@timestamp": "2024-10-15T10:00:00Z",
-  "message": "Application started",
+  "message": "Auth service started",
   "log.level": "INFO"
 }</div></div>
-<p><strong>Why?</strong> Data streams are optimized for append-only time-series data. They treat multiple backing indices as a single resource, handling rollover and retention transparently.</p>`, "intermediate"],
+<p><strong>Why?</strong> Data streams are the gold standard for logs. They simplify management by providing a single name for querying while ES handles backing indices in the background.</p>`, "intermediate"],
 
         ["Lab 17: Configuring Local Snapshots",
-          `<p><strong>Step 1:</strong> Register the snapshot repository.</p>
+          `<p><strong>Step 1: Pre-requisite.</strong> Whitelist <code>path.repo</code> in <code>elasticsearch.yml</code> and restart. This is a security feature to prevent unauthorized filesystem access.</p>
+<p><strong>Step 2: Register Repository.</strong> Link the physical path to a logical name.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _snapshot/my_fs_backup
 {
   "type": "fs",
   "settings": { "location": "/var/backups/es_repo" }
 }</div></div>
-<p><strong>Step 2:</strong> Execute a manual snapshot.</p>
+<p><strong>Step 3: Execute Snapshot.</strong> Use <code>wait_for_completion=true</code> to block until the data is safe.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true</div></div>
-<p><strong>Step 3:</strong> Restore an index from the snapshot.</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /_snapshot/my_fs_backup/snapshot_1/_restore
-{
-  "indices": "products"
-}</div></div>
-<p><strong>Why?</strong> Snapshots are point-in-time backups essential for disaster recovery. They allow you to restore data to a known good state after accidental deletion or corruption.</p>`, "intermediate"],
+<p><strong>Step 4: Restore.</strong> Delete an index then run <code>POST /_snapshot/my_fs_backup/snapshot_1/_restore</code>.</p>
+<p><strong>Why?</strong> Snapshots are point-in-time backups. They are essential for disaster recovery and are a safety requirement before performing risky operations like cluster upgrades.</p>`, "intermediate"],
 
         ["Lab 18: Downsampling Time-Series Data",
-          `<p><strong>Step 1:</strong> Create a transform to downsample granular raw data.</p>
+          `<p><strong>Step 1: Create Transform.</strong> Group raw data by <code>hostname</code> and <code>1m</code> intervals.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _transform/downsample_metrics
 {
   "source": { "index": "server_metrics" },
@@ -852,14 +853,14 @@ POST employees/_doc/1
     }
   }
 }</div></div>
-<p><strong>Step 2:</strong> Start the transform.</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _transform/downsample_metrics/_start</div></div>
-<p><strong>Why?</strong> Downsampling summarizes old time-series data, preserving long-term trends while reducing storage usage by up to 90%.</p>`, "advanced"]
+<p><strong>Step 2: Start & Verify.</strong> Run the transform and query <code>server_metrics_1m</code>. Notice the reduced document count!</p>
+<p><strong>Important:</strong> Transforms do not delete raw data. You must manually <code>DELETE server_metrics</code> to reclaim storage.</p>
+<p><strong>Why?</strong> Storing per-second metrics forever is expensive. Downsampling summarizes data, allowing you to keep long-term trends while using up to 90% less disk space.</p>`, "advanced"]
       ],
 
       m6: [
         ["Lab 19: Using Painless Scripts",
-          `<p><strong>Step 1:</strong> Update a document field dynamically (+10 markup).</p>
+          `<p><strong>Step 1: In-place Update.</strong> Increase price by a flat amount natively.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST products/_update/1
 {
   "script": {
@@ -867,7 +868,7 @@ POST employees/_doc/1
     "params": { "markup": 10 }
   }
 }</div></div>
-<p><strong>Step 2:</strong> Conditional logic inside Painless.</p>
+<p><strong>Step 2: Conditional Logic.</strong> Apply a 20% discount ONLY if the price is > $50.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST products/_update/1
 {
   "script": {
@@ -875,7 +876,7 @@ POST employees/_doc/1
     "params": { "threshold": 50 }
   }
 }</div></div>
-<p><strong>Step 3:</strong> Script fields at search time (virtual fields).</p>
+<p><strong>Step 3: Script Fields.</strong> Compute virtual tax fields at search time.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
   "query": { "match_all": {} },
@@ -883,29 +884,31 @@ POST employees/_doc/1
     "price_with_tax": { "script": "doc['price'].value * 1.15" }
   }
 }</div></div>
+<p><strong>Analyze:</strong> We use <code>ctx._source</code> for updates and <code>doc['field'].value</code> for search. Using <code>params</code> allows ES to cache the compiled script bytecode!</p>
 <p><strong>Why?</strong> Painless scripts allow for complex server-side logic without the overhead of application-side read-modify-write cycles. Script fields allow you to compute "virtual" fields on the fly without bloating storage.</p>`, "advanced"],
 
         ["Lab 20: REST API Deep Dive & Python Client",
-          `<p><strong>Step 1:</strong> Inspect cluster and node health.</p>
+          `<p><strong>Step 1: Diagnostics.</strong> Inspect JVM heap and OS CPU usage.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _cluster/health
 GET _nodes/stats/jvm,os</div></div>
-<p><strong>Step 2:</strong> Use human-readable CAT APIs.</p>
+<p><strong>Step 2: Human-Readable CAT APIs.</strong> Get a tabular view of index sizes and document counts.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _cat/indices?v&h=index,docs.count,store.size&s=docs.count:desc</div></div>
-<p><strong>Step 3:</strong> Test the official Python client (Python SDK).</p>
+<p><strong>Step 3: Programmatic Access.</strong> Connect via the official Python client.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block">pip3 install elasticsearch
-# Run es_demo.py script provided in lab instructions</div></div>
-<p><strong>Why?</strong> The CAT APIs were designed for human diagnostics. Programmatic access via official clients ensures robust features like automatic retries and load balancing are handled at the library level.</p>`, "intermediate"],
+# Use es_demo.py to index and search footwear via SDK</div></div>
+<p><strong>Why?</strong> The CAT APIs are designed for human diagnostics. Programmatic access via official clients ensures robust features like automatic retries and load balancing are handled at the library level.</p>`, "intermediate"],
 
         ["Lab 21: Installing and Managing Plugins",
-          `<p><strong>Step 1:</strong> Install the <strong>analysis-icu</strong> plugin via CLI.</p>
+          `<p><strong>Step 1: Installation.</strong> Install <strong>analysis-icu</strong> and restart the service.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block">sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
 sudo systemctl restart elasticsearch.service</div></div>
-<p><strong>Step 2:</strong> Test ICU vs Standard analyzer on CJK text.</p>
+<p><strong>Step 2: Tokenization Test.</strong> Compare Standard vs ICU on Japanese text.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _analyze
 {
   "analyzer": "icu_analyzer",
   "text": "東京は日本の首都です"
 }</div></div>
+<p><strong>Analyze:</strong> Standard analyzer treats every character as a token. ICU analyzer tokenizes meaningful words like "Tokyo" (東京) and "Japan" (日本).</p>
 <p><strong>Why?</strong> Plugins extend core features. Specialized plugins like <code>analysis-icu</code> are essential for high-quality multilingual search, such as proper word tokenization for character-heavy languages like Japanese or Chinese.</p>`, "intermediate"]
       ],
 
