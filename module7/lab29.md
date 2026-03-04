@@ -40,6 +40,12 @@ POST /logs-network-default/_doc
 ```
 
 ### Expected Output
-Navigate to **Security** > **Alerts**. You should see an alert flagging `v.kumar` for uploading ~600MB of data, exceeding the 500MB threshold.
+1. Navigate to **Security** > **Alerts**.
+2. Click on the alert **Potential Data Exfiltration - High Outbound Traffic**.
+3. In the flyout, look at the **ES|QL Result** table:
+   - **source.ip**: `10.0.0.5`
+   - **user.name**: `v.kumar`
+   - **total_bytes**: `600,000,000` (~600MB)
+4. Notice how the table exactly matches the `STATS` and `WHERE` logic from your rule.
 
 💡 **Why?** ES|QL is significantly more powerful for detection logic because it allows you to perform calculations (like `SUM`) and filtering in a single, readable pipe-based query.

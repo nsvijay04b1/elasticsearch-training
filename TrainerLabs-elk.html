@@ -3178,17 +3178,38 @@ PUT _cluster/settings
           </div>
           <p><b>Threshold</b>: Group by <code>source.ip</code>, Count > 10, Window 5m.</p>
           <h4>Test Data</h4>
+          <p>Run this bulk command in <b>Dev Tools</b> to trigger the threshold (12 events):</p>
           <div class="code-block">
             <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
-            <pre>POST /logs-system.auth-default/_doc
-{
-  "@timestamp": "2026-03-04T10:00:00Z",
-  "event.category": "authentication",
-  "event.outcome": "failure",
-  "source.ip": "192.168.1.50",
-  "user.name": "admin",
-  "message": "Failed password for admin"
-}</pre>
+            <pre>POST /_bulk
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:00Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:05Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:10Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:15Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:20Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:25Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:30Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:35Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:40Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:45Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:50Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:55Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }</pre>
+          </div>
+          <div class="expected">
+            <div class="expected-label">&#9654; Expected Output</div>
+            <pre>Alert flyout shows: "12 events triggered the threshold of 10" for Source IP 192.168.1.50.</pre>
           </div>
         </div>
       </div>
@@ -3225,6 +3246,10 @@ process.args : ("*urlcache*", "*split*", "*download*")</pre>
   "user.name": "jdoe"
 }</pre>
           </div>
+          <div class="expected">
+            <div class="expected-label">&#9654; Expected Output</div>
+            <pre>Alert "Suspicious Certutil Download" shows user: "jdoe", host: "HR-Laptop-01", and the EQL match on the download arguments.</pre>
+          </div>
         </div>
       </div>
 
@@ -3249,6 +3274,10 @@ process.args : ("*urlcache*", "*split*", "*download*")</pre>
 | STATS total_bytes = SUM(destination.bytes) BY source.ip, user.name
 | WHERE total_bytes > 500000000
 | SORT total_bytes DESC</pre>
+          </div>
+          <div class="expected">
+            <div class="expected-label">&#9654; Expected Output</div>
+            <pre>ES|QL Result table flags user "v.kumar" with exactly 600,000,000 bytes (above the 500MB threshold).</pre>
           </div>
           <h4>Ingest High Traffic Sample</h4>
           <div class="code-block">
@@ -3282,6 +3311,24 @@ process.args : ("*urlcache*", "*split*", "*download*")</pre>
           <p>1. Create ML Job in <b>Machine Learning</b> > <b>Anomaly Detection</b>.</p>
           <p>2. Select <code>rare</code> detector on <code>source.geo.country_iso_code</code>.</p>
           <p>3. Create Security Rule of type <b>Machine Learning</b> with threshold score <b>> 75</b>.</p>
+          <h4>Step 3: Generate Baseline and Anomaly Data</h4>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
+            <pre># 1. Normal baseline (US)
+POST /_bulk
+{ "index" : { "_index" : "logs-rare-logins" } }
+{ "@timestamp": "2026-03-04T08:00:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
+{ "index" : { "_index" : "logs-rare-logins" } }
+{ "@timestamp": "2026-03-04T08:05:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
+
+# 2. Trigger Anomaly (CN)
+POST /logs-rare-logins/_doc
+{ "@timestamp": "2026-03-04T10:00:00Z", "user.name": "alice", "source.geo.country_iso_code": "CN" }</pre>
+          </div>
+          <div class="expected">
+            <div class="expected-label">&#9654; Expected Output</div>
+            <pre>Security Alert shows "Critical" anomaly for user "alice" with a score > 75 (CN is rare for her profile).</pre>
+          </div>
         </div>
       </div>
 
@@ -3308,6 +3355,10 @@ process.args : ("*urlcache*", "*split*", "*download*")</pre>
           <div class="code-block">
             <button class="copy-btn" onclick="copyCode(this)">&#128203; Copy</button>
             <pre>GET /api/detection_engine/rules/_find?per_page=1</pre>
+          </div>
+          <div class="expected">
+            <div class="expected-label">&#9654; Expected Output</div>
+            <pre>API Response: { "rules_installed": 842, ... }. Security Rules UI now shows hundreds of Elastic prebuilt rules.</pre>
           </div>
         </div>
       </div>

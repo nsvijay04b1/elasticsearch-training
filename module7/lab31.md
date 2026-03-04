@@ -24,7 +24,24 @@ PUT /api/detection_engine/rules/prebuilt
 ```
 
 ### Step 3: Verify Installation
-Once the process completes, refresh your **Security** > **Rules** page. You should see a list of rules like "Domain Generation Algorithm Detection" or "Suspicious MS Office Child Process" populated in the rules table.
+Once the process completes, refresh your **Security** > **Rules** page. You should see the **Rule count** jump significantly (likely 800+).
+
+**Example API Response for Step 2:**
+```json
+{
+  "rules_installed": 842,
+  "rules_updated": 0,
+  "rules_missing": 0
+}
+```
+
+### Expected Output
+1. Go to **Security** > **Rules**.
+2. Filter by **Tags: Elastic**.
+3. You should see hundreds of rules populated, such as:
+   - `Suspicious MS Office Child Process`
+   - `Proxy Port Inbound Exception`
+   - `Process Injection by unknown process`
 
 ### Summary Table for Testing
 

@@ -27,7 +27,34 @@ Find "Improbable Access" (e.g., a user logging in from two different countries i
    - **Severity**: `Critical`
 7. Click **Create and activate**.
 
+### Step 3: Generate Baseline and Anomaly Data
+ML needs a baseline of "normal" behavior before it can flag an anomaly. Run these commands in **Dev Tools**:
+
+**1. Create "Normal" baseline (Logins from US):**
+```json
+POST /_bulk
+{ "index" : { "_index" : "logs-rare-logins" } }
+{ "@timestamp": "2026-03-04T08:00:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
+{ "index" : { "_index" : "logs-rare-logins" } }
+{ "@timestamp": "2026-03-04T08:05:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
+{ "index" : { "_index" : "logs-rare-logins" } }
+{ "@timestamp": "2026-03-04T08:10:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
+```
+
+**2. Trigger the "Rare" Anomaly (First login from CN):**
+```json
+POST /logs-rare-logins/_doc
+{
+  "@timestamp": "2026-03-04T10:00:00Z",
+  "user.name": "alice",
+  "source.geo.country_iso_code": "CN"
+}
+```
+
 ### Expected Output
-When a user logs in from a country they have never visited before, the ML job will assign a high anomaly score. If that score exceeds 75, a Security Alert will be automatically generated.
+1. Navigate to **Machine Learning** > **Anomaly Detection** and view the **Anomaly Explorer**.
+2. You will see a "Critical" (Red) anomaly for user `alice` because `CN` is a rare country for her baseline.
+3. Now navigate to **Security** > **Alerts**. 
+4. You should see an **Improbable Login Location Anomaly** alert with an anomaly score matching the ML job (e.g., 90+).
 
 💡 **Why?** Static threshold rules cannot detect "impossible travel" or brand-new behavior. Machine Learning automatically learns the baseline of "normal" for every user and flags deviations without manual configuration.

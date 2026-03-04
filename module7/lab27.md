@@ -31,21 +31,42 @@ Learn how to create a Threshold Rule in the Elastic Security application to dete
 5. Click **Create and activate**.
 
 ### Step 3: Generate Test Data
-Paste and run the following command in **Dev Tools** at least 11 times (or use a simple script) to trigger the rule:
+To trigger the rule (Threshold > 10 in 5m), run this bulk command in **Dev Tools** to ingest 12 failed attempts at once:
 
 ```json
-POST /logs-system.auth-default/_doc
-{
-  "@timestamp": "2026-03-04T10:00:00Z",
-  "event.category": "authentication",
-  "event.outcome": "failure",
-  "source.ip": "192.168.1.50",
-  "user.name": "admin",
-  "message": "Failed password for admin"
-}
+POST /_bulk
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:00Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:05Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:10Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:15Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:20Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:25Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:30Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:35Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:40Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:45Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:50Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
+{ "index" : { "_index" : "logs-system.auth-default" } }
+{ "@timestamp": "2026-03-04T10:00:55Z", "event.category": "authentication", "event.outcome": "failure", "source.ip": "192.168.1.50", "user.name": "admin" }
 ```
 
 ### Expected Output
-After a few minutes, navigate to **Security** > **Alerts**. You should see an alert titled "Brute Force Detection - Failed Logins" flagging the IP `192.168.1.50`.
+1. Navigate to **Security** > **Alerts**.
+2. Change the time range to **Last 15 minutes**.
+3. You should see an alert:
+   - **Rule**: `Brute Force Detection - Failed Logins`
+   - **Reason**: `12 events triggered the threshold of 10`
+   - **Source IP**: `192.168.1.50`
 
 💡 **Why?** Threshold rules are the simplest way to catch high-volume attacks like brute force or port scanning. Grouping by `source.ip` ensures you catch the specific attacker, not just a general spike in Security Information and Event Management (SIEM) failures.

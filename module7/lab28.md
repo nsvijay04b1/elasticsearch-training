@@ -38,6 +38,12 @@ POST /logs-endpoint.events.process-default/_doc
 ```
 
 ### Expected Output
-Navigate to **Security** > **Alerts**. A "Suspicious Certutil Download" alert should appear, showing that `jdoe` on `HR-Laptop-01` attempted a download via a system utility.
+1. Navigate to **Security** > **Alerts**.
+2. Click on the alert name **Suspicious Certutil Download**.
+3. In the flyout, observe:
+   - **Process Interactive**: Shows the full command line with `-urlcache -split`.
+   - **User**: `jdoe`
+   - **Host**: `HR-Laptop-01`
+   - **EQL Match**: Shows exactly why it triggered (matching the process name and args).
 
 💡 **Why?** Attackers prefer using built-in Windows/Linux tools ("Living off the Land") because they are often whitelisted by antivirus. EQL is perfect for correlating these specific process arguments.
