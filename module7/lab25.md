@@ -59,6 +59,8 @@ PUT _ilm/policy/advanced_logs_policy
 }
 ```
 
+**Why?** A multi-phase ILM policy is the foundation of a "Hot-Warm-Cold" architecture. It allows you to keep the most recent data on fast (but expensive) SSDs while automatically moving older data to cheaper, high-capacity HDDs as it becomes less critical.
+
 ### Step 2: Create an Index Template attached to the Policy
 We must ensure that any new logs generated align with the policy we created.
 
