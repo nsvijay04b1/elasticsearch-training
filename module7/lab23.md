@@ -101,3 +101,5 @@ GET app-logs/_search
 
 ### Insights
 By searching the logs associated with `trace-456`, we instantly see that a "Database connection timeout" led to an "Unhandled RuntimeException", explaining the 8.5 second duration and the HTTP 5xx error. This represents the core workflow of APM Log Correlation.
+
+**Why?** Manual debugging across distributed microservices is like finding a needle in a haystack. By correlating logs with traces using a `trace.id`, you can jump directly from a "slow transaction" alert to the exact line of code or log error that caused it, reducing Mean Time To Repair (MTTR) by hours.

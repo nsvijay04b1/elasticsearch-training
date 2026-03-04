@@ -74,3 +74,5 @@ PUT _cluster/settings
 }
 ```
 This procedure is the hallmark of zero-downtime rolling upgrades.
+
+**Why?** In a large cluster, taking one node offline for patching would normally trigger Elasticsearch to start re-replicating all the data that was on that node across the rest of the cluster (causing massive I/O spikes). By disabling allocation during restarts, you save the cluster from this unneeded stress, ensuring the transition is smooth and fast.

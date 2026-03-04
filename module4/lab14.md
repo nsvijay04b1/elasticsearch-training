@@ -42,6 +42,8 @@ POST _query
 # Running Shoe (95) excluded because price <= 100
 ```
 
+**Why?** ES|QL's pipe-based syntax is much more intuitive than the deeply nested JSON of Query DSL. Each stage (separated by `|`) represents a single logical operation, making complex queries far easier to read and maintain.
+
 #### STATS BY — aggregate and group
 STATS is ES|QL's aggregation command. Supports: COUNT, AVG, SUM, MIN, MAX, COUNT_DISTINCT. BY groups the results — equivalent to GROUP BY in SQL.
 ```json
@@ -163,6 +165,8 @@ Apparel       |2            |90.0
 Footwear      |3            |131.67
 ```
 
+**Why?** SQL support makes Elasticsearch accessible to anyone who knows relational databases. It allows you to leverage existing business intelligence tools and developer skills without learning a new query language from scratch.
+
 ---
 
 ### Part 3: EQL (Event Query Language)
@@ -205,6 +209,8 @@ GET /security_events/_eql/search
 }
 ```
 *EQL detected the brute-force login sequence: 2 failures followed by a success from the same user!*
+
+**Why?** EQL is specifically built for event correlation. While Query DSL is great at finding individual matches, EQL excels at finding "patterns over time" (like Step A followed by Step B), which is critical for cybersecurity and fraud detection.
 
 ---
 

@@ -66,6 +66,8 @@ POST /_query?format=txt
 }
 ```
 
+**Why?** This lab introduces ES|QL, the new pipe-based query language. Notice how much easier it is to write `STATS failed_attempts = COUNT(...) BY source.ip` compared to the deeply nested aggregations (terms aggs, value_count aggs) you would need in standard Query DSL.
+
 ### Expected Output
 You should see that the IP `192.168.1.100` is flagged for having 4 failed attempts against the `admin` user.
 

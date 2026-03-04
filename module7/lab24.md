@@ -22,6 +22,8 @@ GET _nodes/hot_threads?threads=3
 - If threads are in `write` or `merge`, the cluster is under heavy indexing pressure.
 - If threads are in `GC` (Garbage Collection), the node is suffering from heap memory pressure.
 
+**Why?** Monitoring dashboards only tell you that a node *is* slow. The `hot_threads` API tells you *where* it is slow. It's a live "X-ray" of the Java process, allowing you to catch problematic queries or internal bottlenecks in real-time.
+
 ### Step 2: Use the Task Management API
 Sometimes a single massive query or reindex operation can drag down performance. The Tasks API shows what is currently executing in the cluster.
 
@@ -62,9 +64,9 @@ GET sample-data/_search
 ### Step 4: Analyze the Profile Output
 Look closely at the JSON response.
 
-1. You will see a `profile` array.
-2. Under `shards` -> `searches` -> `query`, you'll see a time breakdown in nanoseconds.
 3. You will notice the `MultiTermQueryConstantScoreWrapper` taking up the majority of the time, demonstrating the cost of evaluating leading wildcards.
+
+**Why?** The Profile API is essential for query optimization. Instead of guessing why a query is slow, it provides a nanosecond-level breakdown of every Lucene operation, helping you prove to developers that certain patterns (like leading wildcards) are mathematically expensive.
 
 ### Best Practice
 Instead of wildcards, rely on `text` field analysis and standard `match` queries for full-text search, keeping wildcards only for highly specific, bounded use cases.
